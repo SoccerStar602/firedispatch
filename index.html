@@ -2966,7 +2966,7 @@ async function confirmResetPassword() {
   const { error } = await _sb.rpc('reset_user_password', { user_id: resetTargetId, new_password: newPass });
   if (error) {
     // Fallback — show SQL to run
-    showToast('Run in SQL Editor: update auth.users set encrypted_password = crypt(''+newPass+'', gen_salt('bf')) where id = ''+resetTargetId+''');
+    showToast('Run this in Supabase SQL Editor to reset password');
   } else {
     showToast('✓ Password reset successfully');
   }
