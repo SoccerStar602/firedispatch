@@ -630,46 +630,22 @@
 <body>
 <script>
 // ── AUTH GUARD ─────────────────────────────────────
-// Check login before anything loads
 (function() {
   var token = localStorage.getItem('fd_token');
   var profile = localStorage.getItem('fd_profile');
-  if (!token || !profile) {
-    window.location.href = 'fire-dispatch.html';
-    return;
+  if (token && profile) {
+    try {
+      window.FD_PROFILE_PRELOAD = JSON.parse(profile);
+      window.FD_TOKEN_PRELOAD = token;
+    } catch(e) {}
   }
-  try {
-    var p = JSON.parse(profile);
-    window.FD_PROFILE_PRELOAD = p;
-    window.FD_TOKEN_PRELOAD = token;
-  } catch(e) {
-    window.location.href = 'fire-dispatch.html';
-  }
+  // Don't redirect — just run in demo mode if no token
 })();
 // ───────────────────────────────────────────────────
 </script>
 
 
-<!-- AUTH SCREEN -->
-<div class="auth-screen" id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-flame"></div>
-      Fire<span>Dispatch</span>
-    </div>
-    <div class="auth-form">
-      <div class="auth-error" id="auth-error">Invalid email or password. Please try again.</div>
-      <label class="auth-label">Email</label>
-      <input class="auth-input" type="email" id="auth-email" placeholder="you@company.com" autocomplete="email">
-      <label class="auth-label">Password</label>
-      <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
-      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
-      <div class="auth-sub">FireDispatch Pro · Phoenix Metro Area</div>
-    </div>
-  </div>
-</div>
-
+<!-- Auth handled by index.html -->
 <!-- USER MENU MODAL -->
 <div class="modal-overlay" id="user-modal">
   <div class="modal" style="max-width:360px">
@@ -3118,14 +3094,14 @@ async function initAuth() {
   if (session) {
     await loadProfile(session.user);
   } else {
-    showAuthScreen();
+    // showAuthScreen — not used in app page
   }
   _sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await loadProfile(session.user);
     } else if (event === 'SIGNED_OUT') {
       currentUser = null; currentRole = null; currentProfile = null;
-      showAuthScreen();
+      // showAuthScreen — not used in app page
     }
   });
 }
@@ -3134,10 +3110,12 @@ function showAuthScreen() {
   document.getElementById('auth-screen').style.display = 'flex';
 }
 function hideAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'none';
+  var el = document.getElementById('auth-screen');
+  if (el) el.style.display = 'none';
 }
 function hideSplash() {
-  document.getElementById('auth-screen').style.display = 'none';
+  var el = document.getElementById('auth-screen');
+  if (el) el.style.display = 'none';
 }
 
 async function doLogin() {
