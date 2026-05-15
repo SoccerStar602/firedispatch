@@ -582,6 +582,34 @@
   .stat-box { background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center; }
   .stat-box-val { font-family:var(--font-display);font-size:26px;font-weight:800; }
   .stat-box-lbl { font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px; }
+
+  /* TIME TRACKING */
+  .tt-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;flex-shrink:0}
+  .tt-state{display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2)}
+  .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--text3)}
+  .tt-dot.drive{background:var(--blue);animation:pulse 2s infinite}
+  .tt-dot.onsite{background:var(--green);animation:pulse 2s infinite}
+  .tt-timer{font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.05em;min-width:60px}
+  .tt-timer.drive{color:var(--blue)}.tt-timer.onsite{color:var(--green)}
+  .tt-divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+  .tt-summary{font-size:11px;color:var(--text3);display:flex;gap:14px}
+  .offline-banner{background:rgba(245,158,11,0.15);border-bottom:1px solid rgba(245,158,11,0.3);padding:6px 20px;display:none;align-items:center;gap:10px;font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:0.04em;color:var(--amber);flex-shrink:0}
+  .offline-banner.show{display:flex}
+  .offline-sync-badge{background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.3);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700}
+  .timelog-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:10px;overflow:hidden}
+  .timelog-hd{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border)}
+  .timelog-date{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text);flex:1}
+  .timelog-total{font-family:var(--font-display);font-size:13px;font-weight:700;color:#14B8A6}
+  .timelog-body{padding:0}
+  .timelog-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border);font-size:12px}
+  .timelog-row:last-child{border-bottom:none}
+  .timelog-tech{font-weight:600;color:var(--text);width:110px;flex-shrink:0}
+  .timelog-in{color:var(--text3);width:70px;flex-shrink:0}
+  .timelog-out{color:var(--text3);width:70px;flex-shrink:0}
+  .timelog-drive{color:var(--blue);font-family:var(--font-display);font-weight:700;width:60px;flex-shrink:0}
+  .timelog-onsite{color:var(--green);font-family:var(--font-display);font-weight:700;width:60px;flex-shrink:0}
+  .timelog-total-cell{color:#14B8A6;font-family:var(--font-display);font-weight:700;margin-left:auto}
+  .timelog-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
 </style>
 </head>
 <body>
@@ -677,6 +705,46 @@
   </div>
 </div>
 
+
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offline-banner">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+  You are offline — changes are saved locally and will sync when connection returns
+  <span class="offline-sync-badge" id="sync-count" style="display:none">0 pending</span>
+  <button class="btn btn-ghost" style="margin-left:auto;font-size:10px;padding:3px 8px;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="manualSync()">Sync Now</button>
+</div>
+
+<!-- TIME TRACKING BAR -->
+<div class="tt-bar" id="tt-bar" style="display:none">
+  <div class="tt-state">
+    <div class="tt-dot" id="tt-dot"></div>
+    <span id="tt-state-label">Not clocked in</span>
+  </div>
+  <div class="tt-timer" id="tt-timer" style="color:var(--text3)">00:00:00</div>
+  <div class="tt-divider"></div>
+  <div class="tt-summary">
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Drive: <strong id="tt-drive-total" style="color:var(--blue)">0:00</strong></span>
+    <span><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="11" height="11"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> On-Site: <strong id="tt-onsite-total" style="color:var(--green)">0:00</strong></span>
+    <span style="color:var(--text3)">Started: <strong id="tt-start-time" style="color:var(--text2)">—</strong></span>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:6px">
+    <button class="btn btn-ghost btn-sm" id="tt-drive-btn" onclick="ttClockDrive()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Start Drive
+    </button>
+    <button class="btn btn-ghost btn-sm" id="tt-onsite-btn" onclick="ttClockOnsite()" style="display:none" style="color:var(--green);border-color:rgba(34,197,94,0.3)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Arrived On-Site
+    </button>
+    <button class="btn btn-ghost btn-sm" id="tt-end-btn" onclick="ttClockOut()" style="display:none;color:#FF6B6B;border-color:rgba(224,32,32,0.3)">
+      End Day
+    </button>
+    <button class="btn btn-ghost btn-sm" id="tt-clockin-btn" onclick="ttClockIn()" style="background:rgba(34,197,94,0.1);color:var(--green);border-color:rgba(34,197,94,0.3)">
+      Clock In
+    </button>
+  </div>
+</div>
+
 <!-- ALERT TICKER -->
 <div class="alert-ticker">
   <span class="alert-tag">⚡ LIVE</span>
@@ -725,6 +793,10 @@
     <button class="nav-btn" onclick="showPage('sales', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Sales
+    </button>
+    <button class="nav-btn" onclick="showPage('timelog', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Time Log
     </button>
     <button class="nav-btn" onclick="showPage('reports', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -1144,6 +1216,32 @@
         <div class="metric-card"><div class="metric-label">Pipeline Value</div><div class="metric-value" style="color:#A855F7" id="s-value">$0</div></div>
       </div>
       <div class="pipeline-cols" id="pipeline-board"></div>
+    </div>
+
+
+    <div class="page" id="page-timelog">
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between">
+        <div><div class="page-title">Time Log</div><div class="page-sub">Drive time and on-site hours per tech per day</div></div>
+        <button class="btn btn-ghost" onclick="exportTimelog()">Export CSV</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border)">
+        <div class="metric-card"><div class="metric-label">Drive Time Today</div><div class="metric-value blue" id="tl-drive-today">0m</div></div>
+        <div class="metric-card"><div class="metric-label">On-Site Today</div><div class="metric-value green" id="tl-onsite-today">0m</div></div>
+        <div class="metric-card"><div class="metric-label">Total Today</div><div class="metric-value" style="color:#14B8A6" id="tl-total-today">0m</div></div>
+        <div class="metric-card"><div class="metric-label">Total This Week</div><div class="metric-value" style="color:var(--purple)" id="tl-week-total">0m</div></div>
+      </div>
+      <div class="job-board">
+        <div class="section-header">
+          <div class="section-title">Time Entries</div>
+          <div style="display:flex;gap:6px">
+            <select class="form-select" style="width:140px;font-size:11px" id="tl-filter-tech" onchange="renderTimelog()">
+              <option value="">All Techs</option><option>Marcus J.</option><option>Ray K.</option><option>Diane L.</option><option>Sara P.</option><option>Tom N.</option>
+            </select>
+            <input type="date" class="form-input" style="width:150px;font-size:11px" id="tl-filter-date" onchange="renderTimelog()">
+          </div>
+        </div>
+        <div id="timelog-entries"></div>
+      </div>
     </div>
 
   </main>
@@ -2013,6 +2111,7 @@ function showPage(id, btn) {
   if(id === 'profit') renderProfit();
   if(id === 'quotes') renderQuotes();
   if(id === 'sales') renderSales();
+  if(id === 'timelog') renderTimelog();
 }
 function openNewJobModal() { document.getElementById('new-job-modal').classList.add('open'); }
 function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
@@ -3099,6 +3198,8 @@ function bootAsRole(role, info) {
   updateBadges();
   if (role === 'tech') showTechView();
   if (role === 'customer') showCustomerView();
+  maybeShowTTBar();
+  initOffline();
 }
 
 function updateRoleBadge(role, info) {
@@ -3305,6 +3406,172 @@ renderJobsPage();
 renderCustomers();
 renderTechs();
 updateBadges();
+
+// ============================================================
+// TIME TRACKING FUNCTIONS
+// ============================================================
+let TT = JSON.parse(localStorage.getItem('fd_tt') || 'null') || {
+  state:'out', dayStart:null, driveStart:null, onsiteStart:null,
+  driveTotal:0, onsiteTotal:0, entries:[]
+};
+let ttInterval = null;
+function ttSave(){localStorage.setItem('fd_tt',JSON.stringify(TT));}
+function fmtSec(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+  return m+':'+String(sec).padStart(2,'0');
+}
+function fmtSecShort(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
+  if(h>0)return h+'h '+m+'m'; return m+'m';
+}
+function ttShowBar(){
+  const bar=document.getElementById('tt-bar');
+  if(bar)bar.style.display='flex';
+  ttUpdateUI();
+  if(ttInterval)clearInterval(ttInterval);
+  ttInterval=setInterval(ttTick,1000);
+}
+function ttClockIn(){
+  const now=new Date();
+  TT.state='driving';TT.dayStart=now.toISOString();TT.driveStart=now.toISOString();
+  TT.driveTotal=0;TT.onsiteTotal=0;TT.onsiteStart=null;
+  ttSave();ttUpdateUI();showToast('✓ Clocked in — drive timer started');
+}
+function ttClockDrive(){
+  const now=new Date();
+  if(TT.state==='onsite'&&TT.onsiteStart){TT.onsiteTotal+=Math.floor((now-new Date(TT.onsiteStart))/1000);TT.onsiteStart=null;}
+  TT.state='driving';TT.driveStart=now.toISOString();
+  ttSave();ttUpdateUI();showToast('✓ Drive timer started');
+}
+function ttClockOnsite(){
+  const now=new Date();
+  if(TT.driveStart){TT.driveTotal+=Math.floor((now-new Date(TT.driveStart))/1000);TT.driveStart=null;}
+  TT.state='onsite';TT.onsiteStart=now.toISOString();
+  ttSave();ttUpdateUI();showToast('✓ Arrived on-site — on-site timer started');
+}
+function ttClockOut(){
+  const now=new Date();
+  if(TT.state==='driving'&&TT.driveStart)TT.driveTotal+=Math.floor((now-new Date(TT.driveStart))/1000);
+  if(TT.state==='onsite'&&TT.onsiteStart)TT.onsiteTotal+=Math.floor((now-new Date(TT.onsiteStart))/1000);
+  const entry={
+    id:'TE-'+Date.now(), tech:currentProfile?.full_name||'Unknown',
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    dateISO:new Date().toISOString().split('T')[0],
+    startTime:TT.dayStart?new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—',
+    endTime:now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
+    driveSeconds:TT.driveTotal, onsiteSeconds:TT.onsiteTotal,
+    totalSeconds:TT.driveTotal+TT.onsiteTotal
+  };
+  TT.entries.unshift(entry);
+  TT.state='out';TT.dayStart=null;TT.driveStart=null;TT.onsiteStart=null;TT.driveTotal=0;TT.onsiteTotal=0;
+  ttSave();ttUpdateUI();
+  showToast('✓ Day ended — '+fmtSec(entry.totalSeconds)+' total logged');
+}
+function ttTick(){
+  const now=new Date();
+  const driveR=TT.state==='driving'&&TT.driveStart?Math.floor((now-new Date(TT.driveStart))/1000):0;
+  const onsiteR=TT.state==='onsite'&&TT.onsiteStart?Math.floor((now-new Date(TT.onsiteStart))/1000):0;
+  const totalDrive=TT.driveTotal+driveR, totalOnsite=TT.onsiteTotal+onsiteR;
+  const current=TT.state==='driving'?driveR:onsiteR;
+  const timerEl=document.getElementById('tt-timer');
+  const driveEl=document.getElementById('tt-drive-total');
+  const onsiteEl=document.getElementById('tt-onsite-total');
+  if(timerEl){timerEl.textContent=fmtSec(current);timerEl.className='tt-timer '+(TT.state==='driving'?'drive':TT.state==='onsite'?'onsite':'');}
+  if(driveEl)driveEl.textContent=fmtSec(totalDrive);
+  if(onsiteEl)onsiteEl.textContent=fmtSec(totalOnsite);
+}
+function ttUpdateUI(){
+  const dot=document.getElementById('tt-dot');
+  const label=document.getElementById('tt-state-label');
+  const startEl=document.getElementById('tt-start-time');
+  const cinBtn=document.getElementById('tt-clockin-btn');
+  const driveBtn=document.getElementById('tt-drive-btn');
+  const onsiteBtn=document.getElementById('tt-onsite-btn');
+  const endBtn=document.getElementById('tt-end-btn');
+  if(!dot)return;
+  const stateMap={out:{dot:'',label:'Not clocked in',color:'var(--text3)'},driving:{dot:'drive',label:'Driving',color:'var(--blue)'},onsite:{dot:'onsite',label:'On Site',color:'var(--green)'}};
+  const s=stateMap[TT.state]||stateMap.out;
+  dot.className='tt-dot '+s.dot;label.textContent=s.label;label.style.color=s.color;
+  if(startEl&&TT.dayStart)startEl.textContent=new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if(cinBtn)cinBtn.style.display=TT.state==='out'?'inline-flex':'none';
+  if(driveBtn)driveBtn.style.display=TT.state==='onsite'?'inline-flex':'none';
+  if(onsiteBtn)onsiteBtn.style.display=TT.state==='driving'?'inline-flex':'none';
+  if(endBtn)endBtn.style.display=TT.state!=='out'?'inline-flex':'none';
+  ttTick();
+}
+function maybeShowTTBar(){
+  if(currentRole==='tech'||currentRole==='dispatcher'||currentRole==='admin')ttShowBar();
+}
+function renderTimelog(){
+  let entries=[...TT.entries];
+  const filterTech=document.getElementById('tl-filter-tech')?.value;
+  const filterDate=document.getElementById('tl-filter-date')?.value;
+  if(filterTech)entries=entries.filter(e=>e.tech===filterTech);
+  if(filterDate)entries=entries.filter(e=>e.dateISO===filterDate);
+  const todayISO=new Date().toISOString().split('T')[0];
+  const todayE=TT.entries.filter(e=>e.dateISO===todayISO);
+  const dTS=todayE.reduce((s,e)=>s+e.driveSeconds,0);
+  const oTS=todayE.reduce((s,e)=>s+e.onsiteSeconds,0);
+  const tTS=dTS+oTS;
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const wTS=TT.entries.filter(e=>new Date(e.dateISO)>=weekAgo).reduce((s,e)=>s+e.totalSeconds,0);
+  const d=document.getElementById('tl-drive-today');
+  const o=document.getElementById('tl-onsite-today');
+  const t=document.getElementById('tl-total-today');
+  const w=document.getElementById('tl-week-total');
+  if(d)d.textContent=fmtSecShort(dTS);
+  if(o)o.textContent=fmtSecShort(oTS);
+  if(t)t.textContent=fmtSecShort(tTS);
+  if(w)w.textContent=fmtSecShort(wTS);
+  const container=document.getElementById('timelog-entries');
+  if(!container)return;
+  const liveRow=TT.state!=='out'?[{id:'live',tech:currentProfile?.full_name||'You',date:'Today (active)',dateISO:todayISO,startTime:TT.dayStart?new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—',endTime:'—',driveSeconds:TT.driveTotal,onsiteSeconds:TT.onsiteTotal,totalSeconds:TT.driveTotal+TT.onsiteTotal,live:true}]:[];
+  const all=[...liveRow,...entries];
+  if(!all.length){container.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px">No time entries yet — clock in to start tracking</div>';return;}
+  const byDate={};
+  all.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
+  container.innerHTML=Object.entries(byDate).map(([date,rows])=>{
+    const dd=rows.reduce((s,r)=>s+r.driveSeconds,0);
+    const od=rows.reduce((s,r)=>s+r.onsiteSeconds,0);
+    const td=dd+od;
+    return '<div class="timelog-card"><div class="timelog-hd"><div class="timelog-date">'+date+'</div><div style="display:flex;gap:12px;font-size:11px"><span style="color:var(--blue)">Drive: <strong>'+fmtSecShort(dd)+'</strong></span><span style="color:var(--green)">On-Site: <strong>'+fmtSecShort(od)+'</strong></span></div><div class="timelog-total">'+fmtSecShort(td)+' total</div></div><div class="timelog-body"><div style="display:flex;padding:6px 16px;background:var(--bg3);border-bottom:1px solid var(--border)"><span class="timelog-label" style="width:110px">Tech</span><span class="timelog-label" style="width:70px">In</span><span class="timelog-label" style="width:70px">Out</span><span class="timelog-label" style="width:60px">Drive</span><span class="timelog-label" style="width:60px">On-Site</span><span class="timelog-label" style="margin-left:auto">Total</span></div>'+
+    rows.map(r=>'<div class="timelog-row"><div class="timelog-tech">'+r.tech+(r.live?'<span style="font-size:9px;color:var(--green);margin-left:5px;font-family:var(--font-display);font-weight:700">● LIVE</span>':'')+'</div><div class="timelog-in">'+r.startTime+'</div><div class="timelog-out">'+r.endTime+'</div><div class="timelog-drive">'+fmtSecShort(r.driveSeconds)+'</div><div class="timelog-onsite">'+fmtSecShort(r.onsiteSeconds)+'</div><div class="timelog-total-cell">'+fmtSecShort(r.totalSeconds)+'</div></div>').join('')+
+    '</div></div>';
+  }).join('');
+}
+function exportTimelog(){
+  const rows=['Tech,Date,Clock In,Clock Out,Drive Time,On-Site Time,Total'];
+  TT.entries.forEach(e=>{rows.push([e.tech,e.date,e.startTime,e.endTime,fmtSecShort(e.driveSeconds),fmtSecShort(e.onsiteSeconds),fmtSecShort(e.totalSeconds)].join(','));});
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='timelog-'+new Date().toLocaleDateString().replace(/\//g,'-')+'.csv';a.click();
+  showToast('✓ Time log exported as CSV');
+}
+// OFFLINE
+let offlineQueue=JSON.parse(localStorage.getItem('fd_offline_queue')||'[]');
+let isOnline=navigator.onLine;
+function initOffline(){
+  updateOnlineStatus();
+  window.addEventListener('online',()=>{isOnline=true;updateOnlineStatus();processSyncQueue();});
+  window.addEventListener('offline',()=>{isOnline=false;updateOnlineStatus();});
+}
+function updateOnlineStatus(){
+  const banner=document.getElementById('offline-banner');
+  if(!banner)return;
+  if(!isOnline){banner.classList.add('show');const sc=document.getElementById('sync-count');if(sc&&offlineQueue.length>0){sc.style.display='inline-flex';sc.textContent=offlineQueue.length+' pending';}}
+  else banner.classList.remove('show');
+}
+async function processSyncQueue(){
+  if(!isOnline||!offlineQueue.length)return;
+  showToast('Syncing '+offlineQueue.length+' offline changes…');
+  offlineQueue=[];localStorage.setItem('fd_offline_queue','[]');
+  showToast('✓ All changes synced');updateOnlineStatus();
+}
+function manualSync(){if(!isOnline){showToast('Still offline');return;}processSyncQueue();}
+// TIMELOG PAGE
+function page_timelog_init(){renderTimelog();}
+
 </script>
 </body>
 </html>
