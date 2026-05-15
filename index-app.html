@@ -2980,18 +2980,28 @@ async function toggleSuspend(userId, suspend) {
 }
 
 async function adminInviteUser() {
-  const name=document.getElementById('ai-name').value.trim();
-  const email=document.getElementById('ai-email').value.trim();
-  const role=document.getElementById('ai-role').value;
-  const pass=document.getElementById('ai-pass').value||'FireDispatch1!';
-  if(!name||!email){showToast('Enter name and email');return;}
-  const sql='insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data) values ('+
-    "'00000000-0000-0000-0000-000000000000',gen_random_uuid(),'authenticated','authenticated','"+email+"',crypt('"+pass+"',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{}');\n\n"+
-    'insert into profiles (id,full_name,role) select id,''+name+'',''+role+'' from auth.users where email=''+email+'';';
-  if(navigator.clipboard){try{await navigator.clipboard.writeText(sql);}catch(e){}}
-  showToast('SQL copied — paste into Supabase SQL Editor');
-  const inv=document.getElementById('admin-invite');
-  if(inv){const box=document.createElement('div');box.className='admin-card';box.style.cssText='max-width:520px;border-color:rgba(34,197,94,0.3);margin-top:12px';box.innerHTML='<div class="admin-card-title" style="color:var(--green)">SQL ready for '+name+'</div><pre style="background:var(--bg4);padding:10px;font-size:10px;color:#2DD4BF;overflow-x:auto;white-space:pre-wrap;border-radius:5px">'+sql+'</pre>';inv.appendChild(box);}
+  var name = document.getElementById('ai-name').value.trim();
+  var email = document.getElementById('ai-email').value.trim();
+  var role = document.getElementById('ai-role').value;
+  var pass = document.getElementById('ai-pass').value || 'FireDispatch1!';
+  if (!name || !email) { showToast('Enter name and email'); return; }
+  showToast('Check the instructions below to add this user');
+  var inv = document.getElementById('admin-invite');
+  if (inv) {
+    var box = document.createElement('div');
+    box.className = 'admin-card';
+    box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.3);margin-top:12px';
+    var sqlLine = 'insert into profiles (id,full_name,role) select id,' + JSON.stringify(name) + ',' + JSON.stringify(role) + ' from auth.users where email=' + JSON.stringify(email) + ';';
+    box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">How to add ' + name + '</div>' +
+      '<div style="font-size:12px;color:var(--text2);line-height:1.8">' +
+      '<b style="color:var(--text)">1.</b> Supabase > Auth > Users > Add user<br>' +
+      '<b style="color:var(--text)">2.</b> Email: <span style="color:var(--teal)">' + email + '</span><br>' +
+      '<b style="color:var(--text)">3.</b> Password: <span style="color:var(--teal)">' + pass + '</span> | Check Auto Confirm<br>' +
+      '<b style="color:var(--text)">4.</b> SQL Editor > Run:<br>' +
+      '<pre style="background:var(--bg4);padding:8px;border-radius:4px;font-size:10px;color:#2DD4BF;margin-top:4px;white-space:pre-wrap">' + sqlLine + '</pre>' +
+      '</div>';
+    inv.appendChild(box);
+  }
 }
 
 function doLogout() {
