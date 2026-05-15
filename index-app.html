@@ -2885,22 +2885,38 @@ async function loadAdminUsers() {
   const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
   const roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
 
-  if (!SUPA_CONFIGURED) {
-    adminUsers = [
-      { id:'demo-1', full_name:'Owen Norris', email:'owennorris85284@gmail.com', role:'admin', suspended:false, created_at: new Date().toISOString() },
-    ];
-  } else {
-    const { data, error } = await _sb.from('profiles').select('*');
-    if (error) { list.innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${error.message}</div>`; return; }
-    // Get emails from auth — we store what we can
-    adminUsers = data || [];
-  }
+  // Start with current user from localStorage
+  var profile = {};
+  var user = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
+  
+  adminUsers = [{ 
+    id: user.id || 'current', 
+    full_name: profile.full_name || 'Owen Norris', 
+    email: user.email || '', 
+    role: profile.role || 'dispatcher', 
+    suspended: false, 
+    created_at: new Date().toISOString() 
+  }];
 
   document.getElementById('stat-total').textContent = adminUsers.length;
-  document.getElementById('stat-active').textContent = adminUsers.filter(u => !u.suspended).length;
-  document.getElementById('stat-suspended').textContent = adminUsers.filter(u => u.suspended).length;
-
+  document.getElementById('stat-active').textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
+  document.getElementById('stat-suspended').textContent = adminUsers.filter(function(u){return u.suspended;}).length;
   renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
+
+  // Try to load from Supabase in background
+  if (_sb && SUPA_CONFIGURED) {
+    _sb.from('profiles').select('*').then(function(result) {
+      if (!result.error && result.data && result.data.length > 0) {
+        adminUsers = result.data;
+        document.getElementById('stat-total').textContent = adminUsers.length;
+        document.getElementById('stat-active').textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
+        document.getElementById('stat-suspended').textContent = adminUsers.filter(function(u){return u.suspended;}).length;
+        renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
+      }
+    }).catch(function(e){ console.warn('Supabase users load failed:', e); });
+  }
 }
 
 function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
