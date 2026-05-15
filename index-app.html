@@ -628,24 +628,28 @@
 </style>
 </head>
 <body>
-<script>
-// ── AUTH GUARD ─────────────────────────────────────
-(function() {
-  var token = localStorage.getItem('fd_token');
-  var profile = localStorage.getItem('fd_profile');
-  if (token && profile) {
-    try {
-      window.FD_PROFILE_PRELOAD = JSON.parse(profile);
-      window.FD_TOKEN_PRELOAD = token;
-    } catch(e) {}
-  }
-  // Don't redirect — just run in demo mode if no token
-})();
-// ───────────────────────────────────────────────────
-</script>
 
 
-<!-- Auth handled by index.html -->
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-flame"></div>
+      Fire<span>Dispatch</span>
+    </div>
+    <div class="auth-form">
+      <div class="auth-error" id="auth-error">Invalid email or password. Please try again.</div>
+      <label class="auth-label">Email</label>
+      <input class="auth-input" type="email" id="auth-email" placeholder="you@company.com" autocomplete="email">
+      <label class="auth-label">Password</label>
+      <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
+      <div class="auth-sub">FireDispatch Pro · Phoenix Metro Area</div>
+    </div>
+  </div>
+</div>
+
 <!-- USER MENU MODAL -->
 <div class="modal-overlay" id="user-modal">
   <div class="modal" style="max-width:360px">
@@ -2961,7 +2965,7 @@ async function confirmResetPassword() {
   const { error } = await _sb.rpc('reset_user_password', { user_id: resetTargetId, new_password: newPass });
   if (error) {
     // Fallback — show SQL to run
-    showToast('Run SQL to reset password')) where id = ''+resetTargetId+''');
+    showToast('Password reset failed');
   } else {
     showToast('✓ Password reset successfully');
   }
@@ -2976,31 +2980,27 @@ async function toggleSuspend(userId, suspend) {
 }
 
 async function adminInviteUser() {
-  const name  = document.getElementById('ai-name').value.trim();
-  const email = document.getElementById('ai-email').value.trim();
-  const role  = document.getElementById('ai-role').value;
-  const pass  = document.getElementById('ai-pass').value || 'FireDispatch1!';
-  if (!name || !email) { showToast('Enter name and email'); return; }
-
-  const step1 = "insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data) values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', '" + email + "', crypt('" + pass + "', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}');";
-  const step2 = "insert into profiles (id, full_name, role) select id, '" + name + "', '" + role + "' from auth.users where email = '" + email + "';";
-  const sql = step1 + "\n\n" + step2;
-
-  if (navigator.clipboard) {
-    try { await navigator.clipboard.writeText(sql); } catch(e) {}
-  }
-
+  const name=document.getElementById('ai-name').value.trim();
+  const email=document.getElementById('ai-email').value.trim();
+  const role=document.getElementById('ai-role').value;
+  const pass=document.getElementById('ai-pass').value||'FireDispatch1!';
+  if(!name||!email){showToast('Enter name and email');return;}
+  const sql='insert into auth.users (instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data) values ('+
+    "'00000000-0000-0000-0000-000000000000',gen_random_uuid(),'authenticated','authenticated','"+email+"',crypt('"+pass+"',gen_salt('bf')),now(),now(),now(),'{"provider":"email","providers":["email"]}','{}');\n\n"+
+    'insert into profiles (id,full_name,role) select id,''+name+'',''+role+'' from auth.users where email=''+email+'';';
+  if(navigator.clipboard){try{await navigator.clipboard.writeText(sql);}catch(e){}}
   showToast('SQL copied — paste into Supabase SQL Editor');
-
-  const inv = document.getElementById('admin-invite');
-  if (inv) {
-    const box = document.createElement('div');
-    box.className = 'admin-card';
-    box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.3);margin-top:12px';
-    box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">Run this SQL in Supabase to create ' + name + '</div>' +
-      '<pre style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:10px;color:#2DD4BF;overflow-x:auto;white-space:pre-wrap;line-height:1.6">' + sql + '</pre>' +
-      '<p style="font-size:11px;color:var(--text2);margin-top:8px">Role: <strong>' + role + '</strong> | Temp password: <strong>' + pass + '</strong></p>';
-    inv.appendChild(box);
-  }
+  const inv=document.getElementById('admin-invite');
+  if(inv){const box=document.createElement('div');box.className='admin-card';box.style.cssText='max-width:520px;border-color:rgba(34,197,94,0.3);margin-top:12px';box.innerHTML='<div class="admin-card-title" style="color:var(--green)">SQL ready for '+name+'</div><pre style="background:var(--bg4);padding:10px;font-size:10px;color:#2DD4BF;overflow-x:auto;white-space:pre-wrap;border-radius:5px">'+sql+'</pre>';inv.appendChild(box);}
 }
 
+function doLogout() {
+  localStorage.removeItem('fd_token');
+  localStorage.removeItem('fd_profile');
+  localStorage.removeItem('fd_user');
+  if(typeof closeModal==='function') closeModal('user-modal');
+  showToast('Signed out');
+  setTimeout(function(){ window.location.href='index.html'; }, 600);
+}
+</script>
+</body>
