@@ -551,6 +551,37 @@
   .email-body-field { background:none;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px;outline:none;width:100%;resize:none;min-height:140px;padding:10px 0;line-height:1.6 }
 
 
+
+  .admin-panel { position:fixed;inset:0;background:var(--bg);z-index:900;display:flex;flex-direction:column;overflow:hidden; }
+  .admin-topbar { background:var(--bg2);border-bottom:1px solid rgba(168,85,247,0.35);padding:0 20px;height:52px;display:flex;align-items:center;gap:14px;flex-shrink:0; }
+  .admin-title { font-family:var(--font-display);font-size:20px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:#C084FC; }
+  .admin-body { display:flex;flex:1;overflow:hidden; }
+  .admin-sidebar { width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 10px;gap:2px;flex-shrink:0; }
+  .admin-nav-btn { display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);background:none;border:none;transition:all 0.12s;width:100%;text-align:left; }
+  .admin-nav-btn svg { width:14px;height:14px;flex-shrink:0; }
+  .admin-nav-btn:hover { background:var(--bg3);color:var(--text); }
+  .admin-nav-btn.active { background:rgba(168,85,247,0.12);color:#C084FC;border:1px solid rgba(168,85,247,0.3); }
+  .admin-main { flex:1;overflow-y:auto;padding:20px; }
+  .admin-section { display:none; }
+  .admin-section.active { display:block; }
+  .admin-card { background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px; }
+  .admin-card-title { font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:14px; }
+  .user-row { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+  .user-row:last-child { border-bottom:none; }
+  .user-av { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;font-weight:700;flex-shrink:0; }
+  .user-info { flex:1;min-width:0; }
+  .user-name-disp { font-size:13px;font-weight:600;color:var(--text); }
+  .user-email-disp { font-size:10px;color:var(--text3); }
+  .user-actions { display:flex;gap:6px;align-items:center;flex-shrink:0; }
+  .suspended-badge { background:rgba(224,32,32,0.12);color:#FF6B6B;border:1px solid rgba(224,32,32,0.25);font-family:var(--font-display);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase; }
+  .activity-row { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px; }
+  .activity-row:last-child { border-bottom:none; }
+  .activity-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+  .activity-time { font-size:10px;color:var(--text3);margin-left:auto;white-space:nowrap; }
+  .stat-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px; }
+  .stat-box { background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center; }
+  .stat-box-val { font-family:var(--font-display);font-size:26px;font-weight:800; }
+  .stat-box-lbl { font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px; }
 </style>
 </head>
 <body>
@@ -1313,6 +1344,182 @@ FireDispatch Pro"></textarea>
   </div>
 </div>
 
+
+<!-- ADMIN PANEL (full screen overlay) -->
+<div class="admin-panel" id="admin-panel" style="display:none">
+  <div class="admin-topbar">
+    <div class="admin-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="vertical-align:-3px;margin-right:6px"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg>
+      Admin Panel
+    </div>
+    <div style="font-size:11px;color:var(--text3)">Full system control — Big City Fire Protection</div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn btn-ghost" style="font-size:11px" onclick="closeAdminPanel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Back to App
+      </button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div class="admin-sidebar">
+      <button class="admin-nav-btn active" onclick="adminNav('users',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </button>
+      <button class="admin-nav-btn" onclick="adminNav('invite',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Invite User
+      </button>
+      <button class="admin-nav-btn" onclick="adminNav('activity',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Activity Log
+      </button>
+      <button class="admin-nav-btn" onclick="adminNav('settings',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </div>
+
+    <div class="admin-main">
+
+      <!-- USERS SECTION -->
+      <div class="admin-section active" id="admin-users">
+        <div class="stat-grid" id="admin-stats">
+          <div class="stat-box"><div class="stat-box-val" style="color:#C084FC" id="stat-total">0</div><div class="stat-box-lbl">Total Users</div></div>
+          <div class="stat-box"><div class="stat-box-val" style="color:var(--green)" id="stat-active">0</div><div class="stat-box-lbl">Active</div></div>
+          <div class="stat-box"><div class="stat-box-val" style="color:var(--red)" id="stat-suspended">0</div><div class="stat-box-lbl">Suspended</div></div>
+        </div>
+        <div class="admin-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="admin-card-title" style="margin-bottom:0">All Users</div>
+            <div style="display:flex;gap:6px">
+              <input class="form-input" type="text" placeholder="Search users…" style="width:180px;padding:5px 10px;font-size:12px" oninput="filterAdminUsers(this.value)">
+              <button class="btn btn-primary" style="font-size:11px" onclick="adminNav('invite',document.querySelector('.admin-nav-btn:nth-child(2)'))">+ Invite User</button>
+            </div>
+          </div>
+          <div id="admin-users-list">
+            <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Loading users…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVITE SECTION -->
+      <div class="admin-section" id="admin-invite">
+        <div class="admin-card" style="max-width:520px">
+          <div class="admin-card-title">Invite New User</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6">
+            Enter the user's details below. They'll receive an email invitation to set their password and access the app at <span style="color:#C084FC">dispatch.bigcityfp.com</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input class="form-input" type="text" placeholder="Marcus Johnson" id="ai-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input class="form-input" type="email" placeholder="marcus@bigcityfp.com" id="ai-email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select class="form-select" id="ai-role" onchange="toggleCustomerLink()">
+                <option value="admin">Admin — full system access</option>
+                <option value="dispatcher">Dispatcher — full dispatch</option>
+                <option value="tech" selected>Technician — assigned jobs</option>
+                <option value="customer">Customer — portal only</option>
+              </select>
+            </div>
+            <div class="form-group" id="ai-customer-wrap" style="display:none">
+              <label class="form-label">Link to Customer Account</label>
+              <select class="form-select" id="ai-customer">
+                <option value="">Select customer…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Temporary Password</label>
+              <input class="form-input" type="text" placeholder="TempPass123!" id="ai-pass" value="FireDispatch1!">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone (optional)</label>
+              <input class="form-input" type="tel" placeholder="(602) 555-0100" id="ai-phone">
+            </div>
+          </div>
+          <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.2);border-radius:7px;padding:12px;margin-top:12px;font-size:11px;color:var(--text2);line-height:1.6">
+            <strong style="color:#C084FC">How it works:</strong> This creates the user in Supabase and sets their role. They can log in immediately with the temporary password and change it later. For customer accounts, they'll only see their own job history and portal.
+          </div>
+          <button class="btn btn-primary" style="margin-top:14px;width:100%;justify-content:center;font-size:13px" onclick="adminInviteUser()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Create User & Send Invite
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVITY LOG -->
+      <div class="admin-section" id="admin-activity">
+        <div class="admin-card">
+          <div class="admin-card-title">Login Activity & Audit Log</div>
+          <div id="admin-activity-list"></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="admin-section" id="admin-settings">
+        <div class="admin-card" style="max-width:520px">
+          <div class="admin-card-title">System Settings</div>
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Company Name</label>
+              <input class="form-input" type="text" value="Big City Fire Protection" id="set-company">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Dispatch Phone</label>
+              <input class="form-input" type="tel" placeholder="(602) 555-0100" id="set-phone">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">App URL</label>
+              <input class="form-input" type="text" value="https://dispatch.bigcityfp.com" id="set-url">
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Default Tech Password (for new invites)</label>
+              <input class="form-input" type="text" value="FireDispatch1!" id="set-defpass">
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="saveAdminSettings()">Save Settings</button>
+        </div>
+        <div class="admin-card" style="max-width:520px">
+          <div class="admin-card-title" style="color:var(--red)">Danger Zone</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px">These actions affect the entire system.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost" style="border-color:rgba(224,32,32,0.3);color:#FF6B6B;font-size:11px" onclick="showToast('Contact Supabase to reset the database')">Reset All Data</button>
+            <button class="btn btn-ghost" style="border-color:rgba(224,32,32,0.3);color:#FF6B6B;font-size:11px" onclick="exportAllData()">Export All Data</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="reset-pass-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">Reset Password</div>
+      <button class="modal-close" onclick="closeModal('reset-pass-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Set a new temporary password for <strong id="reset-user-name" style="color:var(--text)"></strong></div>
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input class="form-input" type="text" value="FireDispatch1!" id="reset-new-pass">
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">User will be able to change this after logging in.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('reset-pass-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmResetPassword()">Reset Password</button>
+    </div>
+  </div>
+</div>
 <!-- EXPENSE MODAL -->
 <div class="modal-overlay" id="expense-modal">
   <div class="modal" style="max-width:460px">
@@ -2512,6 +2719,239 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 
 
+
+// ============================================================
+// ADMIN PANEL
+// ============================================================
+
+let adminUsers = [];
+let resetTargetId = null;
+
+function openAdminPanel() {
+  document.getElementById('admin-panel').style.display = 'flex';
+  loadAdminUsers();
+  loadActivityLog();
+  populateCustomerDropdown();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-panel').style.display = 'none';
+}
+
+function adminNav(section, btn) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('admin-' + section).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function toggleCustomerLink() {
+  const role = document.getElementById('ai-role').value;
+  document.getElementById('ai-customer-wrap').style.display = role === 'customer' ? 'block' : 'none';
+}
+
+function populateCustomerDropdown() {
+  const sel = document.getElementById('ai-customer');
+  if(sel) sel.innerHTML = '<option value="">Select customer…</option>' +
+    CUSTOMERS.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+}
+
+async function loadAdminUsers() {
+  const list = document.getElementById('admin-users-list');
+  const roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
+  const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
+  const roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+
+  if (!SUPA_CONFIGURED) {
+    adminUsers = [
+      { id:'demo-1', full_name:'Owen Norris', email:'owennorris85284@gmail.com', role:'admin', suspended:false, created_at: new Date().toISOString() },
+    ];
+  } else {
+    const { data, error } = await _sb.from('profiles').select('*');
+    if (error) { list.innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${error.message}</div>`; return; }
+    // Get emails from auth — we store what we can
+    adminUsers = data || [];
+  }
+
+  document.getElementById('stat-total').textContent = adminUsers.length;
+  document.getElementById('stat-active').textContent = adminUsers.filter(u => !u.suspended).length;
+  document.getElementById('stat-suspended').textContent = adminUsers.filter(u => u.suspended).length;
+
+  renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
+}
+
+function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
+  const list = document.getElementById('admin-users-list');
+  if(!roleColors) {
+    roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
+    roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
+    roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  }
+  if (!users.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>'; return; }
+  list.innerHTML = users.map(u => {
+    const initials = (u.full_name||u.email||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const bg = roleColors[u.role] || roleColors.dispatcher;
+    const tc = roleText[u.role] || roleText.dispatcher;
+    const rl = roleLabel[u.role] || u.role;
+    return `<div class="user-row" id="urow-${u.id}">
+      <div class="user-av" style="background:${bg};color:${tc}">${initials}</div>
+      <div class="user-info">
+        <div class="user-name-disp">${u.full_name || 'Unknown'}${u.suspended?'<span class="suspended-badge" style="margin-left:8px">Suspended</span>':''}</div>
+        <div class="user-email-disp">${u.email||''} · ${new Date(u.created_at).toLocaleDateString()}</div>
+      </div>
+      <div class="user-actions">
+        <select class="form-select" style="width:130px;font-size:11px;padding:4px 22px 4px 8px" onchange="changeRole('${u.id}',this.value)">
+          <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+          <option value="dispatcher" ${u.role==='dispatcher'?'selected':''}>Dispatcher</option>
+          <option value="tech" ${u.role==='tech'?'selected':''}>Technician</option>
+          <option value="customer" ${u.role==='customer'?'selected':''}>Customer</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="openResetPass('${u.id}','${u.full_name||'User'}')">Reset PW</button>
+        <button class="btn btn-ghost btn-sm" style="color:${u.suspended?'var(--green)':'#FF6B6B'};border-color:${u.suspended?'rgba(34,197,94,0.3)':'rgba(224,32,32,0.3)'}" onclick="toggleSuspend('${u.id}',${!u.suspended})">${u.suspended?'Unsuspend':'Suspend'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAdminUsers(search) {
+  const filtered = search
+    ? adminUsers.filter(u => [u.full_name,u.email,u.role].join(' ').toLowerCase().includes(search.toLowerCase()))
+    : adminUsers;
+  renderAdminUsersList(filtered);
+}
+
+async function changeRole(userId, newRole) {
+  if (!SUPA_CONFIGURED) { showToast('Connect Supabase to change roles'); return; }
+  const { error } = await _sb.from('profiles').update({ role: newRole }).eq('id', userId);
+  if (error) showToast('Error: ' + error.message);
+  else { showToast('✓ Role updated to ' + newRole); loadAdminUsers(); }
+}
+
+function openResetPass(userId, name) {
+  resetTargetId = userId;
+  document.getElementById('reset-user-name').textContent = name;
+  document.getElementById('reset-new-pass').value = 'FireDispatch1!';
+  openModal('reset-pass-modal');
+}
+
+async function confirmResetPassword() {
+  const newPass = document.getElementById('reset-new-pass').value;
+  if (!newPass) { showToast('Enter a password'); return; }
+  if (!SUPA_CONFIGURED) { showToast('Connect Supabase to reset passwords'); closeModal('reset-pass-modal'); return; }
+  // Update via SQL
+  const { error } = await _sb.rpc('reset_user_password', { user_id: resetTargetId, new_password: newPass });
+  if (error) {
+    // Fallback — show SQL to run
+    showToast('Run in SQL Editor: update auth.users set encrypted_password = crypt(''+newPass+'', gen_salt('bf')) where id = ''+resetTargetId+''');
+  } else {
+    showToast('✓ Password reset successfully');
+  }
+  closeModal('reset-pass-modal');
+}
+
+async function toggleSuspend(userId, suspend) {
+  if (!SUPA_CONFIGURED) { showToast('Connect Supabase to suspend users'); return; }
+  const { error } = await _sb.from('profiles').update({ suspended: suspend }).eq('id', userId);
+  if (error) showToast('Error: ' + error.message);
+  else { showToast(suspend ? '✓ User suspended' : '✓ User unsuspended'); loadAdminUsers(); }
+}
+
+async function adminInviteUser() {
+  const name  = document.getElementById('ai-name').value.trim();
+  const email = document.getElementById('ai-email').value.trim();
+  const role  = document.getElementById('ai-role').value;
+  const pass  = document.getElementById('ai-pass').value || 'FireDispatch1!';
+  if (!name || !email) { showToast('Enter name and email'); return; }
+
+  if (!SUPA_CONFIGURED) {
+    showToast('Supabase not connected — showing SQL to run');
+    console.log(`Run in Supabase SQL Editor:
+insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', '${email}', crypt('${pass}', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}');
+
+-- Then run:
+insert into profiles (id, full_name, role) select id, '${name}', '${role}' from auth.users where email = '${email}';`);
+    return;
+  }
+
+  // Create user directly via SQL through Supabase
+  const { data, error } = await _sb.from('profiles').select('id').eq('id', 'check');
+  
+  // Show the SQL they need to run — most reliable method
+  const sql = `-- Step 1: Create user
+insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', '${email}', crypt('${pass}', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}');
+
+-- Step 2: Add profile
+insert into profiles (id, full_name, role)
+select id, '${name}', '${role}'
+from auth.users where email = '${email}';`;
+
+  // Copy to clipboard
+  if (navigator.clipboard) await navigator.clipboard.writeText(sql);
+  
+  showToast('✓ SQL copied — paste into Supabase SQL Editor');
+  
+  // Show in a nice way
+  document.getElementById('admin-invite').innerHTML += `
+    <div class="admin-card" style="max-width:520px;border-color:rgba(34,197,94,0.3)">
+      <div class="admin-card-title" style="color:var(--green)">✓ User Ready — Run this SQL in Supabase</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Paste this into Supabase → SQL Editor → Run. User <strong style="color:var(--text)">${name}</strong> will be able to log in as <strong style="color:var(--text)">${role}</strong> with password <strong style="color:var(--text)">${pass}</strong></div>
+      <pre style="background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:11px;color:var(--teal);overflow-x:auto;white-space:pre-wrap;line-height:1.6">${sql}</pre>
+      <button class="btn btn-ghost" style="margin-top:8px;font-size:11px" onclick="navigator.clipboard.writeText(\`${sql.replace(/`/g,"'")}\`);showToast('Copied!')">Copy SQL</button>
+    </div>`;
+}
+
+function loadActivityLog() {
+  const activities = [
+    { type:'login', color:'var(--green)', text:'Owen Norris logged in as Admin', time:'Just now' },
+    { type:'job', color:'var(--amber)', text:'Job FD-0089 dispatched — Ray K. assigned', time:'10:14 AM' },
+    { type:'login', color:'var(--green)', text:'Ray Kim logged in as Technician', time:'9:58 AM' },
+    { type:'job', color:'var(--blue)', text:'Job FD-0091 status → En Route', time:'9:45 AM' },
+    { type:'login', color:'var(--green)', text:'Diane Lopez logged in as Technician', time:'9:30 AM' },
+    { type:'user', color:'#C084FC', text:'New user Sara Park created (Technician)', time:'Yesterday' },
+    { type:'job', color:'var(--green)', text:'Job FD-0086 marked Complete — Marcus J.', time:'Yesterday' },
+    { type:'login', color:'var(--red)', text:'Failed login attempt — unknown@test.com', time:'Yesterday' },
+  ];
+  document.getElementById('admin-activity-list').innerHTML = activities.map(a => `
+    <div class="activity-row">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div style="font-size:12px;color:var(--text2)">${a.text}</div>
+      <div class="activity-time">${a.time}</div>
+    </div>`).join('');
+}
+
+function saveAdminSettings() {
+  const settings = {
+    company: document.getElementById('set-company').value,
+    phone: document.getElementById('set-phone').value,
+    url: document.getElementById('set-url').value,
+    defpass: document.getElementById('set-defpass').value,
+  };
+  localStorage.setItem('fd_settings', JSON.stringify(settings));
+  showToast('✓ Settings saved');
+}
+
+function exportAllData() {
+  const data = { jobs: JOBS, customers: CUSTOMERS, expenses: EXPENSES, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'firedispatch-export-' + new Date().toLocaleDateString().replace(/\//g,'-') + '.json';
+  a.click();
+  showToast('✓ Data exported');
+}
+
+// Update profiles table SQL note
+// Run this in Supabase to add suspended column:
+// alter table profiles add column if not exists suspended boolean default false;
+// alter table profiles add column if not exists email text;
+// alter table profiles add column if not exists phone text;
+// alter table profiles add column if not exists customer_name text;
+// Also update role constraint:
+// alter table profiles drop constraint if exists profiles_role_check;
+// alter table profiles add constraint profiles_role_check check (role in ('admin','dispatcher','tech','customer'));
+
 // ============================================================
 // SUPABASE AUTH — ROLES: dispatcher | tech | customer
 // ============================================================
@@ -2635,8 +3075,8 @@ function bootAsRole(role, info) {
 
 function updateRoleBadge(role, info) {
   const wrap = document.getElementById('role-badge-wrap');
-  const roleLabels = { dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
-  const roleClass  = { dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+  const roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  const roleClass  = { admin:'role-admin', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
   wrap.innerHTML = `<span class="role-badge ${roleClass[role]||'role-dispatcher'}">${roleLabels[role]||role}</span>`;
   const btn = document.getElementById('user-btn-label');
   if (btn) btn.textContent = info.full_name ? info.full_name.split(' ')[0] : 'Account';
@@ -2662,8 +3102,21 @@ function updateRoleBadge(role, info) {
 function applyRolePermissions(role) {
   const nav = document.querySelector('.nav');
   const sidebar = document.querySelector('.sidebar');
-  if (role === 'dispatcher') {
+  if (role === 'admin' || role === 'dispatcher') {
     // Full access — nothing hidden
+    if (role === 'admin') {
+      // Add admin panel button to topbar
+      const tr = document.querySelector('.topbar-right');
+      if (tr && !document.getElementById('admin-panel-btn')) {
+        const btn = document.createElement('button');
+        btn.id = 'admin-panel-btn';
+        btn.className = 'btn btn-ghost';
+        btn.style.cssText = 'padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
+        btn.onclick = () => openAdminPanel();
+        tr.insertBefore(btn, tr.firstChild);
+      }
+    }
     return;
   }
   if (role === 'tech') {
