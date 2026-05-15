@@ -12,13 +12,29 @@
 <link rel="apple-touch-icon" href="icons/icon-192.svg">
 <title>FireDispatch Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // ── PASTE YOUR SUPABASE KEYS HERE ──────────────────────────
   const SUPABASE_URL = 'https://xunjfqdppaoewppuuvph.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv';
   // ───────────────────────────────────────────────────────────
-  const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPA_KEYS_SET = SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="initSupabase()" onerror="supabaseLoadFailed()"></script>
+<script>
+  let _sb = null;
+  function initSupabase() {
+    try {
+      _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      console.log('Supabase ready');
+    } catch(e) {
+      console.error('Supabase init failed:', e);
+      _sb = null;
+    }
+  }
+  function supabaseLoadFailed() {
+    console.warn('Supabase CDN failed to load — running in offline/demo mode');
+    _sb = null;
+  }
 </script>
 <style>
   :root {
@@ -631,7 +647,7 @@
 
 
 <!-- AUTH SCREEN -->
-<div class="auth-screen" id="auth-screen">
+<div class="auth-screen" id="auth-screen" style="display:flex">
   <div class="auth-card">
     <div class="auth-logo">
       <div class="auth-flame"></div>
@@ -3084,12 +3100,16 @@ let currentRole = null;
 let currentProfile = null;
 
 // Check if keys are configured
-const SUPA_CONFIGURED = SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co';
+// SUPA_CONFIGURED is now SUPA_KEYS_SET defined in the head script
+const SUPA_CONFIGURED = typeof SUPA_KEYS_SET !== 'undefined' ? SUPA_KEYS_SET : false;
 
 async function initAuth() {
-  if (!SUPA_CONFIGURED) {
-    // Dev mode — skip auth, show as dispatcher
-    console.warn('Supabase not configured. Running in demo mode as dispatcher.');
+  // Wait a moment for Supabase SDK to load if needed
+  if (!_sb && SUPA_KEYS_SET) {
+    await new Promise(r => setTimeout(r, 1500));
+  }
+  if (!SUPA_CONFIGURED || !_sb || !SUPA_KEYS_SET) {
+    console.warn('Running in demo mode');
     hideSplash();
     bootAsRole('dispatcher', { full_name: 'Demo Dispatcher', email: 'demo@firedispatch.app' });
     return;
@@ -3144,10 +3164,17 @@ async function doLogin() {
   if (status) status.textContent = 'Contacting Supabase…';
 
   try {
-    if (!SUPA_CONFIGURED) {
+    if (!SUPA_CONFIGURED || !_sb) {
       if (status) status.textContent = 'Demo mode — loading…';
       hideAuthScreen();
       bootAsRole('dispatcher', { full_name: 'Demo Dispatcher', email: email });
+      return;
+    }
+    // Check if Supabase is actually ready
+    if (!_sb || !_sb.auth) {
+      showAuthError('Connection error — please refresh the page and try again');
+      if (status) status.textContent = 'Supabase not ready — refresh page';
+      btn.disabled = false; btn.textContent = 'Sign In';
       return;
     }
 
