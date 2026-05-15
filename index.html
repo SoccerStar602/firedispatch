@@ -18,24 +18,9 @@
   const SUPABASE_KEY = 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv';
   // ───────────────────────────────────────────────────────────
   const SUPA_KEYS_SET = SUPABASE_URL !== 'https://YOUR_PROJECT.supabase.co';
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="initSupabase()" onerror="supabaseLoadFailed()"></script>
-<script>
   let _sb = null;
-  function initSupabase() {
-    try {
-      _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log('Supabase ready');
-    } catch(e) {
-      console.error('Supabase init failed:', e);
-      _sb = null;
-    }
-  }
-  function supabaseLoadFailed() {
-    console.warn('Supabase CDN failed to load — running in offline/demo mode');
-    _sb = null;
-  }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --red: #E02020;
@@ -658,8 +643,8 @@
       <label class="auth-label">Email</label>
       <input class="auth-input" type="email" id="auth-email" placeholder="you@company.com" autocomplete="email">
       <label class="auth-label">Password</label>
-      <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
+      <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" id="auth-password-input">
+      <button class="auth-btn" id="auth-btn" type="button">Sign In</button>
       <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
       <div class="auth-sub">FireDispatch Pro · Phoenix Metro Area</div>
     </div>
@@ -3100,8 +3085,7 @@ let currentRole = null;
 let currentProfile = null;
 
 // Check if keys are configured
-// SUPA_CONFIGURED is now SUPA_KEYS_SET defined in the head script
-const SUPA_CONFIGURED = typeof SUPA_KEYS_SET !== 'undefined' ? SUPA_KEYS_SET : false;
+const SUPA_CONFIGURED = SUPA_KEYS_SET && _sb !== null;
 
 async function initAuth() {
   // Wait a moment for Supabase SDK to load if needed
@@ -3449,7 +3433,16 @@ async function inviteUser() {
 }
 
 
-// Init — now handled by initAuth()
+// Init — Supabase first, then auth
+try {
+  if (typeof supabase !== 'undefined' && SUPA_KEYS_SET) {
+    _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log('Supabase client ready');
+  }
+} catch(e) {
+  console.error('Supabase init error:', e);
+  _sb = null;
+}
 initAuth();
 
 renderJobsPage();
@@ -3622,6 +3615,14 @@ function manualSync(){if(!isOnline){showToast('Still offline');return;}processSy
 // TIMELOG PAGE
 function page_timelog_init(){renderTimelog();}
 
+
+// Wire up auth button AFTER all functions are defined
+document.addEventListener('DOMContentLoaded', function() {
+  const btn = document.getElementById('auth-btn');
+  if (btn) btn.addEventListener('click', doLogin);
+  const pwInput = document.getElementById('auth-password');
+  if (pwInput) pwInput.addEventListener('keydown', function(e) { if(e.key==='Enter') doLogin(); });
+});
 
 function gotoMob(page, btn) {
   showPage(page, document.querySelector('.nav-btn[onclick*="' + page + '"]'));
