@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#E02020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FireDispatch">
+<meta name="description" content="Fire alarm service dispatch management">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
 <title>FireDispatch Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -398,6 +405,14 @@
   .clock-btn.complete { background:var(--blue); }
   /* CUSTOMER VIEW — portal-only */
   .customer-portal-wrap { max-width:580px;margin:0 auto;padding:20px; }
+  
+  /* MOBILE BOTTOM NAV */
+  .mob-nav { display:none;background:var(--bg2);border-top:1px solid var(--border-red);padding-bottom:env(safe-area-inset-bottom,0px);flex-shrink:0; }
+  @media(max-width:768px){ .mob-nav{display:flex} .sidebar{display:none!important} }
+  .mob-btn { flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;background:none;border:none;cursor:pointer;color:var(--text3);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;transition:color 0.12s;position:relative; }
+  .mob-btn.active { color:var(--red); }
+  .mob-badge { position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:white;font-size:9px;font-weight:800;padding:1px 4px;border-radius:8px;font-family:var(--font-display); }
+
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 2px; }
@@ -2328,6 +2343,14 @@ setInterval(updateClock, 1000); updateClock();
 
 // ---- STEP 2: TABS, MEDIA, FAIL DEVICES, PORTAL, TOAST ----
 
+
+function save() {
+  try {
+    localStorage.setItem('fd_jobs', JSON.stringify(JOBS));
+    localStorage.setItem('fd_customers', JSON.stringify(CUSTOMERS));
+  } catch(e) { console.warn('localStorage save failed:', e); }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -3572,6 +3595,43 @@ function manualSync(){if(!isOnline){showToast('Still offline');return;}processSy
 // TIMELOG PAGE
 function page_timelog_init(){renderTimelog();}
 
+
+function gotoMob(page, btn) {
+  showPage(page, document.querySelector('.nav-btn[onclick*="' + page + '"]'));
+  document.querySelectorAll('.mob-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
 </script>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mob-nav" id="mob-nav">
+  <div style="display:flex;width:100%">
+    <button class="mob-btn active" id="mob-dashboard" onclick="gotoMob('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Home
+      <span class="mob-badge" id="mob-em-badge" style="display:none">!</span>
+    </button>
+    <button class="mob-btn" id="mob-jobs" onclick="gotoMob('jobs',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      Jobs
+    </button>
+    <button class="mob-btn" id="mob-timelog" onclick="gotoMob('timelog',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Time
+    </button>
+    <button class="mob-btn" id="mob-profit" onclick="gotoMob('profit',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Profit
+    </button>
+    <button class="mob-btn" id="mob-sites" onclick="gotoMob('sites',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Sites
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
