@@ -375,7 +375,7 @@
   /* SCROLLBAR */
 
   /* AUTH SCREEN */
-  .auth-screen { position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px; }
+  .auth-screen { display:none!important; }
   .auth-card { background:var(--bg2);border:1px solid var(--border-red);border-radius:12px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 0 60px rgba(224,32,32,0.12); }
   .auth-logo { display:flex;align-items:center;justify-content:center;gap:10px;padding:28px 24px 20px;font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase; }
   .auth-flame { width:24px;height:24px;background:var(--red);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
@@ -3106,8 +3106,8 @@ async function initAuth() {
   });
 }
 
-function showAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
+function showAuthScreen() { window.location.href = "index.html"; return; 
+  window.location.href = 'index.html';
 }
 function hideAuthScreen() {
   var el = document.getElementById('auth-screen');
