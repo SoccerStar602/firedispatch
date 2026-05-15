@@ -80,9 +80,38 @@ document.getElementById('btn').addEventListener('click', function() {
       setStatus('Success! Loading app...');
       localStorage.setItem('fd_token', data.access_token);
       localStorage.setItem('fd_user', JSON.stringify(data.user));
-      setTimeout(function() {
-        window.location.href = 'app.html';
-      }, 500);
+      // Get profile from Supabase
+      fetch(URL + '/rest/v1/profiles?id=eq.' + data.user.id + '&select=*', {
+        headers: {
+          'apikey': KEY,
+          'Authorization': 'Bearer ' + data.access_token,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(profiles) {
+        var profile = profiles && profiles[0] ? profiles[0] : { role: 'dispatcher', full_name: data.user.email.split('@')[0] };
+        // If no profile exists, create one
+        if (!profiles || !profiles[0]) {
+          fetch(URL + '/rest/v1/profiles', {
+            method: 'POST',
+            headers: {
+              'apikey': KEY,
+              'Authorization': 'Bearer ' + data.access_token,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({ id: data.user.id, full_name: data.user.email.split('@')[0], role: 'dispatcher' })
+          });
+        }
+        localStorage.setItem('fd_profile', JSON.stringify(profile));
+        setStatus('Welcome ' + (profile.full_name || 'back') + '! Loading...');
+        setTimeout(function() { loadMainApp(data.access_token, profile); }, 300);
+      })
+      .catch(function() {
+        localStorage.setItem('fd_profile', JSON.stringify({ role: 'dispatcher', full_name: 'Dispatcher' }));
+        setTimeout(function() { loadMainApp(data.access_token, { role: 'dispatcher' }); }, 300);
+      });
     } else {
       setError('Unexpected response — check console');
       setStatus('Error');
@@ -104,6 +133,55 @@ document.getElementById('pass').addEventListener('keydown', function(e) {
 });
 
 setStatus('Ready — enter your credentials');
+
+function loadMainApp(token, profile) {
+  // Hide login card
+  document.querySelector('.card').style.display = 'none';
+  document.body.style.alignItems = 'stretch';
+  document.body.style.display = 'block';
+  document.body.style.background = '#0D0D0D';
+
+  // Show loading
+  var loading = document.createElement('div');
+  loading.style.cssText = 'text-align:center;padding:40px;font-family:Barlow Condensed,sans-serif;font-size:20px;color:#E02020';
+  loading.textContent = 'Loading FireDispatch Pro...';
+  document.body.appendChild(loading);
+
+  // Store auth for use in main app
+  window.FD_TOKEN = token;
+  window.FD_PROFILE = profile;
+  window.FD_SUPABASE_URL = URL;
+  window.FD_SUPABASE_KEY = KEY;
+
+  // Redirect to the main app page with token
+  window.location.href = 'index-app.html?role=' + (profile.role || 'dispatcher');
+}
+
+// Check if already logged in
+var existingToken = localStorage.getItem('fd_token');
+var existingProfile = localStorage.getItem('fd_profile');
+if (existingToken && existingProfile) {
+  try {
+    var profile = JSON.parse(existingProfile);
+    // Verify token is still valid
+    fetch(URL + '/auth/v1/user', {
+      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + existingToken }
+    }).then(function(r) {
+      if (r.ok) {
+        setStatus('Resuming session...');
+        setTimeout(function() { loadMainApp(existingToken, profile); }, 300);
+      } else {
+        localStorage.removeItem('fd_token');
+        localStorage.removeItem('fd_profile');
+        setStatus('Session expired — please sign in');
+      }
+    }).catch(function() {
+      setStatus('Ready — enter your credentials');
+    });
+  } catch(e) {
+    setStatus('Ready — enter your credentials');
+  }
+}
 </script>
 </body>
 </html>
