@@ -600,7 +600,8 @@
       <input class="auth-input" type="email" id="auth-email" placeholder="you@company.com" autocomplete="email">
       <label class="auth-label">Password</label>
       <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-      <button class="auth-btn" id="auth-btn" onclick="doLogin()">Sign In</button>
+      <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
       <div class="auth-sub">FireDispatch Pro · Phoenix Metro Area</div>
     </div>
   </div>
@@ -2998,39 +2999,66 @@ function hideSplash() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass  = document.getElementById('auth-password').value;
-  const btn   = document.getElementById('auth-btn');
-  const err   = document.getElementById('auth-error');
-  if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in…';
+  const emailEl = document.getElementById('auth-email');
+  const passEl  = document.getElementById('auth-password');
+  const btn     = document.getElementById('auth-btn');
+  const err     = document.getElementById('auth-error');
+  const status  = document.getElementById('auth-status');
+
+  const email = emailEl ? emailEl.value.trim() : '';
+  const pass  = passEl  ? passEl.value : '';
+
+  if (status) status.textContent = 'Checking…';
   err.classList.remove('show');
+
+  if (!email || !pass) {
+    showAuthError('Please enter your email and password.');
+    if (status) status.textContent = 'Missing fields';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  if (status) status.textContent = 'Contacting Supabase…';
+
   try {
-    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
-    if (error) {
-      // If Supabase auth fails, try admin bypass for dispatcher
-      console.error('Supabase error:', error.message);
-      showAuthError('Login failed: ' + error.message);
-      btn.disabled = false; btn.textContent = 'Sign In';
+    if (!SUPA_CONFIGURED) {
+      if (status) status.textContent = 'Demo mode — loading…';
+      hideAuthScreen();
+      bootAsRole('dispatcher', { full_name: 'Demo Dispatcher', email: email });
       return;
     }
-    if (data?.user) {
-      // Try to get profile, if not found auto-create dispatcher
+
+    if (status) status.textContent = 'Authenticating…';
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+
+    if (error) {
+      showAuthError('Login failed: ' + error.message);
+      if (status) status.textContent = 'Failed: ' + error.message;
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      return;
+    }
+
+    if (data && data.user) {
+      if (status) status.textContent = 'Loading profile…';
       let { data: profile } = await _sb.from('profiles').select('*').eq('id', data.user.id).single();
       if (!profile) {
-        // Auto-create dispatcher profile
         await _sb.from('profiles').insert({ id: data.user.id, full_name: email.split('@')[0], role: 'dispatcher' });
         profile = { id: data.user.id, full_name: email.split('@')[0], role: 'dispatcher' };
       }
       currentProfile = profile;
       currentRole = profile.role;
+      if (status) status.textContent = 'Welcome!';
       hideAuthScreen();
       bootAsRole(currentRole, { full_name: profile.full_name, email: email });
     }
   } catch(e) {
-    showAuthError('Connection error: ' + e.message);
+    showAuthError('Error: ' + e.message);
+    if (status) status.textContent = 'Error: ' + e.message;
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
   }
-  btn.disabled = false; btn.textContent = 'Sign In';
 }
 
 function showAuthError(msg) {
