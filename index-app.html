@@ -719,7 +719,7 @@
       <div style="display:flex;align-items:center;gap:12px;padding:8px 0 16px">
         <div style="width:44px;height:44px;border-radius:50%;background:var(--red-glow);border:1px solid var(--border-red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--red)" id="user-avatar">?</div>
         <div>
-          <div style="font-size:14px;font-weight:600;color:var(--text)" id="user-name">Loading…</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text)" id="user-name">User</div>
           <div style="font-size:11px;color:var(--text3)" id="user-email-disp"></div>
         </div>
       </div>
@@ -884,7 +884,7 @@
     <div class="status-pill"><div class="status-dot"></div>Online</div>
     <div id="role-badge-wrap"></div>
     <div class="time-display" id="clock">--:--</div>
-    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openModal('user-modal')" id="user-menu-btn" title="Account">
+    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openAccountModal()" id="user-menu-btn" title="Account">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span id="user-btn-label">Account</span>
     </button>
