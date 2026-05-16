@@ -3042,67 +3042,49 @@ async function adminInviteUser() {
   const email = document.getElementById('ai-email').value.trim();
   const role  = document.getElementById('ai-role').value;
   const pass  = document.getElementById('ai-pass').value || 'BCFPConnect1!';
+  const phone = document.getElementById('ai-phone') ? document.getElementById('ai-phone').value.trim() : '';
   if (!name || !email) { showToast('Enter name and email'); return; }
 
-  const btn = document.querySelector('#admin-invite .btn-primary');
+  const btn = document.querySelector('#admin-invite button.btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Creating user...'; }
 
+  // Remove old result cards
+  document.querySelectorAll('.invite-result').forEach(el => el.remove());
+
   try {
-    // Step 1: Sign up user via Supabase Auth
-    const signupRes = await fetch(SUPABASE_URL + '/auth/v1/admin/users', {
+    const token = localStorage.getItem('fd_token') || '';
+    
+    const res = await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY
+        'Authorization': 'Bearer ' + token,
+        'apikey': SUPABASE_KEY
       },
-      body: JSON.stringify({
-        email: email,
-        password: pass,
-        email_confirm: true,
-        user_metadata: { full_name: name }
-      })
+      body: JSON.stringify({ name, email, password: pass, role, phone })
     });
 
-    const userData = await signupRes.json();
+    const data = await res.json();
 
-    if (userData.error || (!userData.id && !userData.user)) {
-      // Admin API requires service role - fall back to showing SQL
-      showFallbackSQL(name, email, role, pass);
-      if (btn) { btn.disabled = false; btn.textContent = 'Create User & Send Invite'; }
-      return;
-    }
-
-    const userId = userData.id || userData.user?.id;
-
-    // Step 2: Insert profile
-    const profileRes = await fetch(SUPABASE_URL + '/rest/v1/profiles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + localStorage.getItem('fd_token'),
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ id: userId, full_name: name, role: role })
-    });
-
-    if (profileRes.ok || profileRes.status === 201) {
-      showToast('✓ User created! ' + name + ' can now log in.');
+    if (data.success) {
+      showToast('✓ ' + name + ' created! They can log in now.');
       showSuccessCard(name, email, role, pass);
       // Clear form
-      document.getElementById('ai-name').value = '';
-      document.getElementById('ai-email').value = '';
-      document.getElementById('ai-pass').value = 'BCFPConnect1!';
-      // Refresh users list
+      ['ai-name','ai-email','ai-phone'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const passEl = document.getElementById('ai-pass');
+      if (passEl) passEl.value = 'BCFPConnect1!';
+      if (data.warning) showToast('⚠ ' + data.warning);
       loadAdminUsers();
     } else {
-      showToast('User created but profile failed — run SQL below');
-      showFallbackSQL(name, email, role, pass, userId);
+      showToast('Failed: ' + (data.error || 'Unknown error'));
+      showFallbackSQL(name, email, role, pass);
     }
 
   } catch(e) {
-    showToast('Error: ' + e.message);
+    showToast('Connection error — showing manual steps');
     showFallbackSQL(name, email, role, pass);
   }
 
