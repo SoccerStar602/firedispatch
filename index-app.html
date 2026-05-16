@@ -2965,7 +2965,7 @@ async function loadAdminUsers() {
 
   const roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
   const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
-  const roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  const roleLabel  = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
 
   // Always show current user
   var profile = {};
@@ -3022,7 +3022,7 @@ function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
   if (!roleColors) {
     roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
     roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
-    roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+    roleLabel  = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
   }
   if (!users || !users.length) {
     list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>';
@@ -3063,7 +3063,7 @@ function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
     var sel = document.createElement('select');
     sel.className = 'form-select';
     sel.style.cssText = 'width:130px;font-size:11px;padding:4px 22px 4px 8px';
-    ['admin','dispatcher','tech','customer'].forEach(function(r) {
+    ['admin','manager','dispatcher','tech','customer'].forEach(function(r) {
       var opt = document.createElement('option');
       opt.value = r; opt.textContent = roleLabel[r]||r;
       if (u.role === r) opt.selected = true;
@@ -3287,8 +3287,8 @@ function openAccountModal() {
   var role = profile.role || 'dispatcher';
   var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'FD';
   
-  var roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
-  var roleClasses = { admin:'role-admin', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+  var roleLabels = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  var roleClasses = { admin:'role-admin', manager:'role-manager', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
   
   var av = document.getElementById('user-avatar');
   var nm = document.getElementById('user-name');
