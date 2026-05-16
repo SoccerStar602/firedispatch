@@ -2393,8 +2393,7 @@ function showPage(id, btn) {
   if(id === 'timelog') renderTimelog();
 }
 async function openNewJobModal() {
-  // Populate tech dropdown with all field staff
-  await loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
+  loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
 function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
@@ -3289,7 +3288,6 @@ async function adminInviteUser() {
 
 // ── AUTH ─────────────────────────────────────────────────────
 function openAccountModal() {
-  // Reads from localStorage — no async, no loading state
   var profile = {};
   var user = {};
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
@@ -3304,10 +3302,30 @@ function openAccountModal() {
   var nm = document.getElementById('user-name');
   var em = document.getElementById('user-email-disp');
   var rd = document.getElementById('user-role-disp');
+  var ms = document.getElementById('user-manage-section');
   if (av) { av.textContent = initials; av.style.background = 'var(--red-glow)'; av.style.color = 'var(--red)'; }
   if (nm) nm.textContent = name;
   if (em) em.textContent = email;
   if (rd) rd.innerHTML = '<span class="role-badge ' + (RCLASS[role]||'role-dispatcher') + '">' + (RLABELS[role]||role) + '</span>';
+  if (ms) {
+    ms.innerHTML = '';
+    if (role === 'admin' || role === 'manager') {
+      var adminBtn = document.createElement('button');
+      adminBtn.className = 'btn btn-ghost';
+      adminBtn.style.cssText = 'width:100%;justify-content:center;margin-bottom:8px;border-color:rgba(168,85,247,0.4);color:#A78BFA';
+      adminBtn.innerHTML = '⚙ Admin Panel';
+      adminBtn.onclick = function() { closeModal('user-modal'); openAdminPanel(); };
+      ms.appendChild(adminBtn);
+    }
+    if (role === 'admin') {
+      var previewBtn = document.createElement('button');
+      previewBtn.className = 'btn btn-ghost';
+      previewBtn.style.cssText = 'width:100%;justify-content:center;font-size:11px;color:var(--text3)';
+      previewBtn.innerHTML = '👁 Preview as Role';
+      previewBtn.onclick = function() { closeModal('user-modal'); openAdminPanel(); setTimeout(function(){ adminNav('admin-settings'); }, 300); };
+      ms.appendChild(previewBtn);
+    }
+  }
   openModal('user-modal');
 }
 
@@ -4241,38 +4259,32 @@ var FIELD_STAFF = [];
 async function loadFieldStaff() {
   var ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Tech' };
   var fieldRoles = ['tech','manager','admin','dispatcher'];
-  var token = localStorage.getItem('fd_token') || '';
 
-  // Always try Supabase
+  // Step 1: immediately populate from TECHS so dropdown is never empty
+  FIELD_STAFF = TECHS.map(function(t) {
+    return { id: t.name, full_name: t.name, role: 'tech' };
+  });
+  fillTechSelect(ROLE_LABELS);
+
+  // Step 2: try Supabase for real users
   try {
-    var url = 'https://xunjfqdppaoewppuuvph.supabase.co/rest/v1/profiles?select=id,full_name,role&order=full_name.asc';
-    var res = await fetch(url, {
-      headers: {
-        'apikey': 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv',
-        'Authorization': 'Bearer ' + (token || 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv'),
-        'Content-Type': 'application/json'
-      }
+    var token = localStorage.getItem('fd_token') || '';
+    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&order=full_name.asc', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (token || SUPABASE_KEY) }
     });
     if (res.ok) {
       var data = await res.json();
       if (Array.isArray(data) && data.length) {
-        FIELD_STAFF = data.filter(function(u) {
+        var filtered = data.filter(function(u) {
           return u.full_name && fieldRoles.indexOf(u.role) >= 0;
         });
+        if (filtered.length) { FIELD_STAFF = filtered; fillTechSelect(ROLE_LABELS); }
       }
     }
-  } catch(e) {
-    console.warn('Field staff fetch failed:', e);
-  }
+  } catch(e) { console.warn('loadFieldStaff Supabase error:', e); }
+}
 
-  // Always fallback to TECHS if nothing from Supabase
-  if (!FIELD_STAFF.length) {
-    FIELD_STAFF = TECHS.map(function(t) {
-      return { id: t.name, full_name: t.name, role: 'tech' };
-    });
-  }
-
-  // Populate all dropdowns
+function fillTechSelect(ROLE_LABELS) {
   var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech'];
   dropdowns.forEach(function(id) {
     var sel = document.getElementById(id);
@@ -4280,63 +4292,14 @@ async function loadFieldStaff() {
     var current = sel.value;
     while (sel.options.length > 1) sel.remove(1);
     FIELD_STAFF.forEach(function(s) {
+      if (!s.full_name) return;
       var opt = document.createElement('option');
       opt.value = s.full_name;
       opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role] || s.role) + ')' : '');
       if (opt.value === current) opt.selected = true;
       sel.appendChild(opt);
     });
-    console.log('Populated', id, 'with', FIELD_STAFF.length, 'staff');
   });
 }
 
-function populateTechDropdowns() {
-  var ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Tech' };
-  var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech'];
-  dropdowns.forEach(function(id) {
-    var sel = document.getElementById(id);
-    if (!sel) return;
-    var current = sel.value;
-    // Keep first option (Unassigned/All)
-    while (sel.options.length > 1) sel.remove(1);
-    FIELD_STAFF.forEach(function(s) {
-      if (!s.full_name) return;
-      var opt = document.createElement('option');
-      var parts = s.full_name.split(' ');
-      var shortName = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-      opt.value = s.full_name; // Use full name as value
-      opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role]||s.role) + ')' : '');
-      if (opt.value === current) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  });
-
-  // Also update sidebar TECHS display
-  updateSidebarTechs();
-}
-
-function updateSidebarTechs() {
-  var sidebar = document.querySelector('.sidebar');
-  if (!sidebar || !FIELD_STAFF.length) return;
-  var techList = sidebar.querySelector('.tech-list');
-  if (!techList) return;
-  var ROLE_COLORS = { admin:'var(--purple)', manager:'var(--teal)', dispatcher:'var(--red)', tech:'var(--amber)' };
-  techList.innerHTML = FIELD_STAFF.map(function(s) {
-    var parts = (s.full_name || '').split(' ');
-    var initials = parts.map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
-    var color = ROLE_COLORS[s.role] || 'var(--amber)';
-    var shortName = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-    // Find matching TECHS entry for status
-    var techData = TECHS.find(function(t){ return t.name.indexOf(parts[0]) >= 0; }) || { status:'available', color:'green', currentJob:'Available' };
-    var statusColor = techData.color === 'green' ? 'var(--green)' : techData.color === 'amber' ? 'var(--amber)' : 'var(--text3)';
-    return '<div class="tech-card" onclick="showPage(\"technicians\")">' +
-      '<div class="tech-av" style="background:' + color.replace('var(--','rgba(').replace(')','') + ';color:' + color + '">' + initials + '</div>' +
-      '<div class="tech-info">' +
-      '<div class="tech-name">' + shortName + (s.role!=='tech'?'<span style="font-size:9px;color:var(--text3);margin-left:4px">' + (s.role==='manager'?'MGR':s.role==='admin'?'ADM':'DSP') + '</span>':'') + '</div>' +
-      '<div class="tech-status"><span class="tech-dot ' + techData.color + '"></span>' + techData.currentJob + '</div>' +
-      '</div></div>';
-  }).join('');
-}
-
-</script>
-</body>
+>
