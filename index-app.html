@@ -1813,6 +1813,11 @@ BCFP Connect"></textarea>
           <label class="form-label">Assign Technician</label>
           <select class="form-select" id="nj-tech">
             <option value="">Unassigned</option>
+            <option>Marcus J.</option>
+            <option>Ray K.</option>
+            <option>Diane L.</option>
+            <option>Sara P.</option>
+            <option>Tom N.</option>
           </select>
         </div>
         <div class="form-group">
@@ -2392,9 +2397,7 @@ function showPage(id, btn) {
   if(id === 'sales') renderSales();
   if(id === 'timelog') renderTimelog();
 }
-async function openNewJobModal() {
-  loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
-function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
+async function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
   const customer = document.getElementById('nj-customer').value;
@@ -2739,10 +2742,26 @@ function startETA() {
 
 // RESET MEDIA/DEVICES on modal open
 function openNewJobModal() {
-  jobMedia = [];
-  failDevices = [];
-  renderMediaGrid();
-  renderFailDevices();
+  jobMedia = []; failDevices = []; renderMediaGrid(); renderFailDevices();
+  // Populate assign dropdown with field staff (no customers)
+  var sel = document.getElementById('nj-tech');
+  if (sel) {
+    while (sel.options.length > 1) sel.remove(1);
+    var fieldRoles = ['admin','manager','dispatcher','tech'];
+    var RLABELS = {admin:'Admin',manager:'Manager',dispatcher:'Dispatcher',tech:'Tech'};
+    var list = (FIELD_STAFF && FIELD_STAFF.length)
+      ? FIELD_STAFF.filter(function(u){ return fieldRoles.indexOf(u.role) >= 0; })
+      : TECHS.map(function(t){ return {full_name:t.name, role:'tech'}; });
+    list.forEach(function(s) {
+      if (!s.full_name) return;
+      var opt = document.createElement('option');
+      opt.value = s.full_name;
+      opt.textContent = s.full_name + (s.role !== 'tech' ? ' ('+( RLABELS[s.role]||s.role)+')' : '');
+      sel.appendChild(opt);
+    });
+  }
+  // Refresh from Supabase in background
+  loadFieldStaff();
   document.getElementById('new-job-modal').classList.add('open');
   // reset to first tab
   document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
@@ -4257,16 +4276,10 @@ function exportEmailLog() {
 var FIELD_STAFF = [];
 
 async function loadFieldStaff() {
-  var ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Tech' };
-  var fieldRoles = ['tech','manager','admin','dispatcher'];
-
-  // Step 1: immediately populate from TECHS so dropdown is never empty
-  FIELD_STAFF = TECHS.map(function(t) {
-    return { id: t.name, full_name: t.name, role: 'tech' };
-  });
-  fillTechSelect(ROLE_LABELS);
-
-  // Step 2: try Supabase for real users
+  var fieldRoles = ['admin','manager','dispatcher','tech'];
+  // Fallback immediately
+  FIELD_STAFF = TECHS.map(function(t){ return {full_name:t.name, role:'tech'}; });
+  // Try Supabase - all profiles, filter client-side (no customers)
   try {
     var token = localStorage.getItem('fd_token') || '';
     var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&order=full_name.asc', {
@@ -4275,34 +4288,12 @@ async function loadFieldStaff() {
     if (res.ok) {
       var data = await res.json();
       if (Array.isArray(data) && data.length) {
-        var filtered = data.filter(function(u) {
-          return u.full_name && fieldRoles.indexOf(u.role) >= 0;
-        });
-        if (filtered.length) { FIELD_STAFF = filtered; fillTechSelect(ROLE_LABELS); }
+        var filtered = data.filter(function(u){ return u.full_name && fieldRoles.indexOf(u.role) >= 0; });
+        if (filtered.length) { FIELD_STAFF = filtered; }
       }
     }
-  } catch(e) { console.warn('loadFieldStaff Supabase error:', e); }
+  } catch(e) { console.warn('loadFieldStaff:', e); }
 }
-
-function fillTechSelect(ROLE_LABELS) {
-  var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech'];
-  dropdowns.forEach(function(id) {
-    var sel = document.getElementById(id);
-    if (!sel) return;
-    var current = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
-    FIELD_STAFF.forEach(function(s) {
-      if (!s.full_name) return;
-      var opt = document.createElement('option');
-      opt.value = s.full_name;
-      opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role] || s.role) + ')' : '');
-      if (opt.value === current) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  });
-}
-
-
 </script>
 </body>
 </html>
