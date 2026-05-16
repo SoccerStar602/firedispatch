@@ -2394,7 +2394,7 @@ function showPage(id, btn) {
 }
 function openNewJobModal() {
   // Populate tech dropdown with all field staff
-  if (!FIELD_STAFF.length) { loadFieldStaff(); } else { populateTechDropdowns(); } document.getElementById('new-job-modal').classList.add('open'); }
+  loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
 function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
@@ -4752,20 +4752,28 @@ function exportEmailLog() {
 var FIELD_STAFF = [];
 
 async function loadFieldStaff() {
-  // Try Supabase first
+  // Try Supabase first — fetch ALL profiles then filter client-side
   try {
-    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&role=in.(tech,manager,admin,dispatcher)&order=full_name.asc', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY) }
+    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&order=full_name.asc', {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+        'Content-Type': 'application/json'
+      }
     });
     if (res.ok) {
       var data = await res.json();
       if (data && data.length) {
-        FIELD_STAFF = data;
-        populateTechDropdowns();
-        return;
+        // Filter field roles client-side
+        var fieldRoles = ['tech','manager','admin','dispatcher'];
+        FIELD_STAFF = data.filter(function(u) { return fieldRoles.indexOf(u.role) >= 0; });
+        if (FIELD_STAFF.length) {
+          populateTechDropdowns();
+          return;
+        }
       }
     }
-  } catch(e) {}
+  } catch(e) { console.warn('loadFieldStaff error:', e); }
 
   // Fallback to TECHS array
   FIELD_STAFF = TECHS.map(function(t) {
@@ -4782,15 +4790,13 @@ function populateTechDropdowns() {
     if (!sel) return;
     var current = sel.value;
     // Keep first option (Unassigned/All)
-    var first = sel.options[0];
-    sel.innerHTML = '';
-    sel.appendChild(first);
+    while (sel.options.length > 1) sel.remove(1);
     FIELD_STAFF.forEach(function(s) {
+      if (!s.full_name) return;
       var opt = document.createElement('option');
-      // Store short name for display
-      var parts = (s.full_name || '').split(' ');
+      var parts = s.full_name.split(' ');
       var shortName = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-      opt.value = shortName;
+      opt.value = s.full_name; // Use full name as value
       opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role]||s.role) + ')' : '');
       if (opt.value === current) opt.selected = true;
       sel.appendChild(opt);
