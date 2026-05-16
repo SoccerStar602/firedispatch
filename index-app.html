@@ -2209,8 +2209,8 @@ BCFP Connect"></textarea>
       </div>
 
       <!-- Settings Modal -->
-      <div id="auto-settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px">
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:480px;padding:28px">
+      <div id="auto-settings-modal" class="modal-overlay">
+        <div class="modal" style="max-width:480px">
           <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
             Automation Settings
             <button onclick="closeAutoSettings()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">✕</button>
@@ -4289,12 +4289,12 @@ function runAutomationCheck() {
 
 function openAutoSettings() {
   var modal = document.getElementById('auto-settings-modal');
-  if (modal) modal.style.display = 'flex';
+  if (modal) modal.classList.add('open');
 }
 
 function closeAutoSettings() {
   var modal = document.getElementById('auto-settings-modal');
-  if (modal) modal.style.display = 'none';
+  if (modal) modal.classList.remove('open');
 }
 
 function saveAutoSettings() {
@@ -4630,151 +4630,6 @@ function generateInvoicePDF() {
   closeModal('invoice-modal');
   showToast('Invoice ' + invNum + ' downloaded!');
 }
-
-</script>
-<!-- INVOICE BUILDER MODAL -->
-<div class="modal-overlay" id="invoice-modal">
-  <div class="modal" style="max-width:640px;max-height:90vh;overflow-y:auto">
-    <div class="modal-header">
-      <div class="modal-title">Generate Invoice</div>
-      <button class="modal-close" onclick="closeModal('invoice-modal')">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="form-group full">
-          <label class="form-label">Invoice #</label>
-          <input class="form-input" id="inv-number" value="INV-0001">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input class="form-input" id="inv-date" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Due Date</label>
-          <input class="form-input" id="inv-due" type="date">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Bill To (Customer)</label>
-          <input class="form-input" id="inv-customer" placeholder="Customer name & address">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Job / Description</label>
-          <input class="form-input" id="inv-job-desc" placeholder="e.g. Annual Fire Inspection — Westfield Mall">
-        </div>
-        <div class="form-group full">
-          <label class="form-label">Customer Email</label>
-          <input class="form-input" id="inv-customer-email" type="email" placeholder="customer@email.com">
-        </div>
-        <div class="form-group full">
-          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px">
-            <input type="checkbox" id="inv-create-account" checked style="width:16px;height:16px;accent-color:var(--green)">
-            <div>
-              <div style="font-size:12px;font-weight:600;color:var(--text)">Create customer portal account</div>
-              <div style="font-size:11px;color:var(--text3);margin-top:1px">Sends login credentials with the invoice so they can pay &amp; track jobs online</div>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <!-- Line Items -->
-      <div style="margin:16px 0 8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3)">Line Items</div>
-      <div id="inv-lines" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-      <button class="btn btn-ghost btn-sm" onclick="addInvLine()" style="width:100%;justify-content:center">+ Add Line Item</button>
-
-      <!-- Totals -->
-      <div style="margin-top:16px;background:var(--bg3);border-radius:var(--radius);padding:14px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
-          <span style="color:var(--text2)">Subtotal</span>
-          <span id="inv-subtotal" style="color:var(--text)">$0.00</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px">
-          <span style="color:var(--text2)">Tax Rate</span>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input class="form-input" id="inv-tax" type="number" value="0" min="0" max="30" style="width:60px;text-align:center;padding:4px 8px" oninput="calcInvTotals()">
-            <span style="color:var(--text2)">%</span>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
-          <span style="color:var(--text2)">Tax</span>
-          <span id="inv-tax-amt" style="color:var(--text)">$0.00</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:16px;font-weight:700">
-          <span style="color:var(--text)">Total</span>
-          <span id="inv-total" style="color:var(--green)">$0.00</span>
-        </div>
-      </div>
-
-      <div class="form-group full" style="margin-top:12px">
-        <label class="form-label">Notes / Payment Terms</label>
-        <textarea class="form-input" id="inv-notes" rows="2" style="resize:none" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn-primary" style="flex:1" onclick="generateInvoicePDF()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Download PDF
-        </button>
-        <button class="btn btn-ghost" style="flex:1" onclick="emailInvoice()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
-          Email Invoice
-        </button>
-        <button class="btn btn-ghost" onclick="closeModal('invoice-modal')">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
-function custPayInvoice(invId, btn) {
-  // Simple payment simulation — in production connect to Stripe
-  var existing = document.getElementById('pay-modal');
-  if (existing) existing.remove();
-
-  var modal = document.createElement('div');
-  modal.id = 'pay-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
-
-  var box = document.createElement('div');
-  box.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:400px;padding:28px';
-  box.innerHTML =
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;margin-bottom:6px">Pay Invoice ' + invId + '</div>' +
-    '<div style="font-size:12px;color:var(--text3);margin-bottom:20px">Secure payment — SSL encrypted</div>' +
-    '<div style="display:flex;flex-direction:column;gap:10px">' +
-    '<input class="form-input" id="pay-name" placeholder="Cardholder Name">' +
-    '<input class="form-input" id="pay-card" placeholder="Card Number" maxlength="19" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()">' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-    '<input class="form-input" id="pay-exp" placeholder="MM/YY" maxlength="5">' +
-    '<input class="form-input" id="pay-cvv" placeholder="CVV" maxlength="4">' +
-    '</div>' +
-    '</div>' +
-    '<button onclick="processCustPayment('' + invId + '')" style="margin-top:16px;width:100%;background:var(--green);border:none;border-radius:8px;color:white;font-family:var(--font-display);font-size:13px;font-weight:700;padding:14px;cursor:pointer;letter-spacing:0.06em">✓ CONFIRM PAYMENT</button>' +
-    '<button onclick="document.getElementById('pay-modal').remove()" style="margin-top:8px;width:100%;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:12px;padding:10px;cursor:pointer">Cancel</button>' +
-    '<div style="margin-top:14px;text-align:center;font-size:10px;color:var(--text3)">🔒 Payments processed securely. We do not store your card details.</div>';
-
-  modal.appendChild(box);
-  document.body.appendChild(modal);
-  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-}
-
-function processCustPayment(invId) {
-  var name = document.getElementById('pay-name').value;
-  var card = document.getElementById('pay-card').value;
-  if (!name || card.replace(/\s/g,'').length < 16) {
-    showToast('Please fill in all payment details');
-    return;
-  }
-  // Simulate processing
-  var btn = document.querySelector('#pay-modal button');
-  if (btn) { btn.textContent = '⏳ Processing...'; btn.disabled = true; }
-  setTimeout(function() {
-    document.getElementById('pay-modal').remove();
-    showToast('✓ Payment for ' + invId + ' processed! Receipt sent to your email.');
-    // Rebuild portal to show paid status
-    setTimeout(function(){ buildCustomerPortal(); }, 800);
-  }, 2000);
-}
-
 // ── EMAIL INVOICE VIA SUPABASE EDGE FUNCTION ─────────────
 function emailInvoice() {
   // Validate
@@ -4845,7 +4700,7 @@ function emailInvoice() {
     '<div style="background:#0F1727;border-radius:8px;padding:16px;margin-bottom:24px">'+
     '<p style="font-size:13px;font-weight:700;color:white;margin:0 0 6px">View & Pay Online — Customer Portal</p>'+
     '<p style="font-size:12px;color:#8896B0;margin:0 0 6px;line-height:1.6">Log in at <a href="https://dispatch.bigcityfp.com" style="color:#60A5FA">dispatch.bigcityfp.com</a> to view invoices, track jobs, and pay securely.</p>'+
-    '<p style="font-size:12px;color:#8896B0;margin:0;line-height:1.6">Your login is this email address. Click <em>Forgot Password</em> if it's your first time.</p>'+
+    '<p style="font-size:12px;color:#8896B0;margin:0;line-height:1.6">Your login is this email address. Click <em>Forgot Password</em> if it is your first time.</p>'+
     '</div>'+
 
     '<p style="font-size:13px;color:#6B7280;line-height:1.7;margin:0 0 6px">'+notes+'</p>'+
@@ -4856,7 +4711,7 @@ function emailInvoice() {
     '<div style="background:#F8F9FC;border-top:1px solid #E2E6F0;padding:16px 32px;text-align:center">'+
     '<p style="font-size:11px;color:#9CA3AF;margin:0">Big City Fire Protection | Phoenix, AZ | dispatch.bigcityfp.com | (602) 555-0100</p>'+
     '</div>'+
-    '</div></body></html>';
+    '</div>';
 
   // Optionally create customer account first
   var createAccount = document.getElementById('inv-create-account') && document.getElementById('inv-create-account').checked;
@@ -4961,3 +4816,152 @@ function emailInvoice() {
   }
 }
 
+function custPayInvoice(invId, btn) {
+  var existing = document.getElementById('pay-modal');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'pay-modal';
+  overlay.className = 'modal-overlay open';
+
+  var box = document.createElement('div');
+  box.className = 'modal';
+  box.style.cssText = 'max-width:400px';
+  box.innerHTML =
+    '<div class="modal-header">' +
+    '<div class="modal-title">Pay Invoice ' + invId + '</div>' +
+    '<button class="modal-close" onclick="document.getElementById(&quot;pay-modal&quot;).remove()">×</button>' +
+    '</div>' +
+    '<div class="modal-body">' +
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:16px">Secure payment — SSL encrypted</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<input class="form-input" id="pay-name" placeholder="Cardholder Name">' +
+    '<input class="form-input" id="pay-card" placeholder="Card Number" maxlength="19">' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    '<input class="form-input" id="pay-exp" placeholder="MM/YY" maxlength="5">' +
+    '<input class="form-input" id="pay-cvv" placeholder="CVV" maxlength="4">' +
+    '</div>' +
+    '</div>' +
+    '<button onclick="processCustPayment(&quot;' + invId + '&quot;)" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">✓ Confirm Payment</button>' +
+    '<button onclick="document.getElementById(&quot;pay-modal&quot;).remove()" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px">Cancel</button>' +
+    '<div style="margin-top:14px;text-align:center;font-size:10px;color:var(--text3)">We do not store your card details.</div>' +
+    '</div>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
+
+function processCustPayment(invId) {
+  var name = document.getElementById('pay-name') ? document.getElementById('pay-name').value : '';
+  var card = document.getElementById('pay-card') ? document.getElementById('pay-card').value : '';
+  if (!name || !card || card.replace(/\s/g,'').length < 15) {
+    showToast('Please fill in all payment details');
+    return;
+  }
+  var btns = document.querySelectorAll('#pay-modal button');
+  btns.forEach(function(b){ b.disabled = true; });
+  var confirmBtn = document.querySelector('#pay-modal .btn-primary');
+  if (confirmBtn) confirmBtn.textContent = '⏳ Processing...';
+  setTimeout(function() {
+    var modal = document.getElementById('pay-modal');
+    if (modal) modal.remove();
+    showToast('✓ Payment for ' + invId + ' processed! Receipt sent to your email.');
+    setTimeout(function(){ if(typeof buildCustomerPortal==='function') buildCustomerPortal(); }, 800);
+  }, 2000);
+}
+</script>
+
+<!-- INVOICE BUILDER MODAL -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal" style="max-width:640px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title">Generate Invoice</div>
+      <button class="modal-close" onclick="closeModal('invoice-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">Invoice #</label>
+          <input class="form-input" id="inv-number" value="INV-0001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="inv-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date</label>
+          <input class="form-input" id="inv-due" type="date">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Bill To (Customer)</label>
+          <input class="form-input" id="inv-customer" placeholder="Customer name & address">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Job / Description</label>
+          <input class="form-input" id="inv-job-desc" placeholder="e.g. Annual Fire Inspection — Westfield Mall">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Customer Email</label>
+          <input class="form-input" id="inv-customer-email" type="email" placeholder="customer@email.com">
+        </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px">
+            <input type="checkbox" id="inv-create-account" checked style="width:16px;height:16px;accent-color:var(--green)">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">Create customer portal account</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:1px">Sends login credentials with the invoice so they can pay &amp; track jobs online</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Line Items -->
+      <div style="margin:16px 0 8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3)">Line Items</div>
+      <div id="inv-lines" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addInvLine()" style="width:100%;justify-content:center">+ Add Line Item</button>
+
+      <!-- Totals -->
+      <div style="margin-top:16px;background:var(--bg3);border-radius:var(--radius);padding:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+          <span style="color:var(--text2)">Subtotal</span>
+          <span id="inv-subtotal" style="color:var(--text)">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px">
+          <span style="color:var(--text2)">Tax Rate</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="form-input" id="inv-tax" type="number" value="0" min="0" max="30" style="width:60px;text-align:center;padding:4px 8px" oninput="calcInvTotals()">
+            <span style="color:var(--text2)">%</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+          <span style="color:var(--text2)">Tax</span>
+          <span id="inv-tax-amt" style="color:var(--text)">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:16px;font-weight:700">
+          <span style="color:var(--text)">Total</span>
+          <span id="inv-total" style="color:var(--green)">$0.00</span>
+        </div>
+      </div>
+
+      <div class="form-group full" style="margin-top:12px">
+        <label class="form-label">Notes / Payment Terms</label>
+        <textarea class="form-input" id="inv-notes" rows="2" style="resize:none" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" style="flex:1" onclick="generateInvoicePDF()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Download PDF
+        </button>
+        <button class="btn btn-ghost" style="flex:1" onclick="emailInvoice()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          Email Invoice
+        </button>
+        <button class="btn btn-ghost" onclick="closeModal('invoice-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
