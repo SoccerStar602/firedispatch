@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#E02020">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FireDispatch">
+<meta name="apple-mobile-web-app-title" content="BCFP Connect">
 <meta name="description" content="Fire alarm service dispatch management">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.svg">
-<title>FireDispatch Pro</title>
+<title>BCFP Connect</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -645,7 +645,7 @@
       <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
       <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
-      <div class="auth-sub">FireDispatch Pro · Phoenix Metro Area</div>
+      <div class="auth-sub">BCFP Connect · Phoenix Metro Area</div>
     </div>
   </div>
 </div>
@@ -1345,7 +1345,7 @@
         </div>
         <div class="email-field">
           <span class="email-field-label">Subject</span>
-          <input type="text" id="email-subject" placeholder="Quote from FireDispatch Pro">
+          <input type="text" id="email-subject" placeholder="Quote from BCFP Connect">
         </div>
         <textarea class="email-body-field" id="email-body" placeholder="Hi [Contact],
 
@@ -1356,7 +1356,7 @@ Thank you for the opportunity. Please find your quote attached below.
 Don't hesitate to call us at (602) 555-0100 with any questions.
 
 Best regards,
-FireDispatch Pro"></textarea>
+BCFP Connect"></textarea>
       </div>
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="btn btn-ghost" onclick="previewEmail()">
@@ -1550,7 +1550,7 @@ FireDispatch Pro"></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">Temporary Password</label>
-              <input class="form-input" type="text" placeholder="TempPass123!" id="ai-pass" value="FireDispatch1!">
+              <input class="form-input" type="text" placeholder="TempPass123!" id="ai-pass" value="BCFP Connect1!">
             </div>
             <div class="form-group">
               <label class="form-label">Phone (optional)</label>
@@ -1619,7 +1619,7 @@ FireDispatch Pro"></textarea>
             </div>
             <div class="form-group full">
               <label class="form-label">Default Tech Password (for new invites)</label>
-              <input class="form-input" type="text" value="FireDispatch1!" id="set-defpass">
+              <input class="form-input" type="text" value="BCFP Connect1!" id="set-defpass">
             </div>
           </div>
           <button class="btn btn-primary" style="margin-top:12px" onclick="saveAdminSettings()">Save Settings</button>
@@ -1649,7 +1649,7 @@ FireDispatch Pro"></textarea>
       <div style="font-size:12px;color:var(--text2);margin-bottom:14px">Set a new temporary password for <strong id="reset-user-name" style="color:var(--text)"></strong></div>
       <div class="form-group">
         <label class="form-label">New Password</label>
-        <input class="form-input" type="text" value="FireDispatch1!" id="reset-new-pass">
+        <input class="form-input" type="text" value="BCFP Connect1!" id="reset-new-pass">
       </div>
       <div style="font-size:11px;color:var(--text3);margin-top:8px">User will be able to change this after logging in.</div>
     </div>
@@ -1876,7 +1876,7 @@ FireDispatch Pro"></textarea>
       <button class="modal-close" onclick="closeModal('portal-modal')">×</button>
     </div>
     <div style="padding:20px">
-      <div class="portal-logo">Fire<span>Dispatch</span> Pro</div>
+      <div class="portal-logo">BCFP<span>Connect</span> Pro</div>
       <div style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:16px">Job #FD-0089 · Westfield Mall Corp · Unit 4B</div>
       <div class="eta-box">
         <div class="eta-label">Technician En Route — Live ETA</div>
@@ -1922,7 +1922,7 @@ FireDispatch Pro"></textarea>
           <div class="rec-row"><div class="rec-dot rec-ok"></div><div>All other zones tested and passed. No further action required at this time.</div></div>
         </div>
       </div>
-      <div style="text-align:center;padding:12px 0;font-size:11px;color:var(--text3)">Questions? Call us at (602) 555-0100<br>FireDispatch Pro · Licensed Fire Alarm Contractor · Phoenix, AZ</div>
+      <div style="text-align:center;padding:12px 0;font-size:11px;color:var(--text3)">Questions? Call us at (602) 555-0100<br>BCFP Connect · Licensed Fire Alarm Contractor · Phoenix, AZ</div>
     </div>
   </div>
 </div>
@@ -2596,7 +2596,7 @@ function openNewQuoteModal() {
   document.getElementById('q-desc').value = '';
   document.getElementById('q-notes').value = '';
   document.getElementById('q-internal').value = '';
-  document.getElementById('email-subject').value = 'Quote from FireDispatch Pro';
+  document.getElementById('email-subject').value = 'Quote from BCFP Connect';
   document.getElementById('email-body').value = '';
   renderQuoteLines();
   // reset to first tab
@@ -2616,7 +2616,7 @@ function openQuoteEdit(id) {
   document.getElementById('q-notes').value = q.notes||'';
   document.getElementById('q-internal').value = q.internal||'';
   document.getElementById('email-to').value = q.email||'';
-  document.getElementById('email-subject').value = 'Quote from FireDispatch Pro — '+q.desc;
+  document.getElementById('email-subject').value = 'Quote from BCFP Connect — '+q.desc;
   buildEmailBody(q);
   document.querySelectorAll('#quote-modal .modal-tab').forEach((b,i)=>{ b.classList.toggle('active',i===0); });
   document.querySelectorAll('#quote-modal .tab-panel').forEach((p,i)=>{ p.classList.toggle('active',i===0); });
@@ -2703,7 +2703,7 @@ function autoFillQuoteEmail() {
     'SkyTech Office Park':'kross@skytech.com',
   };
   if(emailMap[customer]) document.getElementById('email-to').value = emailMap[customer];
-  document.getElementById('email-subject').value = 'Quote from FireDispatch Pro — ' + document.getElementById('q-desc').value;
+  document.getElementById('email-subject').value = 'Quote from BCFP Connect — ' + document.getElementById('q-desc').value;
 }
 
 function buildEmailBody(q) {
@@ -2726,7 +2726,7 @@ TOTAL: $${total.toLocaleString()}
 ${q.notes ? q.notes+'\n\n' : ''}Please reply to approve this quote or call us at (602) 555-0100.
 
 Best regards,
-FireDispatch Pro
+BCFP Connect
 Licensed Fire Alarm Contractor · Phoenix, AZ`;
 }
 
@@ -3011,7 +3011,7 @@ async function changeRole(userId, newRole) {
 function openResetPass(userId, name) {
   resetTargetId = userId;
   document.getElementById('reset-user-name').textContent = name;
-  document.getElementById('reset-new-pass').value = 'FireDispatch1!';
+  document.getElementById('reset-new-pass').value = 'BCFP Connect1!';
   openModal('reset-pass-modal');
 }
 
@@ -3041,7 +3041,7 @@ async function adminInviteUser() {
   var name = document.getElementById('ai-name').value.trim();
   var email = document.getElementById('ai-email').value.trim();
   var role = document.getElementById('ai-role').value;
-  var pass = document.getElementById('ai-pass').value || 'FireDispatch1!';
+  var pass = document.getElementById('ai-pass').value || 'BCFP Connect1!';
   if (!name || !email) { showToast('Enter name and email'); return; }
   showToast('Check the instructions below to add this user');
   var inv = document.getElementById('admin-invite');
