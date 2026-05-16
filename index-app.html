@@ -1578,6 +1578,31 @@ FireDispatch Pro"></textarea>
       <!-- SETTINGS -->
       <div class="admin-section" id="admin-settings">
         <div class="admin-card" style="max-width:520px">
+          <div class="admin-card-title" style="color:#C084FC">Preview App As Role</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+            Switch your view to see exactly what each role sees. Your admin access is preserved — click "Return to Admin" to switch back anytime.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(224,32,32,0.3);color:var(--red)" onclick="previewAsRole('dispatcher')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              View as Dispatcher
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="previewAsRole('tech')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              View as Technician
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(59,130,246,0.3);color:#60A5FA" onclick="previewAsRole('customer')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              View as Customer
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(168,85,247,0.3);color:#C084FC" onclick="previewAsRole('admin')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Return to Admin
+            </button>
+          </div>
+          <div id="preview-role-status" style="font-size:11px;color:var(--text3);text-align:center"></div>
+        </div>
+        <div class="admin-card" style="max-width:520px">
           <div class="admin-card-title">System Settings</div>
           <div class="form-grid">
             <div class="form-group full">
@@ -2960,10 +2985,27 @@ function filterAdminUsers(search) {
 }
 
 async function changeRole(userId, newRole) {
-  if (!SUPA_CONFIGURED) { showToast('Connect Supabase to change roles'); return; }
-  const { error } = await _sb.from('profiles').update({ role: newRole }).eq('id', userId);
-  if (error) showToast('Error: ' + error.message);
-  else { showToast('✓ Role updated to ' + newRole); loadAdminUsers(); }
+  // Update localStorage if current user
+  try {
+    var user = JSON.parse(localStorage.getItem('fd_user') || '{}');
+    var profile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+    if (user.id === userId || userId === 'current') {
+      profile.role = newRole;
+      localStorage.setItem('fd_profile', JSON.stringify(profile));
+    }
+  } catch(e) {}
+  // Save to Supabase
+  if (_sb) {
+    _sb.from('profiles').update({ role: newRole }).eq('id', userId)
+      .then(function(r) {
+        if (r.error) showToast('Role saved locally. Supabase: ' + r.error.message);
+        else showToast('Role saved — ' + newRole);
+        loadAdminUsers();
+      }).catch(function() { showToast('Role saved locally'); loadAdminUsers(); });
+  } else {
+    showToast('Role updated to ' + newRole);
+    loadAdminUsers();
+  }
 }
 
 function openResetPass(userId, name) {
@@ -3067,5 +3109,81 @@ function openAccountModal() {
   // Open modal instantly
   openModal('user-modal');
 }
+
+// ── VIEW AS ROLE ────────────────────────────────────────
+var _originalRole = null;
+var _originalProfile = null;
+
+function previewAsRole(role) {
+  // Save original role if not already previewing
+  if (!_originalRole) {
+    try {
+      _originalProfile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+      _originalRole = _originalProfile.role || 'admin';
+    } catch(e) { _originalRole = 'admin'; }
+  }
+
+  var roleNames = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+
+  if (role === 'admin') {
+    // Restore original
+    if (_originalProfile) {
+      localStorage.setItem('fd_profile', JSON.stringify(_originalProfile));
+    }
+    _originalRole = null;
+    _originalProfile = null;
+    closeAdminPanel();
+    location.reload();
+    return;
+  }
+
+  // Apply preview role
+  try {
+    var profile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+    profile.role = role;
+    localStorage.setItem('fd_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  var status = document.getElementById('preview-role-status');
+  if (status) status.textContent = 'Previewing as ' + roleNames[role] + ' — click Return to Admin to restore';
+
+  // Show toast then reload
+  showToast('Switching to ' + roleNames[role] + ' view...');
+  setTimeout(function() {
+    closeAdminPanel();
+    // Apply role permissions without full reload
+    currentRole = role;
+    applyRolePermissions(role);
+    bootAsRole(role, { full_name: 'Preview (' + roleNames[role] + ')', email: '' });
+
+    // Show a return banner
+    var existing = document.getElementById('preview-banner');
+    if (!existing) {
+      var banner = document.createElement('div');
+      banner.id = 'preview-banner';
+      banner.style.cssText = 'background:rgba(168,85,247,0.15);border-bottom:1px solid rgba(168,85,247,0.3);padding:7px 20px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:0.04em;color:#C084FC;flex-shrink:0;';
+      banner.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+        ' Previewing as <strong style="margin:0 4px">' + roleNames[role] + '</strong> — ' +
+        '<button onclick="exitPreview()" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);border-radius:4px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;padding:3px 10px;margin-left:8px">Return to Admin</button>';
+      var ticker = document.querySelector('.alert-ticker') || document.querySelector('.ticker');
+      if (ticker) ticker.parentNode.insertBefore(banner, ticker);
+      else document.body.insertBefore(banner, document.body.firstChild);
+    }
+  }, 400);
+}
+
+function exitPreview() {
+  // Restore original admin role
+  if (_originalProfile) {
+    localStorage.setItem('fd_profile', JSON.stringify(_originalProfile));
+  }
+  _originalRole = null;
+  _originalProfile = null;
+  var banner = document.getElementById('preview-banner');
+  if (banner) banner.remove();
+  showToast('Returning to Admin view...');
+  setTimeout(function() { location.reload(); }, 400);
+}
+
 </script>
 </body>
