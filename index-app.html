@@ -3067,8 +3067,8 @@ async function adminInviteUser() {
     const data = await res.json();
 
     if (data.success) {
-      showToast('✓ ' + name + ' created! They can log in now.');
-      showSuccessCard(name, email, role, pass);
+      showToast(data.email_sent ? '✓ Invite email sent to ' + name : '✓ ' + name + ' created!');
+      showSuccessCard(name, email, role, pass, data.email_sent);
       // Clear form
       ['ai-name','ai-email','ai-phone'].forEach(id => {
         const el = document.getElementById(id);
@@ -3091,23 +3091,30 @@ async function adminInviteUser() {
   if (btn) { btn.disabled = false; btn.textContent = 'Create User & Send Invite'; }
 }
 
-function showSuccessCard(name, email, role, pass) {
+function showSuccessCard(name, email, role, pass, emailSent) {
   const inv = document.getElementById('admin-invite');
   if (!inv) return;
-  // Remove old cards
   inv.querySelectorAll('.invite-result').forEach(el => el.remove());
   const box = document.createElement('div');
   box.className = 'admin-card invite-result';
   box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.4);margin-top:12px;background:rgba(34,197,94,0.05)';
   const roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
-  box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">✓ User Created Successfully</div>' +
+  const emailStatus = emailSent
+    ? '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;margin-bottom:12px">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
+      '<span style="font-size:12px;color:var(--green)">Invite email sent to <strong>' + email + '</strong> — they set their own password</span></div>'
+    : '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:6px;margin-bottom:12px">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+      '<span style="font-size:12px;color:var(--amber)">No email sent — share temp password manually: <strong>' + pass + '</strong></span></div>';
+  box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">✓ ' + name + ' Created</div>' +
+    emailStatus +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:12px">' +
     '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Name</div><div style="color:var(--text);font-weight:600">' + name + '</div></div>' +
     '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Role</div><div style="color:var(--text);font-weight:600">' + (roleLabels[role]||role) + '</div></div>' +
-    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Email</div><div style="color:var(--teal)">' + email + '</div></div>' +
-    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Temp Password</div><div style="color:var(--amber);font-weight:600">' + pass + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Email</div><div style="color:#2DD4BF">' + email + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Login URL</div><div style="color:#2DD4BF;font-size:10px">dispatch.bigcityfp.com</div></div>' +
     '</div>' +
-    '<div style="font-size:11px;color:var(--text3);line-height:1.6">They can log in at <span style="color:var(--teal)">dispatch.bigcityfp.com</span> right now with these credentials.</div>';
+    '<div style="font-size:11px;color:var(--text3);line-height:1.6">' + (emailSent ? 'They will receive an email invite to set their password. Once set they can log in immediately.' : 'Share the temp password with them directly. They can log in at dispatch.bigcityfp.com now.') + '</div>';
   inv.appendChild(box);
 }
 
