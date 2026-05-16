@@ -653,6 +653,36 @@
   .role-dispatcher{background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3)}
   .role-tech{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3)}
   .role-customer{background:rgba(34,197,94,0.15);color:#22C55E;border:1px solid rgba(34,197,94,0.3)}
+
+  /* SALES AUTOMATION */
+  .auto-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;transition:var(--transition); }
+  .auto-card:hover { border-color:rgba(59,130,246,0.2);box-shadow:var(--shadow); }
+  .auto-card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+  .auto-title { font-family:var(--font-display);font-size:15px;font-weight:700;letter-spacing:0.04em;color:var(--text); }
+  .auto-badge { padding:3px 12px;border-radius:20px;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase; }
+  .auto-badge.active { background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3); }
+  .auto-badge.paused { background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3); }
+  .auto-badge.off { background:rgba(255,255,255,0.05);color:var(--text3);border:1px solid var(--border); }
+  .auto-toggle { position:relative;width:44px;height:24px;cursor:pointer; }
+  .auto-toggle input { opacity:0;width:0;height:0; }
+  .auto-slider { position:absolute;inset:0;background:var(--bg4);border-radius:24px;transition:var(--transition);border:1px solid var(--border); }
+  .auto-slider:before { content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:var(--text3);border-radius:50%;transition:var(--transition); }
+  .auto-toggle input:checked + .auto-slider { background:rgba(34,197,94,0.2);border-color:rgba(34,197,94,0.4); }
+  .auto-toggle input:checked + .auto-slider:before { transform:translateX(20px);background:var(--green); }
+  .auto-stat-row { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px; }
+  .auto-stat { background:var(--bg3);border-radius:var(--radius-sm);padding:10px 12px;text-align:center; }
+  .auto-stat-val { font-family:var(--font-display);font-size:22px;font-weight:800;line-height:1; }
+  .auto-stat-lbl { font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px; }
+  .auto-timeline { display:flex;flex-direction:column;gap:6px; }
+  .auto-step { display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius-sm);font-size:12px; }
+  .auto-step-dot { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;font-weight:700;flex-shrink:0; }
+  .auto-queue { display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto; }
+  .auto-queue-item { display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;transition:var(--transition); }
+  .auto-queue-item:hover { border-color:rgba(59,130,246,0.2); }
+  .auto-queue-item.urgent { border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04); }
+  .auto-queue-item.soon { border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.04); }
+  .automation-page { padding:24px;max-width:1000px;margin:0 auto; }
+
 </style>
 </head>
 <body>
@@ -837,6 +867,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Sales
     </button>
+          <button class="nav-btn" onclick="showPage('automation', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            AUTO
+          </button>
     <button class="nav-btn" onclick="showPage('timelog', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Time Log
@@ -1988,6 +2022,213 @@ BCFP Connect"></textarea>
     </div>
   </div>
 </div>
+
+
+
+  <!-- PAGE: AUTOMATION -->
+  <div class="page" id="page-automation" style="display:none">
+    <div class="automation-page">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="page-title">Sales Automation</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px">Auto follow-ups &amp; inspection reminders — managed by Admin &amp; Manager</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="runAutomationCheck()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Run Now
+          </button>
+          <button class="btn btn-primary" onclick="openAutoSettings()">⚙ Settings</button>
+        </div>
+      </div>
+
+      <!-- Stats bar -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--red)" id="auto-stat-sent">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Emails Sent</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--green)" id="auto-stat-converted">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Converted</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--amber)" id="auto-stat-pending">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Pending</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--teal)" id="auto-stat-rate">0%</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Open Rate</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+          <!-- Quote Follow-Up Automation -->
+          <div class="auto-card">
+            <div class="auto-card-header">
+              <div>
+                <div class="auto-title">📋 Quote Follow-Up</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px">Auto-email unanswered quotes</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="auto-badge active" id="quote-auto-badge">Active</span>
+                <label class="auto-toggle">
+                  <input type="checkbox" id="quote-auto-toggle" checked onchange="toggleAutomation('quote',this.checked)">
+                  <span class="auto-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="auto-stat-row">
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--red)" id="qa-sent">12</div><div class="auto-stat-lbl">Sent</div></div>
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--green)" id="qa-conv">4</div><div class="auto-stat-lbl">Won</div></div>
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--amber)" id="qa-pend">3</div><div class="auto-stat-lbl">Pending</div></div>
+            </div>
+            <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Sequence</div>
+            <div class="auto-timeline">
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(59,130,246,0.15);color:var(--red)">D3</div>
+                <div style="flex:1"><strong style="color:var(--text)">Day 3</strong> — <span style="color:var(--text2)">Gentle reminder: still interested?</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(59,130,246,0.15);color:var(--red)">D7</div>
+                <div style="flex:1"><strong style="color:var(--text)">Day 7</strong> — <span style="color:var(--text2)">Value prop + urgency</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(59,130,246,0.15);color:var(--red)">D14</div>
+                <div style="flex:1"><strong style="color:var(--text)">Day 14</strong> — <span style="color:var(--text2)">Final offer + discount</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step" style="opacity:0.5">
+                <div class="auto-step-dot" style="background:var(--bg4);color:var(--text3)">D30</div>
+                <div style="flex:1"><strong style="color:var(--text3)">Day 30</strong> — <span style="color:var(--text3)">Archive quote</span></div>
+                <div style="font-size:10px;color:var(--text3)">End</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inspection Reminder Automation -->
+          <div class="auto-card">
+            <div class="auto-card-header">
+              <div>
+                <div class="auto-title">🔔 Inspection Reminders</div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px">Notify customers before annual due date</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="auto-badge active" id="insp-auto-badge">Active</span>
+                <label class="auto-toggle">
+                  <input type="checkbox" id="insp-auto-toggle" checked onchange="toggleAutomation('inspection',this.checked)">
+                  <span class="auto-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="auto-stat-row">
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--red)" id="ia-sent">28</div><div class="auto-stat-lbl">Sent</div></div>
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--green)" id="ia-sched">19</div><div class="auto-stat-lbl">Scheduled</div></div>
+              <div class="auto-stat"><div class="auto-stat-val" style="color:var(--amber)" id="ia-over">3</div><div class="auto-stat-lbl">Overdue</div></div>
+            </div>
+            <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Sequence</div>
+            <div class="auto-timeline">
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(34,197,94,0.15);color:var(--green)">60d</div>
+                <div style="flex:1"><strong style="color:var(--text)">60 Days Before</strong> — <span style="color:var(--text2)">Heads up, inspection coming</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(34,197,94,0.15);color:var(--green)">30d</div>
+                <div style="flex:1"><strong style="color:var(--text)">30 Days Before</strong> — <span style="color:var(--text2)">Schedule your inspection</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(245,158,11,0.15);color:var(--amber)">7d</div>
+                <div style="flex:1"><strong style="color:var(--text)">7 Days Before</strong> — <span style="color:var(--text2)">Urgent — book now</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+              <div class="auto-step">
+                <div class="auto-step-dot" style="background:rgba(239,68,68,0.15);color:var(--emergency)">OD</div>
+                <div style="flex:1"><strong style="color:var(--text)">Overdue</strong> — <span style="color:var(--text2)">Compliance warning</span></div>
+                <div style="font-size:10px;color:var(--green)">✓ Active</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+
+          <!-- Action Queue -->
+          <div class="auto-card" style="margin-bottom:12px">
+            <div class="auto-card-header">
+              <div class="auto-title">⚡ Action Queue</div>
+              <div style="font-size:11px;color:var(--text3)" id="queue-last-run">Last run: just now</div>
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Emails ready to send — review before sending or let automation handle it.</div>
+            <div class="auto-queue" id="auto-queue-list"></div>
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn btn-primary" style="flex:1" onclick="sendAllQueue()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send All Now
+              </button>
+              <button class="btn btn-ghost" onclick="renderAutoQueue()">Refresh</button>
+            </div>
+          </div>
+
+          <!-- Email Log -->
+          <div class="auto-card">
+            <div class="auto-card-header">
+              <div class="auto-title">📬 Recent Emails</div>
+              <button class="btn btn-ghost btn-sm" onclick="exportEmailLog()">Export</button>
+            </div>
+            <div id="auto-email-log" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Settings Modal -->
+      <div id="auto-settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:480px;padding:28px">
+          <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+            Automation Settings
+            <button onclick="closeAutoSettings()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">✕</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label class="form-label">Sender Name</label>
+              <input class="form-input" id="auto-sender-name" value="Big City Fire Protection" placeholder="Your company name">
+            </div>
+            <div>
+              <label class="form-label">Reply-To Email</label>
+              <input class="form-input" id="auto-reply-email" value="info@bigcityfp.com" placeholder="your@email.com">
+            </div>
+            <div>
+              <label class="form-label">Quote Follow-Up — Wait Days</label>
+              <input class="form-input" id="auto-quote-days" type="number" value="3" min="1" max="30">
+            </div>
+            <div>
+              <label class="form-label">Inspection Reminder — Days Before Due</label>
+              <input class="form-input" id="auto-insp-days" type="number" value="60" min="7" max="90">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn btn-primary" style="flex:1" onclick="saveAutoSettings()">Save Settings</button>
+              <button class="btn btn-ghost" onclick="closeAutoSettings()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
 
 <script>
 // ---- DATA ----
@@ -4217,5 +4458,295 @@ function gotoMob(page,btn){
   if(btn)btn.classList.add('active');
 }
 
+
+// ============================================================
+// SALES AUTOMATION
+// ============================================================
+
+var AUTO_SETTINGS = JSON.parse(localStorage.getItem('bcfp_auto_settings') || JSON.stringify({
+  enabled_quote: true,
+  enabled_inspection: true,
+  sender_name: 'Big City Fire Protection',
+  reply_email: 'info@bigcityfp.com',
+  quote_wait_days: 3,
+  insp_days_before: 60
+}));
+
+var EMAIL_LOG = JSON.parse(localStorage.getItem('bcfp_email_log') || '[]');
+
+// Sample data for demo — in production pulls from Supabase
+var AUTO_QUOTES = [
+  { id:'Q-001', customer:'Westfield Mall', email:'ops@westfieldmall.com', amount:4800, sent_date:'2024-05-08', status:'pending', days_old:8 },
+  { id:'Q-002', customer:'Harbor Logistics', email:'admin@harborlogistics.com', amount:2200, sent_date:'2024-05-11', status:'pending', days_old:5 },
+  { id:'Q-003', customer:'Desert Sun Hotel', email:'facilities@desertsun.com', amount:6500, sent_date:'2024-05-01', status:'pending', days_old:15 },
+  { id:'Q-004', customer:'Phoenix Storage Co', email:'mgr@phoenixstorage.com', amount:1800, sent_date:'2024-05-13', status:'pending', days_old:3 },
+];
+
+var AUTO_INSPECTIONS = [
+  { customer:'Northgate Plaza', email:'ops@northgateplaza.com', last_inspection:'2023-06-15', days_until_due:-45, status:'overdue' },
+  { customer:'Marriott Phoenix', email:'facilities@marriott-phx.com', last_inspection:'2023-08-01', days_until_due:7, status:'urgent' },
+  { customer:'Desert Sun Hotel', email:'facilities@desertsun.com', last_inspection:'2023-07-20', days_until_due:25, status:'soon' },
+  { customer:'Valley Medical Center', email:'admin@valleymed.com', last_inspection:'2023-09-10', days_until_due:52, status:'upcoming' },
+  { customer:'Westfield Mall', email:'ops@westfieldmall.com', last_inspection:'2023-10-01', days_until_due:78, status:'upcoming' },
+];
+
+function renderAutomationPage() {
+  renderAutoQueue();
+  renderEmailLog();
+  updateAutoStats();
+}
+
+function updateAutoStats() {
+  var sent = EMAIL_LOG.length;
+  var converted = EMAIL_LOG.filter(function(e){ return e.converted; }).length;
+  var pending = AUTO_QUOTES.filter(function(q){ return q.status==='pending'; }).length + AUTO_INSPECTIONS.filter(function(i){ return i.status==='overdue'||i.status==='urgent'; }).length;
+  var rate = sent > 0 ? Math.round((converted/sent)*100) : 0;
+  var el = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  el('auto-stat-sent', sent);
+  el('auto-stat-converted', converted);
+  el('auto-stat-pending', pending);
+  el('auto-stat-rate', rate+'%');
+}
+
+function renderAutoQueue() {
+  var list = document.getElementById('auto-queue-list');
+  if (!list) return;
+
+  var items = [];
+
+  // Quote follow-ups due
+  if (AUTO_SETTINGS.enabled_quote) {
+    AUTO_QUOTES.filter(function(q){ return q.status==='pending' && q.days_old >= AUTO_SETTINGS.quote_wait_days; }).forEach(function(q) {
+      var urgency = q.days_old >= 14 ? 'urgent' : q.days_old >= 7 ? 'soon' : '';
+      items.push({
+        type: 'quote', urgency: urgency,
+        icon: '📋', color: 'var(--red)',
+        title: q.customer,
+        sub: 'Quote ' + q.id + ' · $' + q.amount.toLocaleString() + ' · ' + q.days_old + ' days old',
+        email: q.email,
+        action: 'Send follow-up #' + (q.days_old >= 14 ? '3 (Final)' : q.days_old >= 7 ? '2' : '1'),
+        data: q
+      });
+    });
+  }
+
+  // Inspection reminders due
+  if (AUTO_SETTINGS.enabled_inspection) {
+    AUTO_INSPECTIONS.filter(function(i){ return i.status==='overdue'||i.status==='urgent'||i.status==='soon'; }).forEach(function(i) {
+      var urgency = i.status==='overdue' ? 'urgent' : i.status==='urgent' ? 'soon' : '';
+      items.push({
+        type: 'inspection', urgency: urgency,
+        icon: '🔔', color: i.status==='overdue' ? 'var(--emergency)' : i.status==='urgent' ? 'var(--amber)' : 'var(--blue)',
+        title: i.customer,
+        sub: i.status==='overdue' ? 'Overdue by ' + Math.abs(i.days_until_due) + ' days!' : i.days_until_due + ' days until inspection due',
+        email: i.email,
+        action: i.status==='overdue' ? 'Send compliance warning' : 'Send ' + (i.status==='urgent'?'7-day':'30-day') + ' reminder',
+        data: i
+      });
+    });
+  }
+
+  if (!items.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">✓ Queue empty — all automations up to date</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(function(item, idx) {
+    return '<div class="auto-queue-item ' + (item.urgency||'') + '" onclick="previewEmail(' + idx + ')" data-idx="' + idx + '">' +
+      '<div style="font-size:20px;flex-shrink:0">' + item.icon + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:1px">' + item.title + '</div>' +
+      '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + item.sub + '</div>' +
+      '<div style="font-size:10px;color:' + item.color + ';font-family:var(--font-display);font-weight:700;letter-spacing:0.04em">' + item.action + '</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">' +
+      '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();sendQueueItem(' + idx + ')">Send</button>' +
+      '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();skipQueueItem(' + idx + ')">Skip</button>' +
+      '</div></div>';
+  }).join('');
+
+  // Store items for sending
+  window._autoQueue = items;
+}
+
+function sendQueueItem(idx) {
+  if (!window._autoQueue || !window._autoQueue[idx]) return;
+  var item = window._autoQueue[idx];
+  
+  // Log the email
+  EMAIL_LOG.unshift({
+    id: 'EML-' + Date.now(),
+    type: item.type,
+    customer: item.title,
+    email: item.email,
+    subject: item.action,
+    sent_at: new Date().toLocaleString(),
+    converted: false
+  });
+  localStorage.setItem('bcfp_email_log', JSON.stringify(EMAIL_LOG.slice(0,100)));
+
+  // Mark as sent in the data
+  if (item.type === 'quote') {
+    var q = AUTO_QUOTES.find(function(q){ return q.customer===item.title; });
+    if (q) q.last_followup = new Date().toISOString();
+  }
+
+  showToast('✉ Email sent to ' + item.title);
+  renderAutoQueue();
+  renderEmailLog();
+  updateAutoStats();
+}
+
+function sendAllQueue() {
+  if (!window._autoQueue || !window._autoQueue.length) { showToast('Queue is empty'); return; }
+  var count = window._autoQueue.length;
+  window._autoQueue.forEach(function(item) {
+    EMAIL_LOG.unshift({
+      id: 'EML-' + Date.now() + Math.random(),
+      type: item.type,
+      customer: item.title,
+      email: item.email,
+      subject: item.action,
+      sent_at: new Date().toLocaleString(),
+      converted: false
+    });
+  });
+  localStorage.setItem('bcfp_email_log', JSON.stringify(EMAIL_LOG.slice(0,100)));
+  showToast('✉ ' + count + ' emails sent!');
+  renderAutoQueue();
+  renderEmailLog();
+  updateAutoStats();
+}
+
+function skipQueueItem(idx) {
+  if (!window._autoQueue) return;
+  window._autoQueue.splice(idx, 1);
+  renderAutoQueue();
+  showToast('Skipped');
+}
+
+function previewEmail(idx) {
+  if (!window._autoQueue || !window._autoQueue[idx]) return;
+  var item = window._autoQueue[idx];
+  var isQuote = item.type === 'quote';
+  var subject = isQuote ?
+    'Following up on your fire protection quote - ' + item.data.id :
+    'Your annual fire inspection is ' + (item.data.status==='overdue'?'overdue':'coming up') + ' - ' + item.title;
+  var body = isQuote ?
+    'Hi,\n\nI wanted to follow up on the fire protection quote we sent you (' + item.data.id + ') for $' + item.data.amount.toLocaleString() + '.\n\nWe would love to get your system protected. Can we answer any questions or adjust the scope?\n\nBest,\nBig City Fire Protection\n(602) 555-0100' :
+    'Hi,\n\nYour annual fire inspection ' + (item.data.status==='overdue'?'was due '+Math.abs(item.data.days_until_due)+' days ago':'is coming up in '+item.data.days_until_due+' days') + '.\n\nStay compliant. Book your inspection now at dispatch.bigcityfp.com or call us at (602) 555-0100.\n\nBig City Fire Protection';
+
+  var existing = document.getElementById('email-preview-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'email-preview-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:520px;padding:28px';
+  box.innerHTML =
+    '<div style="font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">Email Preview' +
+    '<button id="close-preview-btn" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">✕</button></div>' +
+    '<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">To</div><div style="font-size:13px;color:var(--text)">' + item.email + '</div></div>' +
+    '<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Subject</div><div style="font-size:13px;color:var(--text)">' + subject + '</div></div>' +
+    '<div style="margin-bottom:16px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Body</div>' +
+    '<div style="background:var(--bg3);border-radius:6px;padding:12px;font-size:12px;color:var(--text2);line-height:1.7;white-space:pre-wrap">' + body + '</div></div>' +
+    '<div style="display:flex;gap:8px">' +
+    '<button id="send-preview-btn" class="btn btn-primary" style="flex:1">Send Now</button>' +
+    '<button id="close-preview-btn2" class="btn btn-ghost">Close</button>' +
+    '</div>';
+
+  modal.appendChild(box);
+  document.body.appendChild(modal);
+
+  document.getElementById('close-preview-btn').onclick = function() { modal.remove(); };
+  document.getElementById('close-preview-btn2').onclick = function() { modal.remove(); };
+  document.getElementById('send-preview-btn').onclick = function() { sendQueueItem(idx); modal.remove(); };
+  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+}
+
+function renderEmailLog() {
+  var el = document.getElementById('auto-email-log');
+  if (!el) return;
+  if (!EMAIL_LOG.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No emails sent yet</div>';
+    return;
+  }
+  el.innerHTML = EMAIL_LOG.slice(0,20).map(function(e) {
+    var typeColor = e.type==='quote' ? 'var(--red)' : 'var(--blue)';
+    var typeIcon = e.type==='quote' ? '📋' : '🔔';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius-sm)">' +
+      '<div style="font-size:14px;flex-shrink:0">' + typeIcon + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + e.customer + '</div>' +
+      '<div style="font-size:10px;color:var(--text3)">' + e.sent_at + '</div>' +
+      '</div>' +
+      '<div style="font-size:10px;font-family:var(--font-display);font-weight:700;color:' + typeColor + ';flex-shrink:0">' + (e.type==='quote'?'QUOTE':'INSP') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function toggleAutomation(type, enabled) {
+  if (type === 'quote') {
+    AUTO_SETTINGS.enabled_quote = enabled;
+    var badge = document.getElementById('quote-auto-badge');
+    if (badge) { badge.textContent = enabled ? 'Active' : 'Paused'; badge.className = 'auto-badge ' + (enabled ? 'active' : 'paused'); }
+  } else {
+    AUTO_SETTINGS.enabled_inspection = enabled;
+    var badge = document.getElementById('insp-auto-badge');
+    if (badge) { badge.textContent = enabled ? 'Active' : 'Paused'; badge.className = 'auto-badge ' + (enabled ? 'active' : 'paused'); }
+  }
+  localStorage.setItem('bcfp_auto_settings', JSON.stringify(AUTO_SETTINGS));
+  showToast(type + ' automation ' + (enabled ? 'enabled' : 'paused'));
+  renderAutoQueue();
+}
+
+function runAutomationCheck() {
+  showToast('Running automation check...');
+  setTimeout(function() {
+    renderAutoQueue();
+    renderEmailLog();
+    updateAutoStats();
+    var el = document.getElementById('queue-last-run');
+    if (el) el.textContent = 'Last run: just now';
+    showToast('✓ Automation check complete');
+  }, 1200);
+}
+
+function openAutoSettings() {
+  var modal = document.getElementById('auto-settings-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeAutoSettings() {
+  var modal = document.getElementById('auto-settings-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function saveAutoSettings() {
+  AUTO_SETTINGS.sender_name = document.getElementById('auto-sender-name').value;
+  AUTO_SETTINGS.reply_email = document.getElementById('auto-reply-email').value;
+  AUTO_SETTINGS.quote_wait_days = parseInt(document.getElementById('auto-quote-days').value) || 3;
+  AUTO_SETTINGS.insp_days_before = parseInt(document.getElementById('auto-insp-days').value) || 60;
+  localStorage.setItem('bcfp_auto_settings', JSON.stringify(AUTO_SETTINGS));
+  closeAutoSettings();
+  showToast('✓ Settings saved');
+  renderAutoQueue();
+}
+
+function exportEmailLog() {
+  if (!EMAIL_LOG.length) { showToast('No emails to export'); return; }
+  var rows = ['Type,Customer,Email,Subject,Sent At,Converted'];
+  EMAIL_LOG.forEach(function(e) {
+    rows.push([e.type,e.customer,e.email,e.subject,e.sent_at,e.converted?'Yes':'No'].join(','));
+  });
+  var blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'bcfp-email-log-' + new Date().toLocaleDateString().replace(/\//g,'-') + '.csv';
+  a.click(); showToast('✓ Email log exported');
+}
+
 </script>
 </body>
+</html>
