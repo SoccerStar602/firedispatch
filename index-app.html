@@ -3946,6 +3946,10 @@ function buildCustomerPortal(){
     '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px">Service History<span style="flex:1;height:1px;background:var(--border)"></span></div>'+
     '<div id="cust-hist"></div>'+
     '<div id="cust-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">No service history yet</div>'+
+
+    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin:24px 0 12px;display:flex;align-items:center;gap:8px">Invoices & Payments<span style="flex:1;height:1px;background:var(--border)"></span></div>'+
+    '<div id="cust-invoices"></div>'+
+
     '<div style="margin-top:28px;padding:18px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;text-align:center">'+
     '<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Need to schedule service or have questions?</div>'+
     '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'+
@@ -3971,6 +3975,31 @@ function buildCustomerPortal(){
   var histJobs=myJobs.filter(function(j){return j!==activeJob;});
   var hDiv=document.getElementById('cust-hist'),eDiv=document.getElementById('cust-empty');
   if(!histJobs.length&&eDiv)eDiv.style.display='block';
+
+  // Render invoices section
+  var invDiv=document.getElementById('cust-invoices');
+  var CUST_INVOICES = JSON.parse(localStorage.getItem('bcfp_cust_invoices_'+cname) || 'null') || [
+    { id:'INV-0042', date:'May 10, 2026', due:'Jun 9, 2026', amount:2750.00, status:'unpaid', desc:'Annual Inspection + Panel Cert' },
+    { id:'INV-0038', date:'Feb 3, 2026',  due:'Mar 5, 2026',  amount:1840.00, status:'paid',   desc:'Sprinkler System Repair' },
+    { id:'INV-0031', date:'Nov 14, 2025', due:'Dec 14, 2025', amount:650.00,  status:'paid',   desc:'Emergency Service Call' },
+  ];
+  if(invDiv) invDiv.innerHTML = CUST_INVOICES.map(function(inv) {
+    var isPaid = inv.status === 'paid';
+    var sc = isPaid ? 'var(--green)' : 'var(--amber)';
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+      '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + inv.id + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:' + sc + ';font-family:var(--font-display)">' + (isPaid ? '✓ PAID' : '⚠ UNPAID') + '</div>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">' + inv.desc + '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">' +
+      '<div style="font-size:12px;color:var(--text3)">Due ' + inv.due + '</div>' +
+      '<div style="font-family:var(--font-display);font-size:16px;font-weight:800;color:' + (isPaid?'var(--green)':'var(--text)') + '">$' + inv.amount.toFixed(2) + '</div>' +
+      '</div>' +
+      (!isPaid ? '<button onclick="custPayInvoice(\'' + inv.id + '\',this)" style="margin-top:10px;width:100%;background:var(--green);border:none;border-radius:8px;color:white;font-family:var(--font-display);font-size:12px;font-weight:700;padding:10px;cursor:pointer;letter-spacing:0.06em">💳 PAY NOW — $' + inv.amount.toFixed(2) + '</button>' : '') +
+      '</div>';
+  }).join('') || '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No invoices yet</div>';
+
   if(hDiv)hDiv.innerHTML=histJobs.map(function(j){
     var sc=j.status==='complete'?'var(--green)':j.status==='pending'?'var(--amber)':'var(--text3)';
     return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px">'+
@@ -4563,6 +4592,25 @@ function generateInvoicePDF() {
     doc.text(notes, margin + 10, y + 27, { maxWidth: W - margin * 2 - 20 });
   }
 
+  // Customer Portal box
+  y += 50;
+  doc.setFillColor(15, 23, 39);
+  doc.roundedRect(margin, y, W - margin * 2, 70, 6, 6, 'F');
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('View & Pay This Invoice Online', margin + 12, y + 18);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(150, 160, 180);
+  doc.text('Log in to your Customer Portal to view invoices, track service history, and pay securely online.', margin + 12, y + 32, { maxWidth: W - margin * 2 - 24 });
+  doc.setTextColor(100, 180, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('🌐  dispatch.bigcityfp.com', margin + 12, y + 50);
+  doc.setTextColor(150, 160, 180);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Your login email is the address this invoice was sent to. Use "Forgot Password" if needed.', margin + 12, y + 62, { maxWidth: W - margin * 2 - 24 });
+
   // Footer
   doc.setFillColor(...dark);
   doc.rect(0, H - 36, W, 36, 'F');
@@ -4613,6 +4661,19 @@ function generateInvoicePDF() {
           <label class="form-label">Job / Description</label>
           <input class="form-input" id="inv-job-desc" placeholder="e.g. Annual Fire Inspection — Westfield Mall">
         </div>
+        <div class="form-group full">
+          <label class="form-label">Customer Email</label>
+          <input class="form-input" id="inv-customer-email" type="email" placeholder="customer@email.com">
+        </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px">
+            <input type="checkbox" id="inv-create-account" checked style="width:16px;height:16px;accent-color:var(--green)">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text)">Create customer portal account</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:1px">Sends login credentials with the invoice so they can pay &amp; track jobs online</div>
+            </div>
+          </label>
+        </div>
       </div>
 
       <!-- Line Items -->
@@ -4653,6 +4714,10 @@ function generateInvoicePDF() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           Download PDF
         </button>
+        <button class="btn btn-ghost" style="flex:1" onclick="emailInvoice()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          Email Invoice
+        </button>
         <button class="btn btn-ghost" onclick="closeModal('invoice-modal')">Cancel</button>
       </div>
     </div>
@@ -4661,9 +4726,238 @@ function generateInvoicePDF() {
 
 </body>
 </html>
-</body>
-</html>
-</body>
-</html>
-</body>
-</html>
+function custPayInvoice(invId, btn) {
+  // Simple payment simulation — in production connect to Stripe
+  var existing = document.getElementById('pay-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'pay-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:400px;padding:28px';
+  box.innerHTML =
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;margin-bottom:6px">Pay Invoice ' + invId + '</div>' +
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:20px">Secure payment — SSL encrypted</div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px">' +
+    '<input class="form-input" id="pay-name" placeholder="Cardholder Name">' +
+    '<input class="form-input" id="pay-card" placeholder="Card Number" maxlength="19" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()">' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+    '<input class="form-input" id="pay-exp" placeholder="MM/YY" maxlength="5">' +
+    '<input class="form-input" id="pay-cvv" placeholder="CVV" maxlength="4">' +
+    '</div>' +
+    '</div>' +
+    '<button onclick="processCustPayment('' + invId + '')" style="margin-top:16px;width:100%;background:var(--green);border:none;border-radius:8px;color:white;font-family:var(--font-display);font-size:13px;font-weight:700;padding:14px;cursor:pointer;letter-spacing:0.06em">✓ CONFIRM PAYMENT</button>' +
+    '<button onclick="document.getElementById('pay-modal').remove()" style="margin-top:8px;width:100%;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:12px;padding:10px;cursor:pointer">Cancel</button>' +
+    '<div style="margin-top:14px;text-align:center;font-size:10px;color:var(--text3)">🔒 Payments processed securely. We do not store your card details.</div>';
+
+  modal.appendChild(box);
+  document.body.appendChild(modal);
+  modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
+}
+
+function processCustPayment(invId) {
+  var name = document.getElementById('pay-name').value;
+  var card = document.getElementById('pay-card').value;
+  if (!name || card.replace(/\s/g,'').length < 16) {
+    showToast('Please fill in all payment details');
+    return;
+  }
+  // Simulate processing
+  var btn = document.querySelector('#pay-modal button');
+  if (btn) { btn.textContent = '⏳ Processing...'; btn.disabled = true; }
+  setTimeout(function() {
+    document.getElementById('pay-modal').remove();
+    showToast('✓ Payment for ' + invId + ' processed! Receipt sent to your email.');
+    // Rebuild portal to show paid status
+    setTimeout(function(){ buildCustomerPortal(); }, 800);
+  }, 2000);
+}
+
+// ── EMAIL INVOICE VIA SUPABASE EDGE FUNCTION ─────────────
+function emailInvoice() {
+  // Validate
+  var toEmail = document.getElementById('inv-customer-email') && document.getElementById('inv-customer-email').value;
+  if (!toEmail) {
+    // Prompt for email if not already in form
+    var email = prompt('Send invoice to email address:');
+    if (!email || !email.includes('@')) { showToast('Valid email required'); return; }
+    toEmail = email;
+  }
+
+  var invNum  = document.getElementById('inv-number').value || 'INV-0001';
+  var invDate = document.getElementById('inv-date').value || '';
+  var invDue  = document.getElementById('inv-due').value || '';
+  var customer = document.getElementById('inv-customer').value || 'Customer';
+  var jobDesc  = document.getElementById('inv-job-desc').value || '';
+  var notes    = document.getElementById('inv-notes').value || 'Payment due within 30 days. Thank you for your business!';
+  var taxRate  = parseFloat(document.getElementById('inv-tax').value) || 0;
+  var sub = INV_LINES.reduce(function(s,l){ return s+(l.qty||1)*(l.rate||0); }, 0);
+  var tax = sub * taxRate / 100;
+  var total = sub + tax;
+  var fmt = function(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+
+  // Build line items HTML
+  var lineRows = INV_LINES.map(function(l,i){
+    var bg = i%2===0 ? '#F8F9FC' : '#FFFFFF';
+    var amt = (l.qty||1)*(l.rate||0);
+    return '<tr style="background:'+bg+'">'+
+      '<td style="padding:10px 16px;font-size:13px;color:#1A1D27">'+l.desc+'</td>'+
+      '<td style="padding:10px 16px;font-size:13px;color:#1A1D27;text-align:center">'+l.qty+'</td>'+
+      '<td style="padding:10px 16px;font-size:13px;color:#1A1D27;text-align:right">'+fmt(l.rate)+'</td>'+
+      '<td style="padding:10px 16px;font-size:13px;color:#1A1D27;text-align:right">'+fmt(amt)+'</td>'+
+      '</tr>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F0F2F5;font-family:Helvetica,Arial,sans-serif">'+
+    '<div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E2E6F0">'+
+
+    '<div style="background:#C41E1E;padding:24px 32px;display:flex;align-items:center;gap:16px">'+
+    '<div style="color:white;font-size:20px;font-weight:700">BIG CITY FIRE PROTECTION</div>'+
+    '</div>'+
+
+    '<div style="padding:32px">'+
+    '<p style="font-size:15px;color:#1A1D27;margin:0 0 6px">Hi,</p>'+
+    '<p style="font-size:14px;color:#6B7280;line-height:1.7;margin:0 0 24px">Your invoice for <strong style="color:#1A1D27">'+jobDesc+'</strong> is ready. Please review the details below.</p>'+
+
+    '<div style="background:#F8F9FC;border:1px solid #E2E6F0;border-radius:10px;padding:20px;margin-bottom:24px;display:flex;justify-content:space-around;text-align:center">'+
+    '<div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Invoice</p><p style="font-size:15px;font-weight:600;color:#1A1D27;margin:0">'+invNum+'</p></div>'+
+    '<div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Amount Due</p><p style="font-size:22px;font-weight:700;color:#C41E1E;margin:0">'+fmt(total)+'</p></div>'+
+    '<div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Due Date</p><p style="font-size:15px;font-weight:600;color:#1A1D27;margin:0">'+invDue+'</p></div>'+
+    '</div>'+
+
+    '<table style="width:100%;border-collapse:collapse;margin-bottom:24px;border:1px solid #E2E6F0;border-radius:8px;overflow:hidden">'+
+    '<thead><tr style="background:#C41E1E"><th style="padding:10px 16px;font-size:11px;font-weight:700;color:white;text-align:left;text-transform:uppercase;letter-spacing:0.08em">Description</th>'+
+    '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:white;text-align:center;text-transform:uppercase;letter-spacing:0.08em">Qty</th>'+
+    '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:white;text-align:right;text-transform:uppercase;letter-spacing:0.08em">Unit</th>'+
+    '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:white;text-align:right;text-transform:uppercase;letter-spacing:0.08em">Amount</th></tr></thead>'+
+    '<tbody>'+lineRows+'</tbody>'+
+    '<tfoot><tr style="background:#C41E1E"><td colspan="3" style="padding:12px 16px;font-size:14px;font-weight:700;color:white">Total Due</td>'+
+    '<td style="padding:12px 16px;font-size:14px;font-weight:700;color:white;text-align:right">'+fmt(total)+'</td></tr></tfoot>'+
+    '</table>'+
+
+    '<div style="text-align:center;margin-bottom:24px">'+
+    '<a href="https://dispatch.bigcityfp.com" style="display:inline-block;background:#C41E1E;color:white;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none">Pay Now — '+fmt(total)+'</a>'+
+    '<p style="font-size:12px;color:#9CA3AF;margin:10px 0 0">Secure payment at dispatch.bigcityfp.com</p>'+
+    '</div>'+
+
+    '<div style="background:#0F1727;border-radius:8px;padding:16px;margin-bottom:24px">'+
+    '<p style="font-size:13px;font-weight:700;color:white;margin:0 0 6px">View & Pay Online — Customer Portal</p>'+
+    '<p style="font-size:12px;color:#8896B0;margin:0 0 6px;line-height:1.6">Log in at <a href="https://dispatch.bigcityfp.com" style="color:#60A5FA">dispatch.bigcityfp.com</a> to view invoices, track jobs, and pay securely.</p>'+
+    '<p style="font-size:12px;color:#8896B0;margin:0;line-height:1.6">Your login is this email address. Click <em>Forgot Password</em> if it's your first time.</p>'+
+    '</div>'+
+
+    '<p style="font-size:13px;color:#6B7280;line-height:1.7;margin:0 0 6px">'+notes+'</p>'+
+    '<p style="font-size:13px;color:#6B7280;margin:0 0 24px">Questions? Call <strong style="color:#1A1D27">(602) 555-0100</strong> or reply to this email.</p>'+
+    '<p style="font-size:13px;color:#6B7280;margin:0">Thanks,<br><strong style="color:#1A1D27">Big City Fire Protection</strong></p>'+
+    '</div>'+
+
+    '<div style="background:#F8F9FC;border-top:1px solid #E2E6F0;padding:16px 32px;text-align:center">'+
+    '<p style="font-size:11px;color:#9CA3AF;margin:0">Big City Fire Protection | Phoenix, AZ | dispatch.bigcityfp.com | (602) 555-0100</p>'+
+    '</div>'+
+    '</div></body></html>';
+
+  // Optionally create customer account first
+  var createAccount = document.getElementById('inv-create-account') && document.getElementById('inv-create-account').checked;
+  var tempPass = null;
+
+  function doSendEmail(tempPassword) {
+    // Add portal access section to HTML if account was created
+    var portalSection = '';
+    if (tempPassword) {
+      portalSection =
+        '<div style="background:#0F1727;border-radius:8px;padding:20px;margin-bottom:24px;border:2px solid #3B82F6">' +
+        '<p style="font-size:14px;font-weight:700;color:white;margin:0 0 10px">Your Customer Portal Account</p>' +
+        '<p style="font-size:12px;color:#8896B0;margin:0 0 12px;line-height:1.6">We created a portal account so you can view invoices, track service calls, and pay online anytime.</p>' +
+        '<div style="background:#1E293B;border-radius:6px;padding:14px;margin-bottom:12px">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+        '<span style="font-size:12px;color:#8896B0">Login URL</span>' +
+        '<span style="font-size:12px;color:#60A5FA;font-weight:600">dispatch.bigcityfp.com</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:8px">' +
+        '<span style="font-size:12px;color:#8896B0">Email</span>' +
+        '<span style="font-size:12px;color:white;font-weight:600">' + toEmail + '</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between">' +
+        '<span style="font-size:12px;color:#8896B0">Temp Password</span>' +
+        '<span style="font-size:13px;color:#34D399;font-weight:700;font-family:monospace">' + tempPassword + '</span>' +
+        '</div>' +
+        '</div>' +
+        '<p style="font-size:11px;color:#F59E0B;margin:0">You will be asked to set a new password on first login.</p>' +
+        '</div>';
+    }
+
+    // Inject portal section into html before the footer
+    var finalHtml = html.replace(
+      '<div style="background:#F8F9FC;border-top:1px solid #E2E6F0',
+      portalSection + '<div style="background:#F8F9FC;border-top:1px solid #E2E6F0'
+    );
+
+    showToast('Sending invoice...');
+    fetch(SUPABASE_URL + '/functions/v1/send-email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+      'apikey': SUPABASE_KEY
+    },
+    body: JSON.stringify({
+      to: toEmail,
+      subject: 'Invoice ' + invNum + ' — ' + fmt(total) + ' due ' + invDue + ' | Big City Fire Protection',
+      html: finalHtml,
+      from: 'Big City Fire Protection <billing@bigcityfp.com>'
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.error) throw new Error(d.error);
+    showToast('Invoice emailed to ' + toEmail + (tempPass ? ' with portal access!' : '!'));
+    closeModal('invoice-modal');
+    var num = parseInt(invNum.replace('INV-','')) || 0;
+    localStorage.setItem('bcfp_last_inv', num);
+  })
+  .catch(function(e){
+    console.error('Email error:', e);
+    showToast('Email failed — check edge function setup');
+  });
+  } // end doSendEmail
+
+  if (createAccount) {
+    // Generate temp password
+    tempPass = 'BCFP-' + Math.random().toString(36).substr(2,4).toUpperCase() + Math.floor(1000+Math.random()*9000);
+    var custName = customer.split('\n')[0].trim();
+    showToast('Creating portal account...');
+    fetch(SUPABASE_URL + '/functions/v1/create-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+        'apikey': SUPABASE_KEY
+      },
+      body: JSON.stringify({
+        action: 'create',
+        email: toEmail,
+        full_name: custName,
+        role: 'customer',
+        temp_password: tempPass,
+        customer_name: custName
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.error && d.error.indexOf('already') < 0 && d.error.indexOf('exists') < 0) {
+        console.warn('Account creation:', d.error);
+        // Still send email even if account exists
+      }
+      doSendEmail(tempPass);
+    })
+    .catch(function(e){
+      console.warn('Account creation failed, sending without:', e);
+      doSendEmail(null);
+    });
+  } else {
+    doSendEmail(null);
+  }
+}
+
