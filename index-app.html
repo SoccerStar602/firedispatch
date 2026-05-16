@@ -3038,28 +3038,115 @@ async function toggleSuspend(userId, suspend) {
 }
 
 async function adminInviteUser() {
-  var name = document.getElementById('ai-name').value.trim();
-  var email = document.getElementById('ai-email').value.trim();
-  var role = document.getElementById('ai-role').value;
-  var pass = document.getElementById('ai-pass').value || 'BCFP Connect1!';
+  const name  = document.getElementById('ai-name').value.trim();
+  const email = document.getElementById('ai-email').value.trim();
+  const role  = document.getElementById('ai-role').value;
+  const pass  = document.getElementById('ai-pass').value || 'BCFPConnect1!';
   if (!name || !email) { showToast('Enter name and email'); return; }
-  showToast('Check the instructions below to add this user');
-  var inv = document.getElementById('admin-invite');
-  if (inv) {
-    var box = document.createElement('div');
-    box.className = 'admin-card';
-    box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.3);margin-top:12px';
-    var sqlLine = 'insert into profiles (id,full_name,role) select id,' + JSON.stringify(name) + ',' + JSON.stringify(role) + ' from auth.users where email=' + JSON.stringify(email) + ';';
-    box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">How to add ' + name + '</div>' +
-      '<div style="font-size:12px;color:var(--text2);line-height:1.8">' +
-      '<b style="color:var(--text)">1.</b> Supabase > Auth > Users > Add user<br>' +
-      '<b style="color:var(--text)">2.</b> Email: <span style="color:var(--teal)">' + email + '</span><br>' +
-      '<b style="color:var(--text)">3.</b> Password: <span style="color:var(--teal)">' + pass + '</span> | Check Auto Confirm<br>' +
-      '<b style="color:var(--text)">4.</b> SQL Editor > Run:<br>' +
-      '<pre style="background:var(--bg4);padding:8px;border-radius:4px;font-size:10px;color:#2DD4BF;margin-top:4px;white-space:pre-wrap">' + sqlLine + '</pre>' +
-      '</div>';
-    inv.appendChild(box);
+
+  const btn = document.querySelector('#admin-invite .btn-primary');
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating user...'; }
+
+  try {
+    // Step 1: Sign up user via Supabase Auth
+    const signupRes = await fetch(SUPABASE_URL + '/auth/v1/admin/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      },
+      body: JSON.stringify({
+        email: email,
+        password: pass,
+        email_confirm: true,
+        user_metadata: { full_name: name }
+      })
+    });
+
+    const userData = await signupRes.json();
+
+    if (userData.error || (!userData.id && !userData.user)) {
+      // Admin API requires service role - fall back to showing SQL
+      showFallbackSQL(name, email, role, pass);
+      if (btn) { btn.disabled = false; btn.textContent = 'Create User & Send Invite'; }
+      return;
+    }
+
+    const userId = userData.id || userData.user?.id;
+
+    // Step 2: Insert profile
+    const profileRes = await fetch(SUPABASE_URL + '/rest/v1/profiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + localStorage.getItem('fd_token'),
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ id: userId, full_name: name, role: role })
+    });
+
+    if (profileRes.ok || profileRes.status === 201) {
+      showToast('✓ User created! ' + name + ' can now log in.');
+      showSuccessCard(name, email, role, pass);
+      // Clear form
+      document.getElementById('ai-name').value = '';
+      document.getElementById('ai-email').value = '';
+      document.getElementById('ai-pass').value = 'BCFPConnect1!';
+      // Refresh users list
+      loadAdminUsers();
+    } else {
+      showToast('User created but profile failed — run SQL below');
+      showFallbackSQL(name, email, role, pass, userId);
+    }
+
+  } catch(e) {
+    showToast('Error: ' + e.message);
+    showFallbackSQL(name, email, role, pass);
   }
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Create User & Send Invite'; }
+}
+
+function showSuccessCard(name, email, role, pass) {
+  const inv = document.getElementById('admin-invite');
+  if (!inv) return;
+  // Remove old cards
+  inv.querySelectorAll('.invite-result').forEach(el => el.remove());
+  const box = document.createElement('div');
+  box.className = 'admin-card invite-result';
+  box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.4);margin-top:12px;background:rgba(34,197,94,0.05)';
+  const roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">✓ User Created Successfully</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:12px">' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Name</div><div style="color:var(--text);font-weight:600">' + name + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Role</div><div style="color:var(--text);font-weight:600">' + (roleLabels[role]||role) + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Email</div><div style="color:var(--teal)">' + email + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Temp Password</div><div style="color:var(--amber);font-weight:600">' + pass + '</div></div>' +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--text3);line-height:1.6">They can log in at <span style="color:var(--teal)">dispatch.bigcityfp.com</span> right now with these credentials.</div>';
+  inv.appendChild(box);
+}
+
+function showFallbackSQL(name, email, role, pass, userId) {
+  const inv = document.getElementById('admin-invite');
+  if (!inv) return;
+  inv.querySelectorAll('.invite-result').forEach(el => el.remove());
+  const box = document.createElement('div');
+  box.className = 'admin-card invite-result';
+  box.style.cssText = 'max-width:520px;border-color:rgba(245,158,11,0.3);margin-top:12px';
+  const profileSQL = userId
+    ? 'insert into profiles (id,full_name,role) values (\'' + userId + '\',\'' + name + '\',\'' + role + '\');'
+    : 'insert into profiles (id,full_name,role) select id,\'' + name + '\',\'' + role + '\' from auth.users where email=\'' + email + '\';';
+  box.innerHTML = '<div class="admin-card-title" style="color:var(--amber)">⚠ Run this SQL in Supabase</div>' +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:10px">The publishable key cannot create users directly. Run this in Supabase SQL Editor:</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">1. Go to Supabase > Auth > Users > Add user</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">2. Email: <strong style="color:var(--teal)">' + email + '</strong>  Password: <strong style="color:var(--amber)">' + pass + '</strong>  ✅ Auto confirm</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">3. Then run in SQL Editor:</div>' +
+    '<pre style="background:var(--bg4);padding:10px;font-size:10px;color:#2DD4BF;border-radius:5px;overflow-x:auto;white-space:pre-wrap">' + profileSQL + '</pre>' +
+    '<button onclick="navigator.clipboard.writeText(\'' + profileSQL.replace(/'/g, "\'") + '\')" style="margin-top:8px;background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">Copy SQL</button>';
+  inv.appendChild(box);
 }
 
 function doLogout() {
