@@ -639,6 +639,46 @@
   .timelog-onsite{color:var(--green);font-family:var(--font-display);font-weight:700;width:60px;flex-shrink:0}
   .timelog-total-cell{color:#14B8A6;font-family:var(--font-display);font-weight:700;margin-left:auto}
   .timelog-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+
+  /* ROLE PORTALS */
+  .portal-wrap { display:flex;flex-direction:column;min-height:100vh;background:var(--bg); }
+  .portal-header { background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50; }
+  .portal-logo { font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px; }
+  .portal-logo span { color:var(--red); }
+  .portal-role-pill { padding:3px 12px;border-radius:20px;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase; }
+  .portal-body { flex:1;padding:24px;max-width:900px;margin:0 auto;width:100%; }
+  .portal-section-title { font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+  .portal-section-title::after { content:'';flex:1;height:1px;background:var(--border); }
+  .portal-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;transition:var(--transition); }
+  .portal-card:hover { border-color:rgba(255,255,255,0.08);box-shadow:var(--shadow); }
+  .portal-stat-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px; }
+  @media(max-width:600px) { .portal-stat-row { grid-template-columns:repeat(2,1fr); } }
+  .portal-stat { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center; }
+  .portal-stat-val { font-family:var(--font-display);font-size:32px;font-weight:800;line-height:1; }
+  .portal-stat-lbl { font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px; }
+  /* Tech job card */
+  .tech-job { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;transition:var(--transition); }
+  .tech-job.active { border-color:rgba(224,32,32,0.35);box-shadow:0 0 20px rgba(224,32,32,0.08); }
+  .tech-job-header { padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border); }
+  .tech-job-body { padding:16px 18px; }
+  .tech-clock-row { display:flex;gap:8px;margin-top:14px;flex-wrap:wrap; }
+  .clock-pill { flex:1;min-width:80px;padding:10px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:6px; }
+  .clock-pill.drive { background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3); }
+  .clock-pill.drive:hover { background:rgba(59,130,246,0.25); }
+  .clock-pill.onsite { background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3); }
+  .clock-pill.onsite:hover { background:rgba(34,197,94,0.25); }
+  .clock-pill.complete { background:rgba(168,85,247,0.15);color:#C084FC;border:1px solid rgba(168,85,247,0.3); }
+  .clock-pill.complete:hover { background:rgba(168,85,247,0.25); }
+  .clock-pill.emergency { background:rgba(224,32,32,0.15);color:var(--red);border:1px solid rgba(224,32,32,0.3); }
+  /* Dispatcher quick action bar */
+  .dispatch-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+  .dispatch-stat-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px; }
+  @media(max-width:700px){ .dispatch-stat-grid { grid-template-columns:repeat(2,1fr); } }
+  .dispatch-queue { display:flex;flex-direction:column;gap:8px; }
+  .dispatch-job-row { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:var(--transition);cursor:pointer; }
+  .dispatch-job-row:hover { border-color:rgba(255,255,255,0.1);transform:translateY(-1px);box-shadow:var(--shadow); }
+  .dispatch-job-row.emergency { border-color:rgba(224,32,32,0.3);background:rgba(224,32,32,0.04); }
+
 </style>
 </head>
 <body>
@@ -1551,6 +1591,7 @@ BCFP Connect"></textarea>
               <label class="form-label">Role</label>
               <select class="form-select" id="ai-role" onchange="toggleCustomerLink()">
                 <option value="admin">Admin — full system access</option>
+              <option value="manager">Manager — everything except admin</option>
                 <option value="dispatcher">Dispatcher — full dispatch</option>
                 <option value="tech" selected>Technician — assigned jobs</option>
                 <option value="customer">Customer — portal only</option>
@@ -3185,7 +3226,7 @@ function showSuccessCard(name, email, role, pass, emailSent) {
   const box = document.createElement('div');
   box.className = 'admin-card invite-result';
   box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.4);margin-top:12px;background:rgba(34,197,94,0.05)';
-  const roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  const roleLabels = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
   const emailStatus = emailSent
     ? '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;margin-bottom:12px">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
@@ -3355,44 +3396,53 @@ function applyRolePermissions(role) {
   var sidebar = document.querySelector('.sidebar');
   var ticker = document.querySelector('.alert-ticker');
   var ttBar = document.getElementById('tt-bar');
+  var topbar = document.querySelector('.topbar');
 
-  if (role === 'admin' || role === 'dispatcher') {
-    if (role === 'admin') {
-      var tr = document.querySelector('.topbar-right');
-      if (tr && !document.getElementById('admin-panel-btn')) {
-        var btn = document.createElement('button');
-        btn.id = 'admin-panel-btn';
-        btn.className = 'btn btn-ghost';
-        btn.style.cssText = 'padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
-        btn.onclick = function() { openAdminPanel(); };
-        tr.insertBefore(btn, tr.firstChild);
-      }
-    }
-    return;
-  }
-
-  if (role === 'tech') {
-    // Tech: Jobs, Calendar, Sites only
-    var TECH_PAGES = ['jobs','calendar','sites'];
-    document.querySelectorAll('.nav-btn').forEach(function(btn) {
-      var onclick = btn.getAttribute('onclick') || '';
-      var show = TECH_PAGES.some(function(p) { return onclick.indexOf(p) >= 0; });
-      btn.style.display = show ? '' : 'none';
-    });
-    if (sidebar) sidebar.style.display = 'none';
-    // Default to jobs page
-    var firstBtn = document.querySelector('.nav-btn[onclick*="jobs"]');
-    if (firstBtn) firstBtn.click();
-    return;
-  }
-
-  if (role === 'customer') {
+  // Hide everything we don't need for portal views
+  function hideAll() {
     if (nav) nav.style.display = 'none';
     if (sidebar) sidebar.style.display = 'none';
     if (ticker) ticker.style.display = 'none';
     if (ttBar) ttBar.style.display = 'none';
-    buildCustomerPortal();
+    if (topbar) topbar.style.display = 'none';
+  }
+
+  if (role === 'admin') {
+    // Full access + admin panel button
+    var tr = document.querySelector('.topbar-right');
+    if (tr && !document.getElementById('admin-panel-btn')) {
+      var btn = document.createElement('button');
+      btn.id = 'admin-panel-btn';
+      btn.className = 'btn btn-ghost';
+      btn.style.cssText = 'padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
+      btn.onclick = function() { openAdminPanel(); };
+      tr.insertBefore(btn, tr.firstChild);
+    }
+    return;
+  }
+
+  if (role === 'manager') {
+    // Everything except admin panel — just hide the admin button
+    if (sidebar) sidebar.style.display = 'none';
+    return;
+  }
+
+  if (role === 'dispatcher') {
+    hideAll();
+    setTimeout(function() { buildDispatcherPortal(); }, 100);
+    return;
+  }
+
+  if (role === 'tech') {
+    hideAll();
+    setTimeout(function() { buildTechPortal(); }, 100);
+    return;
+  }
+
+  if (role === 'customer') {
+    hideAll();
+    setTimeout(function() { buildCustomerPortal(); }, 100);
     return;
   }
 }
@@ -3505,6 +3555,288 @@ async function deleteUser(userId, name) {
     if (data.success) { showToast('✓ ' + name + ' deleted'); loadAdminUsers(); }
     else showToast('Error: ' + (data.error || 'Failed'));
   } catch(e) { showToast('Error: ' + e.message); }
+}
+
+
+// ============================================================
+// ROLE PORTAL VIEWS
+// ============================================================
+
+function buildPortalHeader(roleName, roleClass, name) {
+  return '<div class="portal-header">' +
+    '<div class="portal-logo">BCFP<span>Connect</span></div>' +
+    '<div style="display:flex;align-items:center;gap:12px">' +
+    '<span class="portal-role-pill ' + roleClass + '">' + roleName + '</span>' +
+    '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
+    '<button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>' +
+    '</div></div>';
+}
+
+// ── DISPATCHER PORTAL ────────────────────────────────────────
+function buildDispatcherPortal() {
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  var name = profile.full_name || 'Dispatcher';
+
+  // Count job stats
+  var total = typeof JOBS !== 'undefined' ? JOBS.length : 0;
+  var emergency = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.priority==='emergency';}).length : 0;
+  var pending = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='pending';}).length : 0;
+  var complete = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='complete';}).length : 0;
+  var enroute = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='enroute';}).length : 0;
+  var techs = typeof TECHS !== 'undefined' ? TECHS.length : 0;
+
+  main.innerHTML = '<div class="portal-wrap">' +
+    buildPortalHeader('Dispatcher', 'role-dispatcher', name) +
+
+    // Emergency bar
+    '<div style="background:rgba(224,32,32,0.08);border-bottom:1px solid rgba(224,32,32,0.15);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+    '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--red)">⚡ DISPATCH CENTER — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
+    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:16px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a>' +
+    '</div>' +
+
+    '<div class="portal-body">' +
+
+    // Stats
+    '<div class="dispatch-stat-grid">' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--red)">' + emergency + '</div><div class="portal-stat-lbl">Emergency</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--amber)">' + pending + '</div><div class="portal-stat-lbl">Pending</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--blue)">' + enroute + '</div><div class="portal-stat-lbl">En Route</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--green)">' + complete + '</div><div class="portal-stat-lbl">Complete</div></div>' +
+    '</div>' +
+
+    // Quick actions
+    '<div class="dispatch-bar">' +
+    '<button class="btn btn-primary" onclick="openNewJobModal()">+ New Job</button>' +
+    '<button class="btn btn-ghost" id="dp-jobs-btn">All Jobs</button>' +
+    '<button class="btn btn-ghost" id="dp-cal-btn">Calendar</button>' +
+    '<button class="btn btn-ghost" id="dp-techs-btn">Techs</button>' +
+    '<button class="btn btn-ghost" id="dp-cust-btn">Customers</button>' +
+    '<button class="btn btn-ghost" id="dp-quotes-btn">Quotes</button>' +
+    '</div>' +
+
+    // Active jobs queue
+    '<div class="portal-section-title">Active Queue</div>' +
+    '<div class="dispatch-queue" id="dispatch-queue-list"></div>' +
+
+    // Techs on duty
+    '<div class="portal-section-title" style="margin-top:20px">Techs On Duty</div>' +
+    '<div id="dispatch-tech-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div>' +
+
+    '</div></div>';
+
+  // Populate queue
+  renderDispatchQueue();
+  renderDispatchTechs();
+  // Wire dispatch job clicks
+  var dq = document.getElementById('dispatch-queue-list');
+  if (dq) dq.addEventListener('click', function(e) {
+    var row = e.target.closest('[data-jobid]');
+    if (row) openJobModal(row.getAttribute('data-jobid'));
+  });
+
+  // Wire nav buttons
+  var pages = {
+    'dp-jobs-btn': 'jobs', 'dp-cal-btn': 'calendar',
+    'dp-techs-btn': 'technicians', 'dp-cust-btn': 'customers', 'dp-quotes-btn': 'quotes'
+  };
+  Object.keys(pages).forEach(function(id) {
+    var btn = document.getElementById(id);
+    if (btn) btn.onclick = (function(page) { return function() { showPage(page); }; })(pages[id]);
+  });
+}
+
+function renderDispatchQueue() {
+  var el = document.getElementById('dispatch-queue-list');
+  if (!el || typeof JOBS === 'undefined') return;
+  var active = JOBS.filter(function(j){ return j.status !== 'complete'; }).slice(0,8);
+  if (!active.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No active jobs</div>'; return; }
+  el.innerHTML = active.map(function(j) {
+    var isEmergency = j.priority === 'emergency';
+    var statusColors = { pending:'var(--amber)', dispatched:'var(--blue)', enroute:'var(--blue)', onsite:'var(--green)', complete:'var(--green)' };
+    var sc = statusColors[j.status] || 'var(--text3)';
+    return '<div class="dispatch-job-row' + (isEmergency?' emergency':'') + '" data-jobid="' + j.id + '">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+      (isEmergency?'<span style="color:var(--red);font-size:10px">🚨</span>':'') +
+      '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</span>' +
+      '<span class="status-tag" style="background:rgba(0,0,0,0.3);color:' + sc + '">' + (j.status||'pending') + '</span>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">' + j.type + '</div>' +
+      '<div style="font-size:11px;color:var(--text3)">' + j.address + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+      '<div style="font-size:12px;color:var(--text2)">' + (j.tech||'Unassigned') + '</div>' +
+      (j.eta?'<div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function renderDispatchTechs() {
+  var el = document.getElementById('dispatch-tech-list');
+  if (!el || typeof TECHS === 'undefined') return;
+  el.innerHTML = TECHS.slice(0,6).map(function(t) {
+    var statusColor = t.status === 'available' ? 'var(--green)' : t.status === 'onsite' ? 'var(--amber)' : 'var(--text3)';
+    return '<div class="portal-card" style="padding:12px;display:flex;align-items:center;gap:10px">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--text2);flex-shrink:0">' + (t.name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.name||'Tech') + '</div>' +
+      '<div style="display:flex;align-items:center;gap:5px;margin-top:2px"><div style="width:6px;height:6px;border-radius:50%;background:' + statusColor + '"></div>' +
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">' + (t.status||'off duty') + '</div></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+// ── TECH PORTAL ──────────────────────────────────────────────
+function buildTechPortal() {
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  var name = profile.full_name || 'Technician';
+  var firstName = name.split(' ')[0];
+
+  // Filter jobs assigned to this tech
+  var myJobs = typeof JOBS !== 'undefined' ? JOBS.filter(function(j) {
+    return j.tech && j.tech.toLowerCase().indexOf(firstName.toLowerCase()) >= 0;
+  }) : [];
+  if (!myJobs.length && typeof JOBS !== 'undefined') myJobs = JOBS.slice(0,3);
+
+  var todayJobs = myJobs.filter(function(j){ return j.status !== 'complete'; });
+  var doneJobs = myJobs.filter(function(j){ return j.status === 'complete'; });
+
+  main.innerHTML = '<div class="portal-wrap">' +
+    buildPortalHeader('Technician', 'role-tech', name) +
+
+    // TT Bar embed
+    '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
+    '<div style="display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2)">' +
+    '<div class="tt-dot" id="tt-dot2"></div><span id="tt-state-label2">Not clocked in</span>' +
+    '</div>' +
+    '<div class="tt-timer" id="tt-timer2" style="color:var(--text3)">0:00</div>' +
+    '<div style="margin-left:auto;display:flex;gap:6px">' +
+    '<button class="clock-pill drive" id="tt-drive-btn2" onclick="ttClockDrive()" style="display:none">🚗 Driving</button>' +
+    '<button class="clock-pill onsite" id="tt-onsite-btn2" onclick="ttClockOnsite()" style="display:none">📍 On Site</button>' +
+    '<button class="clock-pill emergency" id="tt-end-btn2" onclick="ttClockOut()" style="display:none">End Day</button>' +
+    '<button class="clock-pill" id="tt-clockin-btn2" onclick="ttClockIn()" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)">⏱ Clock In</button>' +
+    '</div></div>' +
+
+    '<div class="portal-body">' +
+
+    // Stats
+    '<div class="portal-stat-row">' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--amber)">' + todayJobs.length + '</div><div class="portal-stat-lbl">Today</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--green)">' + doneJobs.length + '</div><div class="portal-stat-lbl">Complete</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--blue)" id="tt-drive-today2">0m</div><div class="portal-stat-lbl">Drive Time</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--teal)" id="tt-onsite-today2">0m</div><div class="portal-stat-lbl">On Site</div></div>' +
+    '</div>' +
+
+    // Today's jobs
+    '<div class="portal-section-title">My Jobs Today</div>' +
+    (todayJobs.length ? todayJobs.map(function(j) {
+      var isEmergency = j.priority === 'emergency';
+      return '<div class="tech-job' + (isEmergency?' active':'') + '">' +
+        '<div class="tech-job-header">' +
+        '<div>' +
+        '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em;margin-bottom:3px">' + j.id + (isEmergency?' 🚨 EMERGENCY':'') + '</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + j.address + (j.unit?' · '+j.unit:'') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+        '<div style="font-size:11px;color:var(--text3)">' + j.time + '</div>' +
+        (j.eta?'<div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') +
+        '</div></div>' +
+        '<div class="tech-job-body">' +
+        // Site info
+        (j.lockbox?'<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--text2)">🔐 Lockbox: <strong style="color:var(--text)">' + j.lockbox + '</strong></div>':'') +
+        (j.notes?'<div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">' + j.notes + '</div>':'') +
+        // Action buttons
+        '<div class="tech-clock-row">' +
+        '<button class="clock-pill drive" data-drive="' + j.id + '">🚗 En Route</button>' +
+        '<button class="clock-pill onsite" data-onsite="' + j.id + '">📍 On Site</button>' +
+        '<button class="clock-pill complete" data-complete="' + j.id + '">✓ Complete</button>' +
+        '</div>' +
+        // Photo upload hint
+        '<div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);text-align:center;cursor:pointer;border:1px dashed var(--border)" data-photos="' + j.id + '">' +
+        '<span style="font-size:12px;color:var(--text3)">📷 Tap to upload photos / log fail devices</span>' +
+        '</div>' +
+        '</div></div>';
+    }).join('') : '<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No jobs assigned for today</div>') +
+
+    // Completed today
+    (doneJobs.length ? '<div class="portal-section-title" style="margin-top:20px">Completed</div>' +
+    doneJobs.map(function(j) {
+      return '<div class="portal-card" style="display:flex;align-items:center;gap:12px;opacity:0.7">' +
+        '<div style="width:32px;height:32px;border-radius:50%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:14px;flex-shrink:0">✓</div>' +
+        '<div><div style="font-size:13px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
+        '<div style="font-size:11px;color:var(--text3)">' + j.address + ' · ' + j.time + '</div></div>' +
+        '<div style="margin-left:auto;font-family:var(--font-display);font-size:11px;color:var(--green);font-weight:700">DONE</div>' +
+        '</div>';
+    }).join('') : '') +
+
+    '</div></div>';
+
+  // Wire up button events via delegation
+  var techMain = main.querySelector('.portal-body');
+  if (techMain) {
+    techMain.addEventListener('click', function(e) {
+      var drive = e.target.closest('[data-drive]');
+      var onsite = e.target.closest('[data-onsite]');
+      var complete = e.target.closest('[data-complete]');
+      var photos = e.target.closest('[data-photos]');
+      if (drive) { ttClockDrive(); showToast('Driving to ' + drive.getAttribute('data-drive')); }
+      if (onsite) { ttClockOnsite(); showToast('Arrived at ' + onsite.getAttribute('data-onsite')); }
+      if (complete) { showToast('✓ ' + complete.getAttribute('data-complete') + ' marked complete'); }
+      if (photos) { openJobModal(photos.getAttribute('data-photos')); }
+    });
+  }
+
+  // Wire up the TT buttons to sync with the main TT system
+  ttUpdateUI2();
+  if (typeof ttInterval !== 'undefined') clearInterval(ttInterval);
+  ttInterval = setInterval(ttTick2, 1000);
+}
+
+function ttTick2() {
+  var now = new Date();
+  var driveR = typeof TT !== 'undefined' && TT.state==='driving' && TT.driveStart ? Math.floor((now-new Date(TT.driveStart))/1000) : 0;
+  var onsiteR = typeof TT !== 'undefined' && TT.state==='onsite' && TT.onsiteStart ? Math.floor((now-new Date(TT.onsiteStart))/1000) : 0;
+  var current = TT.state==='driving' ? driveR : onsiteR;
+  var el = document.getElementById('tt-timer2');
+  if (el) el.textContent = typeof fmtSec === 'function' ? fmtSec(current) : current + 's';
+  var d = document.getElementById('tt-drive-today2');
+  var o = document.getElementById('tt-onsite-today2');
+  if (d && typeof fmtSecShort === 'function') d.textContent = fmtSecShort(TT.driveTotal + driveR);
+  if (o && typeof fmtSecShort === 'function') o.textContent = fmtSecShort(TT.onsiteTotal + onsiteR);
+}
+
+function ttUpdateUI2() {
+  if (typeof TT === 'undefined') return;
+  var dot = document.getElementById('tt-dot2');
+  var label = document.getElementById('tt-state-label2');
+  var cinBtn = document.getElementById('tt-clockin-btn2');
+  var driveBtn = document.getElementById('tt-drive-btn2');
+  var onsiteBtn = document.getElementById('tt-onsite-btn2');
+  var endBtn = document.getElementById('tt-end-btn2');
+  if (!dot) return;
+  var stateMap = { out:{dot:'',label:'Not clocked in',color:'var(--text3)'}, driving:{dot:'drive',label:'Driving',color:'var(--blue)'}, onsite:{dot:'onsite',label:'On Site',color:'var(--green)'} };
+  var s = stateMap[TT.state] || stateMap.out;
+  dot.className = 'tt-dot ' + s.dot;
+  if (label) { label.textContent = s.label; label.style.color = s.color; }
+  if (cinBtn) cinBtn.style.display = TT.state==='out' ? 'inline-flex' : 'none';
+  if (driveBtn) driveBtn.style.display = TT.state==='onsite' ? 'inline-flex' : 'none';
+  if (onsiteBtn) onsiteBtn.style.display = TT.state==='driving' ? 'inline-flex' : 'none';
+  if (endBtn) endBtn.style.display = TT.state!=='out' ? 'inline-flex' : 'none';
+}
+
+// ── MANAGER VIEW ─────────────────────────────────────────────
+function buildManagerView() {
+  // Manager gets full app but no admin panel button
+  // Just show the normal nav without admin button
+  return; // already handled in applyRolePermissions
 }
 
 </script>
