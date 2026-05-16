@@ -22,41 +22,45 @@
 </script>
 <style>
   :root {
-    --red: #F97316;
-    --red-dark: #EA6B0A;
-    --red-glow: rgba(249,115,22,0.12);
-    --emergency: #EF4444;
-    --emergency-glow: rgba(239,68,68,0.15);
-    --bg: #0A0E1A;
-    --bg2: #0F1525;
-    --bg3: #1A2035;
-    --bg4: #1E2540;
+    --red: #E02020;
+    --red-dark: #A81515;
+    --red-glow: rgba(224,32,32,0.12);
+    --bg: #0A0A0B;
+    --bg2: #111113;
+    --bg3: #18181B;
+    --bg4: #1F1F23;
     --border: rgba(255,255,255,0.06);
-    --border-red: rgba(249,115,22,0.25);
-    --text: #F8FAFF;
-    --text2: #8B95B0;
-    --text3: #4A5568;
+    --border-red: rgba(224,32,32,0.25);
+    --text: #FAFAF9;
+    --text2: #A1A09E;
+    --text3: #626260;
     --green: #22C55E;
-    --amber: #FBBF24;
-    --blue: #60A5FA;
-    --teal: #2DD4BF;
-    --purple: #A78BFA;
+    --amber: #F59E0B;
+    --blue: #3B82F6;
+    --teal: #14B8A6;
+    --purple: #A855F7;
     --font-display: 'Barlow Condensed', sans-serif;
     --font-body: 'Barlow', sans-serif;
     --radius: 10px;
     --radius-sm: 6px;
     --radius-lg: 14px;
-    --shadow: 0 2px 16px rgba(0,0,0,0.5);
-    --shadow-red: 0 4px 24px rgba(249,115,22,0.15);
+    --shadow: 0 2px 12px rgba(0,0,0,0.4);
+    --shadow-red: 0 4px 24px rgba(224,32,32,0.12);
     --transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  ::selection { background: rgba(224,32,32,0.25); color: var(--text); }
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(224,32,32,0.3); border-radius: 3px; }
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
 
   /* TOP BAR */
   .topbar {
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border-red);
+    background: rgba(17,17,19,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 0;
     height: 52px; flex-shrink: 0;
   }
@@ -204,7 +208,7 @@
     font-family: var(--font-display); font-size: 11px; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase;
   }
-  .priority-emergency { background: rgba(249,115,22,0.15); color: #FF6B6B; border: 1px solid rgba(249,115,22,0.3); }
+  .priority-emergency { background: rgba(224,32,32,0.15); color: #FF6B6B; border: 1px solid rgba(224,32,32,0.3); }
   .priority-high { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
   .priority-normal { background: rgba(59,130,246,0.12); color: #60A5FA; border: 1px solid rgba(59,130,246,0.25); }
   .priority-low { background: var(--bg4); color: var(--text3); border: 1px solid var(--border); }
@@ -251,7 +255,7 @@
     background: var(--bg2); border: 1px solid var(--border-red);
     border-radius: 10px; width: 580px; max-width: 95vw; max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 0 60px rgba(249,115,22,0.15);
+    box-shadow: 0 0 60px rgba(224,32,32,0.15);
   }
   .modal-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -288,7 +292,7 @@
   .customer-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
   .customer-avatar {
     width: 36px; height: 36px; border-radius: 8px;
-    background: rgba(249,115,22,0.15); border: 1px solid var(--border-red);
+    background: rgba(224,32,32,0.15); border: 1px solid var(--border-red);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-display); font-size: 13px; font-weight: 800; color: var(--red);
     flex-shrink: 0;
@@ -386,7 +390,7 @@
 
   /* AUTH SCREEN */
   .auth-screen { display:none!important; }
-  .auth-card { background:var(--bg2);border:1px solid var(--border-red);border-radius:12px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 0 60px rgba(249,115,22,0.12); }
+  .auth-card { background:var(--bg2);border:1px solid var(--border-red);border-radius:12px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 0 60px rgba(224,32,32,0.12); }
   .auth-logo { display:flex;align-items:center;justify-content:center;gap:10px;padding:28px 24px 20px;font-family:var(--font-display);font-size:22px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase; }
   .auth-flame { width:24px;height:24px;background:var(--red);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
   .auth-logo span { color:var(--red); }
@@ -397,13 +401,13 @@
   .auth-btn { width:100%;background:var(--red);color:white;border:none;border-radius:6px;padding:11px;font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.12s; }
   .auth-btn:hover { background:#C41A1A; }
   .auth-btn:disabled { opacity:0.5;cursor:not-allowed; }
-  .auth-error { background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:6px;padding:10px 13px;font-size:12px;color:#FF6B6B;margin-bottom:12px;display:none; }
+  .auth-error { background:rgba(224,32,32,0.1);border:1px solid rgba(224,32,32,0.3);border-radius:6px;padding:10px 13px;font-size:12px;color:#FF6B6B;margin-bottom:12px;display:none; }
   .auth-error.show { display:block; }
   .auth-divider { height:1px;background:var(--border);margin:16px 0; }
   .auth-sub { font-size:11px;color:var(--text3);text-align:center;margin-top:12px; }
   /* ROLE BADGE in topbar */
   .role-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase; }
-  .role-dispatcher { background:rgba(249,115,22,0.15);color:var(--red);border:1px solid rgba(249,115,22,0.3); }
+  .role-dispatcher { background:rgba(224,32,32,0.15);color:var(--red);border:1px solid rgba(224,32,32,0.3); }
   .role-tech { background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3); }
   .role-customer { background:rgba(59,130,246,0.15);color:#60A5FA;border:1px solid rgba(59,130,246,0.3); }
   /* TECH VIEW — simplified dashboard */
@@ -446,7 +450,7 @@
   .site-count { font-size: 11px; color: var(--text3); }
   .site-body { display: none; border-top: 1px solid var(--border); }
   .site-body.open { display: block; }
-  .site-access-bar { display: flex; gap: 8px; padding: 8px 14px; background: rgba(249,115,22,0.04); border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .site-access-bar { display: flex; gap: 8px; padding: 8px 14px; background: rgba(224,32,32,0.04); border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
   .access-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 4px; background: var(--bg4); border: 1px solid var(--border); font-size: 11px; color: var(--text2); }
   .access-chip svg { width: 10px; height: 10px; color: var(--text3); flex-shrink: 0; }
   .access-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); }
@@ -457,12 +461,12 @@
   .cal-day-hdr { background: var(--bg2); padding: 7px 4px; text-align: center; font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); }
   .cal-day { background: var(--bg2); min-height: 82px; padding: 6px; cursor: pointer; transition: background 0.12s; }
   .cal-day:hover { background: var(--bg3); }
-  .cal-day.today { background: rgba(249,115,22,0.06); box-shadow: inset 0 0 0 1px var(--border-red); }
+  .cal-day.today { background: rgba(224,32,32,0.06); box-shadow: inset 0 0 0 1px var(--border-red); }
   .cal-day.other-month .cal-day-num { opacity: 0.35; }
   .cal-day-num { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
   .cal-day.today .cal-day-num { color: var(--red); }
   .cal-event { font-family: var(--font-display); font-size: 10px; font-weight: 600; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cal-event.emergency { background: rgba(249,115,22,0.25); color: #FF8080; }
+  .cal-event.emergency { background: rgba(224,32,32,0.25); color: #FF8080; }
   .cal-event.high { background: rgba(245,158,11,0.2); color: var(--amber); }
   .cal-event.normal { background: rgba(59,130,246,0.2); color: #60A5FA; }
   .cal-event.low { background: var(--bg4); color: var(--text3); }
@@ -505,13 +509,13 @@
   .media-thumb svg { width: 20px; height: 20px; color: var(--text3); }
   .media-thumb .media-remove { position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,0.75); border: none; color: white; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .media-type-badge { position: absolute; bottom: 3px; left: 3px; background: rgba(0,0,0,0.7); color: white; font-size: 9px; font-family: var(--font-display); font-weight: 700; padding: 1px 5px; border-radius: 3px; }
-  .fail-device-item { background: var(--bg3); border: 1px solid rgba(249,115,22,0.2); border-radius: 7px; padding: 12px; margin-bottom: 8px; }
+  .fail-device-item { background: var(--bg3); border: 1px solid rgba(224,32,32,0.2); border-radius: 7px; padding: 12px; margin-bottom: 8px; }
   .fail-device-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .fail-sev-tag { font-family: var(--font-display); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
   .sev-critical { color: var(--red); } .sev-warning { color: var(--amber); } .sev-info { color: var(--blue); }
   .portal-logo { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; margin-bottom: 4px; }
   .portal-logo span { color: var(--red); }
-  .eta-box { background: var(--bg2); border: 2px solid var(--border-red); border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 14px; box-shadow: 0 0 40px rgba(249,115,22,0.1); }
+  .eta-box { background: var(--bg2); border: 2px solid var(--border-red); border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 14px; box-shadow: 0 0 40px rgba(224,32,32,0.1); }
   .eta-label { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
   .eta-time { font-family: var(--font-display); font-size: 52px; font-weight: 800; color: var(--red); line-height: 1; }
   .eta-tech { font-size: 13px; color: var(--text2); margin-top: 4px; }
@@ -598,7 +602,7 @@
   .user-name-disp { font-size:13px;font-weight:600;color:var(--text); }
   .user-email-disp { font-size:10px;color:var(--text3); }
   .user-actions { display:flex;gap:6px;align-items:center;flex-shrink:0; }
-  .suspended-badge { background:rgba(249,115,22,0.12);color:#FF6B6B;border:1px solid rgba(249,115,22,0.25);font-family:var(--font-display);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase; }
+  .suspended-badge { background:rgba(224,32,32,0.12);color:#FF6B6B;border:1px solid rgba(224,32,32,0.25);font-family:var(--font-display);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase; }
   .activity-row { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px; }
   .activity-row:last-child { border-bottom:none; }
   .activity-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
@@ -636,36 +640,44 @@
   .timelog-total-cell{color:#14B8A6;font-family:var(--font-display);font-weight:700;margin-left:auto}
   .timelog-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
 
-  /* Emergency overrides — true red for danger */
-  .job-card.emergency { border-color: rgba(239,68,68,0.4) !important; }
-  .job-card.emergency .job-id { color: var(--emergency) !important; }
-  .status-emergency { color: var(--emergency) !important; }
-  .alert-ticker { border-bottom-color: rgba(249,115,22,0.2) !important; }
-  /* Navy topbar */
-  .topbar { background: rgba(10,14,26,0.97) !important; backdrop-filter: blur(12px); }
-  /* Sidebar navy tint */
-  .sidebar { background: #0D1220 !important; border-right-color: rgba(255,255,255,0.04) !important; }
-  /* Nav active state — orange */
-  .nav-btn.active { background: rgba(249,115,22,0.12) !important; color: var(--red) !important; }
-  /* Queue/job board */
-  .job-board { background: var(--bg2); }
-  /* Section header */
-  .section-header { background: var(--bg2) !important; }
-  /* Metric cards */
-  .metric-value.red, .metric-value[style*="#E02020"] { color: var(--red) !important; }
-  /* Buttons */
-  .btn-primary { box-shadow: 0 2px 16px rgba(249,115,22,0.25) !important; }
-  /* Status pill online */
-  .status-pill { border-color: rgba(249,115,22,0.3) !important; }
-  /* Portal header */
-  .portal-header { background: rgba(10,14,26,0.98) !important; }
-  /* Role badges */
-  .role-dispatcher { background: rgba(249,115,22,0.15) !important; color: var(--red) !important; border-color: rgba(249,115,22,0.3) !important; }
-  /* TT dot drive */
-  .tt-dot.drive { background: var(--red) !important; }
-  /* Admin panel */
-  .admin-title { color: var(--red) !important; }
-  .admin-topbar { border-bottom-color: rgba(249,115,22,0.35) !important; }
+  /* ROLE PORTALS */
+  .portal-wrap { display:flex;flex-direction:column;min-height:100vh;background:var(--bg); }
+  .portal-header { background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50; }
+  .portal-logo { font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px; }
+  .portal-logo span { color:var(--red); }
+  .portal-role-pill { padding:3px 12px;border-radius:20px;font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase; }
+  .portal-body { flex:1;padding:24px;max-width:900px;margin:0 auto;width:100%; }
+  .portal-section-title { font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px; }
+  .portal-section-title::after { content:'';flex:1;height:1px;background:var(--border); }
+  .portal-card { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;transition:var(--transition); }
+  .portal-card:hover { border-color:rgba(255,255,255,0.08);box-shadow:var(--shadow); }
+  .portal-stat-row { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px; }
+  @media(max-width:600px) { .portal-stat-row { grid-template-columns:repeat(2,1fr); } }
+  .portal-stat { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;text-align:center; }
+  .portal-stat-val { font-family:var(--font-display);font-size:32px;font-weight:800;line-height:1; }
+  .portal-stat-lbl { font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px; }
+  /* Tech job card */
+  .tech-job { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;transition:var(--transition); }
+  .tech-job.active { border-color:rgba(224,32,32,0.35);box-shadow:0 0 20px rgba(224,32,32,0.08); }
+  .tech-job-header { padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border); }
+  .tech-job-body { padding:16px 18px; }
+  .tech-clock-row { display:flex;gap:8px;margin-top:14px;flex-wrap:wrap; }
+  .clock-pill { flex:1;min-width:80px;padding:10px;border-radius:20px;border:none;cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:6px; }
+  .clock-pill.drive { background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3); }
+  .clock-pill.drive:hover { background:rgba(59,130,246,0.25); }
+  .clock-pill.onsite { background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3); }
+  .clock-pill.onsite:hover { background:rgba(34,197,94,0.25); }
+  .clock-pill.complete { background:rgba(168,85,247,0.15);color:#C084FC;border:1px solid rgba(168,85,247,0.3); }
+  .clock-pill.complete:hover { background:rgba(168,85,247,0.25); }
+  .clock-pill.emergency { background:rgba(224,32,32,0.15);color:var(--red);border:1px solid rgba(224,32,32,0.3); }
+  /* Dispatcher quick action bar */
+  .dispatch-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
+  .dispatch-stat-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px; }
+  @media(max-width:700px){ .dispatch-stat-grid { grid-template-columns:repeat(2,1fr); } }
+  .dispatch-queue { display:flex;flex-direction:column;gap:8px; }
+  .dispatch-job-row { background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:var(--transition);cursor:pointer; }
+  .dispatch-job-row:hover { border-color:rgba(255,255,255,0.1);transform:translateY(-1px);box-shadow:var(--shadow); }
+  .dispatch-job-row.emergency { border-color:rgba(224,32,32,0.3);background:rgba(224,32,32,0.04); }
 
 </style>
 </head>
@@ -677,7 +689,7 @@
   <div class="auth-card">
     <div class="auth-logo">
       <div class="auth-flame"></div>
-      Fire<span>Dispatch</span>
+      BCFP<span>Connect</span>
     </div>
     <div class="auth-form">
       <div class="auth-error" id="auth-error">Invalid email or password. Please try again.</div>
@@ -793,7 +805,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
       Arrived On-Site
     </button>
-    <button class="btn btn-ghost btn-sm" id="tt-end-btn" onclick="ttClockOut()" style="display:none;color:#FF6B6B;border-color:rgba(249,115,22,0.3)">
+    <button class="btn btn-ghost btn-sm" id="tt-end-btn" onclick="ttClockOut()" style="display:none;color:#FF6B6B;border-color:rgba(224,32,32,0.3)">
       End Day
     </button>
     <button class="btn btn-ghost btn-sm" id="tt-clockin-btn" onclick="ttClockIn()" style="background:rgba(34,197,94,0.1);color:var(--green);border-color:rgba(34,197,94,0.3)">
@@ -812,7 +824,7 @@
 <div class="topbar">
   <div class="logo">
     <div class="logo-icon"></div>
-    Fire<span>Dispatch</span>
+    BCFP<span>Connect</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -864,7 +876,7 @@
     <div class="status-pill"><div class="status-dot"></div>Online</div>
     <div id="role-badge-wrap"></div>
     <div class="time-display" id="clock">--:--</div>
-    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openModal('user-modal')" id="user-menu-btn" title="Account">
+    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openAccountModal()" id="user-menu-btn" title="Account">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span id="user-btn-label">Account</span>
     </button>
@@ -1579,6 +1591,7 @@ BCFP Connect"></textarea>
               <label class="form-label">Role</label>
               <select class="form-select" id="ai-role" onchange="toggleCustomerLink()">
                 <option value="admin">Admin — full system access</option>
+              <option value="manager">Manager — everything except admin</option>
                 <option value="dispatcher">Dispatcher — full dispatch</option>
                 <option value="tech" selected>Technician — assigned jobs</option>
                 <option value="customer">Customer — portal only</option>
@@ -1620,6 +1633,35 @@ BCFP Connect"></textarea>
       <!-- SETTINGS -->
       <div class="admin-section" id="admin-settings">
         <div class="admin-card" style="max-width:520px">
+          <div class="admin-card-title" style="color:#C084FC">Preview App As Role</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+            Switch your view to see exactly what each role sees. Your admin access is preserved — click "Return to Admin" to switch back anytime.
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(224,32,32,0.3);color:var(--red)" onclick="previewAsRole('dispatcher')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              View as Dispatcher
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(14,165,233,0.3);color:#38BDF8" onclick="previewAsRole('manager')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              View as Manager
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(245,158,11,0.3);color:var(--amber)" onclick="previewAsRole('tech')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              View as Technician
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(59,130,246,0.3);color:#60A5FA" onclick="previewAsRole('customer')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              View as Customer
+            </button>
+            <button class="btn btn-ghost" style="justify-content:center;border-color:rgba(168,85,247,0.3);color:#C084FC" onclick="previewAsRole('admin')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Return to Admin
+            </button>
+          </div>
+          <div id="preview-role-status" style="font-size:11px;color:var(--text3);text-align:center"></div>
+        </div>
+        <div class="admin-card" style="max-width:520px">
           <div class="admin-card-title">System Settings</div>
           <div class="form-grid">
             <div class="form-group full">
@@ -1645,8 +1687,8 @@ BCFP Connect"></textarea>
           <div class="admin-card-title" style="color:var(--red)">Danger Zone</div>
           <div style="font-size:12px;color:var(--text2);margin-bottom:12px">These actions affect the entire system.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-ghost" style="border-color:rgba(249,115,22,0.3);color:#FF6B6B;font-size:11px" onclick="showToast('Contact Supabase to reset the database')">Reset All Data</button>
-            <button class="btn btn-ghost" style="border-color:rgba(249,115,22,0.3);color:#FF6B6B;font-size:11px" onclick="exportAllData()">Export All Data</button>
+            <button class="btn btn-ghost" style="border-color:rgba(224,32,32,0.3);color:#FF6B6B;font-size:11px" onclick="showToast('Contact Supabase to reset the database')">Reset All Data</button>
+            <button class="btn btn-ghost" style="border-color:rgba(224,32,32,0.3);color:#FF6B6B;font-size:11px" onclick="exportAllData()">Export All Data</button>
           </div>
         </div>
       </div>
@@ -2090,7 +2132,7 @@ function renderJobsPage(filter='all', search='') {
 function renderCustomers() {
   const colors = ['red','blue','amber','green','purple','teal'];
   const colorStyles = {
-    red:'background:rgba(249,115,22,0.15);border-color:rgba(249,115,22,0.3);color:var(--red)',
+    red:'background:rgba(224,32,32,0.15);border-color:rgba(224,32,32,0.3);color:var(--red)',
     blue:'background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:#60A5FA',
     amber:'background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.3);color:var(--amber)',
     green:'background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.3);color:var(--green)',
@@ -2156,7 +2198,7 @@ function filterChip(el, f) {
 }
 function highlightRow(row) {
   document.querySelectorAll('.jobs-table tr').forEach(r => r.style.background = '');
-  row.style.background = 'rgba(249,115,22,0.06)';
+  row.style.background = 'rgba(224,32,32,0.06)';
 }
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2325,7 +2367,7 @@ let EXPENSES = JSON.parse(localStorage.getItem('fd_expenses') || 'null') || [
 const catColors = {
   Parts:'rgba(59,130,246,0.15)',Fuel:'rgba(245,158,11,0.15)',
   Insurance:'rgba(168,85,247,0.15)',Equipment:'rgba(20,184,166,0.15)',
-  Labor:'rgba(34,197,94,0.15)',Vehicle:'rgba(249,115,22,0.15)',Other:'rgba(92,90,87,0.2)'
+  Labor:'rgba(34,197,94,0.15)',Vehicle:'rgba(224,32,32,0.15)',Other:'rgba(92,90,87,0.2)'
 };
 const catTextColors = {
   Parts:'#60A5FA',Fuel:'var(--amber)',Insurance:'#C084FC',
@@ -2923,59 +2965,149 @@ function populateCustomerDropdown() {
 
 async function loadAdminUsers() {
   const list = document.getElementById('admin-users-list');
-  const roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(249,115,22,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
-  const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
-  const roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  if (list) list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Loading users...</div>';
 
-  if (!SUPA_CONFIGURED) {
-    adminUsers = [
-      { id:'demo-1', full_name:'Owen Norris', email:'owennorris85284@gmail.com', role:'admin', suspended:false, created_at: new Date().toISOString() },
-    ];
-  } else {
-    const { data, error } = await _sb.from('profiles').select('*');
-    if (error) { list.innerHTML = `<div style="color:var(--red);font-size:12px">Error: ${error.message}</div>`; return; }
-    // Get emails from auth — we store what we can
-    adminUsers = data || [];
+  const roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
+  const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
+  const roleLabel  = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+
+  // Always show current user
+  var profile = {};
+  var user = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
+
+  adminUsers = [];
+
+  // Fetch ALL users from Supabase profiles table
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=*&order=created_at.asc', {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+        'Content-Type': 'application/json'
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.length > 0) {
+        adminUsers = data;
+      }
+    }
+  } catch(e) {
+    console.warn('Could not load users:', e);
   }
 
-  document.getElementById('stat-total').textContent = adminUsers.length;
-  document.getElementById('stat-active').textContent = adminUsers.filter(u => !u.suspended).length;
-  document.getElementById('stat-suspended').textContent = adminUsers.filter(u => u.suspended).length;
+  // Fallback to just current user if nothing loaded
+  if (!adminUsers.length) {
+    adminUsers = [{
+      id: user.id || 'current',
+      full_name: profile.full_name || 'You',
+      email: user.email || '',
+      role: profile.role || 'dispatcher',
+      suspended: false,
+      created_at: new Date().toISOString()
+    }];
+  }
+
+  const statTotal = document.getElementById('stat-total');
+  const statActive = document.getElementById('stat-active');
+  const statSuspended = document.getElementById('stat-suspended');
+  if (statTotal) statTotal.textContent = adminUsers.length;
+  if (statActive) statActive.textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
+  if (statSuspended) statSuspended.textContent = adminUsers.filter(function(u){return u.suspended;}).length;
 
   renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
 }
 
 function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
   const list = document.getElementById('admin-users-list');
-  if(!roleColors) {
-    roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(249,115,22,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
+  if (!list) return;
+  if (!roleColors) {
+    roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
     roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
-    roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+    roleLabel  = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
   }
-  if (!users.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>'; return; }
-  list.innerHTML = users.map(u => {
-    const initials = (u.full_name||u.email||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    const bg = roleColors[u.role] || roleColors.dispatcher;
-    const tc = roleText[u.role] || roleText.dispatcher;
-    const rl = roleLabel[u.role] || u.role;
-    return `<div class="user-row" id="urow-${u.id}">
-      <div class="user-av" style="background:${bg};color:${tc}">${initials}</div>
-      <div class="user-info">
-        <div class="user-name-disp">${u.full_name || 'Unknown'}${u.suspended?'<span class="suspended-badge" style="margin-left:8px">Suspended</span>':''}</div>
-        <div class="user-email-disp">${u.email||''} · ${new Date(u.created_at).toLocaleDateString()}</div>
-      </div>
-      <div class="user-actions">
-        <select class="form-select" style="width:130px;font-size:11px;padding:4px 22px 4px 8px" onchange="changeRole('${u.id}',this.value)">
-          <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-          <option value="dispatcher" ${u.role==='dispatcher'?'selected':''}>Dispatcher</option>
-          <option value="tech" ${u.role==='tech'?'selected':''}>Technician</option>
-          <option value="customer" ${u.role==='customer'?'selected':''}>Customer</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="openResetPass('${u.id}','${u.full_name||'User'}')">Reset PW</button>
-        <button class="btn btn-ghost btn-sm" style="color:${u.suspended?'var(--green)':'#FF6B6B'};border-color:${u.suspended?'rgba(34,197,94,0.3)':'rgba(249,115,22,0.3)'}" onclick="toggleSuspend('${u.id}',${!u.suspended})">${u.suspended?'Unsuspend':'Suspend'}</button>
-      </div>
-    </div>`;
-  }).join('');
+  if (!users || !users.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  var myEmail = '';
+  try { myEmail = JSON.parse(localStorage.getItem('fd_user')||'{}').email || ''; } catch(e) {}
+
+  users.forEach(function(u) {
+    var initials = (u.full_name||u.email||'?').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+    var bg = roleColors[u.role] || roleColors.dispatcher;
+    var tc = roleText[u.role] || roleText.dispatcher;
+    var rl = roleLabel[u.role] || u.role;
+    var isSelf = u.email === myEmail;
+
+    var row = document.createElement('div');
+    row.className = 'user-row';
+    row.id = 'urow-' + u.id;
+
+    var av = document.createElement('div');
+    av.className = 'user-av';
+    av.style.cssText = 'background:' + bg + ';color:' + tc;
+    av.textContent = initials;
+
+    var info = document.createElement('div');
+    info.className = 'user-info';
+    info.innerHTML = '<div class="user-name-disp">' + (u.full_name||'Unknown') +
+      (u.suspended ? '<span class="suspended-badge" style="margin-left:8px">Suspended</span>' : '') +
+      (isSelf ? '<span style="font-size:9px;color:var(--text3);margin-left:6px">(you)</span>' : '') +
+      '</div><div class="user-email-disp">' + (u.email||'') + ' · ' + new Date(u.created_at).toLocaleDateString() + '</div>';
+
+    var actions = document.createElement('div');
+    actions.className = 'user-actions';
+
+    // Role dropdown
+    var sel = document.createElement('select');
+    sel.className = 'form-select';
+    sel.style.cssText = 'width:130px;font-size:11px;padding:4px 22px 4px 8px';
+    ['admin','manager','dispatcher','tech','customer'].forEach(function(r) {
+      var opt = document.createElement('option');
+      opt.value = r; opt.textContent = roleLabel[r]||r;
+      if (u.role === r) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = (function(uid) { return function() { changeRole(uid, this.value); }; })(u.id);
+
+    // Reset PW button
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn btn-ghost btn-sm';
+    resetBtn.textContent = 'Reset PW';
+    resetBtn.onclick = (function(uid, uname) { return function() { openResetPass(uid, uname); }; })(u.id, u.full_name||'User');
+
+    // Suspend button
+    var suspBtn = document.createElement('button');
+    suspBtn.className = 'btn btn-ghost btn-sm';
+    suspBtn.textContent = u.suspended ? 'Unsuspend' : 'Suspend';
+    suspBtn.style.cssText = 'color:' + (u.suspended ? 'var(--green)' : '#FF6B6B') + ';border-color:' + (u.suspended ? 'rgba(34,197,94,0.3)' : 'rgba(224,32,32,0.3)');
+    suspBtn.onclick = (function(uid, susp) { return function() { toggleSuspend(uid, susp); }; })(u.id, !u.suspended);
+
+    actions.appendChild(sel);
+    actions.appendChild(resetBtn);
+    actions.appendChild(suspBtn);
+
+    // Delete button (not for self)
+    if (!isSelf) {
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-ghost btn-sm';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Delete user';
+      delBtn.style.cssText = 'color:#FF6B6B;border-color:rgba(224,32,32,0.3);padding:4px 8px';
+      delBtn.onclick = (function(uid, uname) { return function() { deleteUser(uid, uname); }; })(u.id, u.full_name||'User');
+      actions.appendChild(delBtn);
+    }
+
+    row.appendChild(av);
+    row.appendChild(info);
+    row.appendChild(actions);
+    list.appendChild(row);
+  });
 }
 
 function filterAdminUsers(search) {
@@ -2986,10 +3118,26 @@ function filterAdminUsers(search) {
 }
 
 async function changeRole(userId, newRole) {
-  if (!SUPA_CONFIGURED) { showToast('Connect Supabase to change roles'); return; }
-  const { error } = await _sb.from('profiles').update({ role: newRole }).eq('id', userId);
-  if (error) showToast('Error: ' + error.message);
-  else { showToast('✓ Role updated to ' + newRole); loadAdminUsers(); }
+  // Update localStorage if current user
+  try {
+    var user = JSON.parse(localStorage.getItem('fd_user') || '{}');
+    var profile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+    if (user.id === userId || userId === 'current') {
+      profile.role = newRole;
+      localStorage.setItem('fd_profile', JSON.stringify(profile));
+    }
+  } catch(e) {}
+  try {
+    const res = await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (localStorage.getItem('fd_token')||'') },
+      body: JSON.stringify({ action: 'update_role', user_id: userId, role: newRole })
+    });
+    const data = await res.json();
+    if (data.success) showToast('✓ Role saved — ' + newRole);
+    else showToast('Error: ' + (data.error || 'Failed'));
+  } catch(e) { showToast('Saved locally only'); }
+  loadAdminUsers();
 }
 
 function openResetPass(userId, name) {
@@ -3007,7 +3155,7 @@ async function confirmResetPassword() {
   const { error } = await _sb.rpc('reset_user_password', { user_id: resetTargetId, new_password: newPass });
   if (error) {
     // Fallback — show SQL to run
-    showToast('Password reset failed — contact support');
+    showToast('Password reset failed');
   } else {
     showToast('✓ Password reset successfully');
   }
@@ -3028,72 +3176,223 @@ async function adminInviteUser() {
   const pass  = document.getElementById('ai-pass').value || 'BCFPConnect1!';
   const phone = document.getElementById('ai-phone') ? document.getElementById('ai-phone').value.trim() : '';
   if (!name || !email) { showToast('Enter name and email'); return; }
-  const btn = document.querySelector('#admin-invite .btn-primary');
+
+  const btn = document.querySelector('#admin-invite button.btn-primary');
   if (btn) { btn.disabled = true; btn.textContent = 'Creating user...'; }
+
+  // Remove old result cards
   document.querySelectorAll('.invite-result').forEach(el => el.remove());
+
   try {
     const token = localStorage.getItem('fd_token') || '';
+    
     const res = await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': SUPABASE_KEY },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+        'apikey': SUPABASE_KEY
+      },
       body: JSON.stringify({ name, email, password: pass, role, phone })
     });
+
     const data = await res.json();
+
     if (data.success) {
-      showToast(data.email_sent ? '✓ Invite sent to ' + name : '✓ ' + name + ' created!');
+      showToast(data.email_sent ? '✓ Invite email sent to ' + name : '✓ ' + name + ' created!');
       showSuccessCard(name, email, role, pass, data.email_sent);
-      ['ai-name','ai-email','ai-phone'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-      const passEl = document.getElementById('ai-pass'); if(passEl) passEl.value = 'BCFPConnect1!';
+      // Clear form
+      ['ai-name','ai-email','ai-phone'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const passEl = document.getElementById('ai-pass');
+      if (passEl) passEl.value = 'BCFPConnect1!';
       if (data.warning) showToast('⚠ ' + data.warning);
       loadAdminUsers();
     } else {
       showToast('Failed: ' + (data.error || 'Unknown error'));
       showFallbackSQL(name, email, role, pass);
     }
+
   } catch(e) {
     showToast('Connection error — showing manual steps');
     showFallbackSQL(name, email, role, pass);
   }
+
   if (btn) { btn.disabled = false; btn.textContent = 'Create User & Send Invite'; }
 }
 
-// ============================================================
-// BCFP CONNECT — ALL IMPROVEMENTS
-// ============================================================
+function showSuccessCard(name, email, role, pass, emailSent) {
+  const inv = document.getElementById('admin-invite');
+  if (!inv) return;
+  inv.querySelectorAll('.invite-result').forEach(el => el.remove());
+  const box = document.createElement('div');
+  box.className = 'admin-card invite-result';
+  box.style.cssText = 'max-width:520px;border-color:rgba(34,197,94,0.4);margin-top:12px;background:rgba(34,197,94,0.05)';
+  const roleLabels = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  const emailStatus = emailSent
+    ? '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;margin-bottom:12px">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' +
+      '<span style="font-size:12px;color:var(--green)">Invite email sent to <strong>' + email + '</strong> — they set their own password</span></div>'
+    : '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:6px;margin-bottom:12px">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+      '<span style="font-size:12px;color:var(--amber)">No email sent — share temp password manually: <strong>' + pass + '</strong></span></div>';
+  box.innerHTML = '<div class="admin-card-title" style="color:var(--green)">✓ ' + name + ' Created</div>' +
+    emailStatus +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:12px">' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Name</div><div style="color:var(--text);font-weight:600">' + name + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Role</div><div style="color:var(--text);font-weight:600">' + (roleLabels[role]||role) + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Email</div><div style="color:#2DD4BF">' + email + '</div></div>' +
+    '<div><div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Login URL</div><div style="color:#2DD4BF;font-size:10px">dispatch.bigcityfp.com</div></div>' +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--text3);line-height:1.6">' + (emailSent ? 'They will receive an email invite to set their password. Once set they can log in immediately.' : 'Share the temp password with them directly. They can log in at dispatch.bigcityfp.com now.') + '</div>';
+  inv.appendChild(box);
+}
 
-// ── ROLE LABELS (5 roles) ────────────────────────────────────
-const ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
-const ROLE_CLASSES = { admin:'role-admin', manager:'role-manager', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+function showFallbackSQL(name, email, role, pass, userId) {
+  const inv = document.getElementById('admin-invite');
+  if (!inv) return;
+  inv.querySelectorAll('.invite-result').forEach(el => el.remove());
+  const box = document.createElement('div');
+  box.className = 'admin-card invite-result';
+  box.style.cssText = 'max-width:520px;border-color:rgba(245,158,11,0.3);margin-top:12px';
+  const profileSQL = userId
+    ? 'insert into profiles (id,full_name,role) values (\'' + userId + '\',\'' + name + '\',\'' + role + '\');'
+    : 'insert into profiles (id,full_name,role) select id,\'' + name + '\',\'' + role + '\' from auth.users where email=\'' + email + '\';';
+  box.innerHTML = '<div class="admin-card-title" style="color:var(--amber)">⚠ Run this SQL in Supabase</div>' +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:10px">The publishable key cannot create users directly. Run this in Supabase SQL Editor:</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">1. Go to Supabase > Auth > Users > Add user</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:6px">2. Email: <strong style="color:var(--teal)">' + email + '</strong>  Password: <strong style="color:var(--amber)">' + pass + '</strong>  ✅ Auto confirm</div>' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">3. Then run in SQL Editor:</div>' +
+    '<pre style="background:var(--bg4);padding:10px;font-size:10px;color:#2DD4BF;border-radius:5px;overflow-x:auto;white-space:pre-wrap">' + profileSQL + '</pre>' +
+    '<button onclick="navigator.clipboard.writeText(\'' + profileSQL.replace(/'/g, "\'") + '\')" style="margin-top:8px;background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">Copy SQL</button>';
+  inv.appendChild(box);
+}
 
-// ── AUTH ─────────────────────────────────────────────────────
+function doLogout() {
+  localStorage.removeItem('fd_token');
+  localStorage.removeItem('fd_profile');
+  localStorage.removeItem('fd_user');
+  if(typeof closeModal==='function') closeModal('user-modal');
+  showToast('Signed out');
+  setTimeout(function(){ window.location.href='index.html'; }, 600);
+}
+
 function openAccountModal() {
+  // Populate from localStorage immediately - no async needed
   var profile = {};
   var user = {};
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
   try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
-  var name = profile.full_name || user.email || 'User';
+  
+  var name = profile.full_name || user.email || 'Dispatcher';
   var email = user.email || '';
   var role = profile.role || 'dispatcher';
-  var initials = name.split(' ').map(function(w){return w[0]||'';} ).slice(0,2).join('').toUpperCase() || 'FD';
+  var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'FD';
+  
+  var roleLabels = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  var roleClasses = { admin:'role-admin', manager:'role-manager', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+  
   var av = document.getElementById('user-avatar');
   var nm = document.getElementById('user-name');
   var em = document.getElementById('user-email-disp');
   var rd = document.getElementById('user-role-disp');
   var ms = document.getElementById('user-manage-section');
-  if(av) av.textContent = initials;
-  if(nm) nm.textContent = name;
-  if(em) em.textContent = email;
-  if(rd) rd.innerHTML = '<span class="role-badge ' + (ROLE_CLASSES[role]||'role-dispatcher') + '">' + (ROLE_LABELS[role]||role) + '</span>';
-  if(ms && (role==='admin'||role==='manager'||role==='dispatcher')) {
+  
+  if (av) av.textContent = initials;
+  if (nm) nm.textContent = name;
+  if (em) em.textContent = email;
+  if (rd) rd.innerHTML = '<span class="role-badge ' + (roleClasses[role]||'role-dispatcher') + '">' + (roleLabels[role]||role) + '</span>';
+  if (ms && (role === 'admin' || role === 'dispatcher')) {
     var adminBtn = document.createElement('button');
     adminBtn.className = 'btn btn-ghost';
     adminBtn.style.cssText = 'width:100%;justify-content:center;margin-top:8px';
-    adminBtn.textContent = role==='admin' ? 'Admin Panel' : 'Manage Users';
-    adminBtn.onclick = function() { closeModal('user-modal'); if(role==='admin') openAdminPanel(); };
-    ms.innerHTML = ''; ms.appendChild(adminBtn);
+    adminBtn.textContent = 'Admin Panel';
+    adminBtn.onclick = function() { closeModal('user-modal'); openAdminPanel(); };
+    ms.innerHTML = '';
+    ms.appendChild(adminBtn);
   }
+  
+  // Open modal instantly
   openModal('user-modal');
 }
+
+// ── VIEW AS ROLE ────────────────────────────────────────
+var _originalRole = null;
+var _originalProfile = null;
+
+function previewAsRole(role) {
+  // Save original role if not already previewing
+  if (!_originalRole) {
+    try {
+      _originalProfile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+      _originalRole = _originalProfile.role || 'admin';
+    } catch(e) { _originalRole = 'admin'; }
+  }
+
+  var roleNames = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+
+  if (role === 'admin') {
+    // Restore original
+    if (_originalProfile) {
+      localStorage.setItem('fd_profile', JSON.stringify(_originalProfile));
+    }
+    _originalRole = null;
+    _originalProfile = null;
+    closeAdminPanel();
+    location.reload();
+    return;
+  }
+
+  // Apply preview role
+  try {
+    var profile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
+    profile.role = role;
+    localStorage.setItem('fd_profile', JSON.stringify(profile));
+  } catch(e) {}
+
+  var status = document.getElementById('preview-role-status');
+  if (status) status.textContent = 'Previewing as ' + roleNames[role] + ' — click Return to Admin to restore';
+
+  // Show toast then reload
+  showToast('Switching to ' + roleNames[role] + ' view...');
+  setTimeout(function() {
+    closeAdminPanel();
+    // Apply role permissions without full reload
+    currentRole = role;
+    applyRolePermissions(role);
+    bootAsRole(role, { full_name: 'Preview (' + roleNames[role] + ')', email: '' });
+
+    // Show a return banner
+    var existing = document.getElementById('preview-banner');
+    if (!existing) {
+      var banner = document.createElement('div');
+      banner.id = 'preview-banner';
+      banner.style.cssText = 'background:rgba(168,85,247,0.15);border-bottom:1px solid rgba(168,85,247,0.3);padding:7px 20px;display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:12px;font-weight:600;letter-spacing:0.04em;color:#C084FC;flex-shrink:0;';
+      banner.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>' +
+        ' Previewing as <strong style="margin:0 4px">' + roleNames[role] + '</strong> — ' +
+        '<button onclick="exitPreview()" style="background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.4);border-radius:4px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;padding:3px 10px;margin-left:8px">Return to Admin</button>';
+      var ticker = document.querySelector('.alert-ticker') || document.querySelector('.ticker');
+      if (ticker) ticker.parentNode.insertBefore(banner, ticker);
+      else document.body.insertBefore(banner, document.body.firstChild);
+    }
+  }, 400);
+}
+
+function exitPreview() {
+  // Restore original admin role
+  if (_originalProfile) {
+    localStorage.setItem('fd_profile', JSON.stringify(_originalProfile));
+  }
+  _originalRole = null;
+  _originalProfile = null;
+  var banner = document.getElementById('preview-banner');
+  if (banner) banner.remove();
+  showToast('Returning to Admin view...');
+  setTimeout(function() { location.reload(); }, 400);
+}
+
 
 // ── ROLE PERMISSIONS ─────────────────────────────────────────
 function applyRolePermissions(role) {
@@ -3103,737 +3402,449 @@ function applyRolePermissions(role) {
   var ttBar = document.getElementById('tt-bar');
   var topbar = document.querySelector('.topbar');
 
+  // Hide everything we don't need for portal views
   function hideAll() {
-    if(nav) nav.style.display='none';
-    if(sidebar) sidebar.style.display='none';
-    if(ticker) ticker.style.display='none';
-    if(ttBar) ttBar.style.display='none';
-    if(topbar) topbar.style.display='none';
+    if (nav) nav.style.display = 'none';
+    if (sidebar) sidebar.style.display = 'none';
+    if (ticker) ticker.style.display = 'none';
+    if (ttBar) ttBar.style.display = 'none';
+    if (topbar) topbar.style.display = 'none';
   }
 
-  if(role==='admin') {
+  if (role === 'admin') {
+    // Full access + admin panel button
     var tr = document.querySelector('.topbar-right');
-    if(tr && !document.getElementById('admin-panel-btn')) {
+    if (tr && !document.getElementById('admin-panel-btn')) {
       var btn = document.createElement('button');
-      btn.id='admin-panel-btn'; btn.className='btn btn-ghost';
-      btn.style.cssText='padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
-      btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
-      btn.onclick=function(){openAdminPanel();};
-      tr.insertBefore(btn,tr.firstChild);
+      btn.id = 'admin-panel-btn';
+      btn.className = 'btn btn-ghost';
+      btn.style.cssText = 'padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
+      btn.onclick = function() { openAdminPanel(); };
+      tr.insertBefore(btn, tr.firstChild);
     }
     return;
   }
-  if(role==='manager') { if(sidebar) sidebar.style.display='none'; return; }
-  if(role==='dispatcher') { hideAll(); setTimeout(function(){buildDispatcherPortal();},100); return; }
-  if(role==='tech') { hideAll(); setTimeout(function(){buildTechPortal();},100); return; }
-  if(role==='customer') { hideAll(); setTimeout(function(){buildCustomerPortal();},100); return; }
-}
 
-// ── SHARED PORTAL HEADER ─────────────────────────────────────
-function buildPortalHeader(roleName, roleClass, name) {
-  return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span></div>' +
-    '<div style="display:flex;align-items:center;gap:12px">' +
-    '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
-    '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
-    '<button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>' +
-    '</div></div>' +
-    (window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between">' +
-    '<div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC">👁 PREVIEW MODE — Changes will not save</div>' +
-    '<button onclick="exitPreview()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em">↩ Return to Admin</button>' +
-    '</div>' : '');
-}
-
-// ── DISPATCHER PORTAL ─────────────────────────────────────────
-function buildDispatcherPortal() {
-  var main = document.querySelector('.main');
-  if(!main) return;
-  var profile = {};
-  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
-  var name = profile.full_name || 'Dispatcher';
-  var total = JOBS.length, emergency = JOBS.filter(function(j){return j.priority==='emergency';}).length;
-  var pending = JOBS.filter(function(j){return j.status==='pending';}).length;
-  var enroute = JOBS.filter(function(j){return j.status==='enroute';}).length;
-  var complete = JOBS.filter(function(j){return j.status==='complete';}).length;
-
-  main.innerHTML = '<div style="min-height:100vh;background:var(--bg)">' +
-    buildPortalHeader('Dispatcher','role-dispatcher',name) +
-    '<div style="background:rgba(249,115,22,0.08);border-bottom:1px solid rgba(249,115,22,0.15);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
-    '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--red)">⚡ DISPATCH CENTER — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
-    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:16px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a></div>' +
-    '<div style="max-width:960px;margin:0 auto;padding:24px">' +
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center"><div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--red)">' + emergency + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Emergency</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center"><div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--amber)">' + pending + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Pending</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center"><div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--blue)">' + enroute + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">En Route</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center"><div style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--green)">' + complete + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px">Complete</div></div>' +
-    '</div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">' +
-    '<button class="btn btn-primary" onclick="openNewJobModal()">+ New Job</button>' +
-    '<button class="btn btn-ghost" id="dp-jobs">All Jobs</button>' +
-    '<button class="btn btn-ghost" id="dp-calendar">Calendar</button>' +
-    '<button class="btn btn-ghost" id="dp-techs">Techs</button>' +
-    '<button class="btn btn-ghost" id="dp-customers">Customers</button>' +
-    '<button class="btn btn-ghost" id="dp-quotes">Quotes</button>' +
-    '</div>' +
-    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px">Active Queue<span style="flex:1;height:1px;background:var(--border)"></span></div>' +
-    '<div id="dispatch-queue"></div>' +
-    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin:20px 0 12px;display:flex;align-items:center;gap:8px">Techs On Duty<span style="flex:1;height:1px;background:var(--border)"></span></div>' +
-    '<div id="dispatch-techs" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div>' +
-    '</div></div>';
-
-  // Wire nav buttons
-  var btns = {
-    'dp-jobs':'jobs','dp-calendar':'calendar','dp-techs':'technicians',
-    'dp-customers':'customers','dp-quotes':'quotes'
-  };
-  Object.keys(btns).forEach(function(id) {
-    var el = document.getElementById(id);
-    if(el) el.onclick = (function(p){return function(){showPage(p);};})(btns[id]);
-  });
-
-  // Render queue
-  var qEl = document.getElementById('dispatch-queue');
-  if(qEl) {
-    var active = JOBS.filter(function(j){return j.status!=='complete';}).slice(0,8);
-    if(!active.length) { qEl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No active jobs</div>'; }
-    else qEl.innerHTML = active.map(function(j) {
-      var em = j.priority==='emergency';
-      var sc = {pending:'var(--amber)',dispatched:'var(--blue)',enroute:'var(--blue)',onsite:'var(--green)',complete:'var(--green)'};
-      return '<div style="background:var(--bg2);border:1px solid ' + (em?'rgba(249,115,22,0.3)':'var(--border)') + ';border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:8px;cursor:pointer;transition:all 0.18s" data-job="' + j.id + '">' +
-        '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
-        (em?'<span style="color:var(--red);font-size:10px">🚨</span>':'') +
-        '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</span>' +
-        '<span class="status-tag" style="background:rgba(0,0,0,0.3);color:' + (sc[j.status]||'var(--text3)') + ';border-radius:20px">' + (j.status||'pending') + '</span></div>' +
-        '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">' + j.type + '</div>' +
-        '<div style="font-size:11px;color:var(--text3)">' + j.address + '</div></div>' +
-        '<div style="text-align:right;flex-shrink:0"><div style="font-size:12px;color:var(--text2)">' + (j.tech||'Unassigned') + '</div>' +
-        (j.eta?'<div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') + '</div></div>';
-    }).join('');
-    qEl.addEventListener('click', function(e) {
-      var row = e.target.closest('[data-job]');
-      if(row && typeof openJobModal==='function') openJobModal(row.getAttribute('data-job'));
-    });
+  if (role === 'manager') {
+    // Everything except admin panel — just hide the admin button
+    if (sidebar) sidebar.style.display = 'none';
+    return;
   }
 
-  // Render techs
-  var tEl = document.getElementById('dispatch-techs');
-  if(tEl) {
-    tEl.innerHTML = (typeof TECHS!=='undefined'?TECHS:[]).slice(0,8).map(function(t) {
-      var sc = t.status==='available'?'var(--green)':t.status==='onsite'?'var(--amber)':'var(--text3)';
-      return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">' +
-        '<div style="width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--text2);flex-shrink:0">' + (t.name||'?').split(' ').map(function(w){return w[0]||'';} ).slice(0,2).join('') + '</div>' +
-        '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (t.name||'Tech') + '</div>' +
-        '<div style="display:flex;align-items:center;gap:5px;margin-top:2px"><div style="width:6px;height:6px;border-radius:50%;background:' + sc + '"></div>' +
-        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">' + (t.status||'off duty') + '</div></div></div></div>';
-    }).join('') || '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px;grid-column:1/-1">No techs available</div>';
+  if (role === 'dispatcher') {
+    hideAll();
+    setTimeout(function() { buildDispatcherPortal(); }, 100);
+    return;
+  }
+
+  if (role === 'tech') {
+    hideAll();
+    setTimeout(function() { buildTechPortal(); }, 100);
+    return;
+  }
+
+  if (role === 'customer') {
+    hideAll();
+    setTimeout(function() { buildCustomerPortal(); }, 100);
+    return;
   }
 }
 
-// ── TECH PORTAL ───────────────────────────────────────────────
-function buildTechPortal() {
-  var main = document.querySelector('.main');
-  if(!main) return;
-  var profile = {};
-  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
-  var name = profile.full_name || 'Technician';
-  var firstName = name.split(' ')[0];
-  var myJobs = JOBS.filter(function(j) { return j.tech && j.tech.toLowerCase().indexOf(firstName.toLowerCase()) >= 0; });
-  if(!myJobs.length) myJobs = JOBS.slice(0,3);
-  var activeJobs = myJobs.filter(function(j){return j.status!=='complete';});
-  var doneJobs = myJobs.filter(function(j){return j.status==='complete';});
-
-  main.innerHTML = '<div style="min-height:100vh;background:var(--bg)">' +
-    buildPortalHeader('Technician','role-tech',name) +
-    // Clock bar
-    '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
-    '<div style="display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2)">' +
-    '<div class="tt-dot" id="tech-dot"></div><span id="tech-state">Not clocked in</span></div>' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--text3)" id="tech-timer">0:00</div>' +
-    '<div style="font-size:11px;color:var(--text3)">Drive: <strong style="color:var(--blue)" id="tech-drive">0m</strong> · On-Site: <strong style="color:var(--green)" id="tech-onsite">0m</strong></div>' +
-    '<div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">' +
-    '<button id="tech-clockin" style="padding:8px 16px;border-radius:20px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.1);color:var(--green);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em" onclick="ttClockIn();techUpdateClock()">⏱ Clock In</button>' +
-    '<button id="tech-drive-btn" style="display:none;padding:8px 16px;border-radius:20px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.1);color:var(--blue);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em" onclick="ttClockDrive();techUpdateClock()">🚗 Driving</button>' +
-    '<button id="tech-onsite-btn" style="display:none;padding:8px 16px;border-radius:20px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.1);color:var(--green);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em" onclick="ttClockOnsite();techUpdateClock()">📍 On Site</button>' +
-    '<button id="tech-end-btn" style="display:none;padding:8px 16px;border-radius:20px;border:1px solid rgba(249,115,22,0.3);background:rgba(249,115,22,0.1);color:var(--red);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em" onclick="ttClockOut();techUpdateClock()">End Day</button>' +
-    '</div></div>' +
-    '<div style="max-width:700px;margin:0 auto;padding:24px">' +
-    // Stats
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--amber)">' + activeJobs.length + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Today</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--green)">' + doneJobs.length + '</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Done</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--blue)" id="tech-drive-stat">0m</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Drive</div></div>' +
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--teal)" id="tech-onsite-stat">0m</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">On-Site</div></div>' +
-    '</div>' +
-    // Jobs
-    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px">My Jobs<span style="flex:1;height:1px;background:var(--border)"></span></div>' +
-    (activeJobs.length ? activeJobs.map(function(j) {
-      var em = j.priority==='emergency';
-      return '<div style="background:var(--bg2);border:1px solid ' + (em?'rgba(249,115,22,0.35)':'var(--border)') + ';border-radius:10px;overflow:hidden;margin-bottom:12px">' +
-        '<div style="padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border)">' +
-        '<div><div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em;margin-bottom:3px">' + j.id + (em?' 🚨 EMERGENCY':'') + '</div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
-        '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + j.address + (j.unit?' · '+j.unit:'') + '</div></div>' +
-        '<div style="text-align:right;flex-shrink:0;margin-left:12px"><div style="font-size:11px;color:var(--text3)">' + j.time + '</div>' +
-        (j.eta?'<div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') + '</div></div>' +
-        '<div style="padding:14px 18px">' +
-        (j.lockbox?'<div style="background:var(--bg3);border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--text2)">🔐 Lockbox: <strong style="color:var(--text)">' + j.lockbox + '</strong></div>':'') +
-        (j.notes?'<div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">' + j.notes + '</div>':'') +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
-        '<button style="flex:1;min-width:80px;padding:9px;border-radius:20px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.1);color:var(--blue);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.04em" data-drive="' + j.id + '">🚗 En Route</button>' +
-        '<button style="flex:1;min-width:80px;padding:9px;border-radius:20px;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.1);color:var(--green);cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.04em" data-onsite="' + j.id + '">📍 On Site</button>' +
-        '<button style="flex:1;min-width:80px;padding:9px;border-radius:20px;border:1px solid rgba(168,85,247,0.3);background:rgba(168,85,247,0.1);color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.04em" data-complete="' + j.id + '">✓ Complete</button>' +
-        '</div>' +
-        '<div style="padding:10px;background:var(--bg3);border-radius:8px;text-align:center;cursor:pointer;border:1px dashed rgba(255,255,255,0.08)" data-photos="' + j.id + '">' +
-        '<span style="font-size:12px;color:var(--text3)">📷 Upload photos / log fail devices</span></div>' +
-        '</div></div>';
-    }).join('') : '<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No jobs assigned for today</div>') +
-    (doneJobs.length ? '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin:20px 0 12px;display:flex;align-items:center;gap:8px">Completed<span style="flex:1;height:1px;background:var(--border)"></span></div>' +
-    doneJobs.map(function(j) {
-      return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;opacity:0.7">' +
-        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:13px;flex-shrink:0">✓</div>' +
-        '<div><div style="font-size:13px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
-        '<div style="font-size:11px;color:var(--text3)">' + j.address + ' · ' + j.time + '</div></div>' +
-        '<div style="margin-left:auto;font-family:var(--font-display);font-size:11px;color:var(--green);font-weight:700">DONE</div></div>';
-    }).join('') : '') +
-    '</div></div>';
-
-  // Event delegation for tech buttons
-  main.addEventListener('click', function(e) {
-    var drive = e.target.closest('[data-drive]');
-    var onsite = e.target.closest('[data-onsite]');
-    var complete = e.target.closest('[data-complete]');
-    var photos = e.target.closest('[data-photos]');
-    if(drive) { ttClockDrive(); techUpdateClock(); showToast('🚗 Driving to ' + drive.getAttribute('data-drive')); }
-    if(onsite) { ttClockOnsite(); techUpdateClock(); showToast('📍 Arrived at ' + onsite.getAttribute('data-onsite')); }
-    if(complete) { showToast('✓ ' + complete.getAttribute('data-complete') + ' marked complete'); }
-    if(photos && typeof openJobModal==='function') { openJobModal(photos.getAttribute('data-photos')); }
-  });
-
-  techUpdateClock();
-  setInterval(techTickClock, 1000);
-}
-
-function techUpdateClock() {
-  if(typeof TT==='undefined') return;
-  var dot=document.getElementById('tech-dot');
-  var state=document.getElementById('tech-state');
-  var cinBtn=document.getElementById('tech-clockin');
-  var driveBtn=document.getElementById('tech-drive-btn');
-  var onsiteBtn=document.getElementById('tech-onsite-btn');
-  var endBtn=document.getElementById('tech-end-btn');
-  var map={out:{label:'Not clocked in',color:'var(--text3)',dot:''},driving:{label:'Driving',color:'var(--blue)',dot:'drive'},onsite:{label:'On Site',color:'var(--green)',dot:'onsite'}};
-  var s=map[TT.state]||map.out;
-  if(dot) dot.className='tt-dot '+s.dot;
-  if(state) { state.textContent=s.label; state.style.color=s.color; }
-  if(cinBtn) cinBtn.style.display=TT.state==='out'?'inline-block':'none';
-  if(driveBtn) driveBtn.style.display=TT.state==='onsite'?'inline-block':'none';
-  if(onsiteBtn) onsiteBtn.style.display=TT.state==='driving'?'inline-block':'none';
-  if(endBtn) endBtn.style.display=TT.state!=='out'?'inline-block':'none';
-}
-
-function techTickClock() {
-  if(typeof TT==='undefined'||typeof fmtSec==='undefined') return;
-  var now=new Date();
-  var driveR=TT.state==='driving'&&TT.driveStart?Math.floor((now-new Date(TT.driveStart))/1000):0;
-  var onsiteR=TT.state==='onsite'&&TT.onsiteStart?Math.floor((now-new Date(TT.onsiteStart))/1000):0;
-  var current=TT.state==='driving'?driveR:onsiteR;
-  var timerEl=document.getElementById('tech-timer');
-  var driveEl=document.getElementById('tech-drive');
-  var onsiteEl=document.getElementById('tech-onsite');
-  var dStatEl=document.getElementById('tech-drive-stat');
-  var oStatEl=document.getElementById('tech-onsite-stat');
-  if(timerEl) { timerEl.textContent=fmtSec(current); timerEl.style.color=TT.state==='driving'?'var(--blue)':TT.state==='onsite'?'var(--green)':'var(--text3)'; }
-  if(driveEl) driveEl.textContent=fmtSecShort(TT.driveTotal+driveR);
-  if(onsiteEl) onsiteEl.textContent=fmtSecShort(TT.onsiteTotal+onsiteR);
-  if(dStatEl) dStatEl.textContent=fmtSecShort(TT.driveTotal+driveR);
-  if(oStatEl) oStatEl.textContent=fmtSecShort(TT.onsiteTotal+onsiteR);
-}
-
-// ── CUSTOMER PORTAL ───────────────────────────────────────────
 function buildCustomerPortal() {
   var main = document.querySelector('.main');
-  if(!main) return;
+  if (!main) return;
   var profile = {};
+  var user = {};
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
   var customerName = profile.full_name || 'Customer';
   var previewBanner = window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC">👁 PREVIEW MODE — Customer view</div><button onclick="exitPreview()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em">↩ Return to Admin</button></div>' : '';
 
   main.innerHTML = '<div style="min-height:100vh;background:var(--bg)">' +
     previewBanner +
-    '<div style="background:var(--bg2);border-bottom:1px solid rgba(249,115,22,0.2);padding:14px 24px;display:flex;align-items:center;justify-content:space-between">' +
-    '<div style="display:flex;align-items:center;gap:10px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
-    '<div style="font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">BCFP Connect — Client Portal</div></div>' +
-    '<div style="display:flex;align-items:center;gap:12px"><div style="font-size:12px;color:var(--text3)">Welcome, <strong style="color:var(--text)">' + customerName + '</strong></div>' +
-    '<button class="btn btn-ghost btn-sm" style="border-color:rgba(249,115,22,0.3);color:var(--red)" onclick="doLogout()">Sign Out</button></div></div>' +
-    '<div style="background:rgba(249,115,22,0.06);border-bottom:1px solid rgba(249,115,22,0.12);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+    '<div style="background:var(--bg2);border-bottom:1px solid var(--border-red);padding:16px 24px;display:flex;align-items:center;justify-content:space-between">' +
+    '<div style="display:flex;align-items:center;gap:10px">' +
+    '<div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
+    '<div style="font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">BCFP Connect — Client Portal</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:12px">' +
+    '<div style="font-size:12px;color:var(--text3)">Welcome, <strong style="color:var(--text)">' + customerName + '</strong></div>' +
+    '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;border-color:rgba(224,32,32,0.3);color:var(--red)" onclick="doLogout()">Sign Out</button>' +
+    '</div></div>' +
+    '<div style="background:rgba(224,32,32,0.08);border-bottom:1px solid rgba(224,32,32,0.2);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
     '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--red)">⚠ 24/7 Emergency Line</div>' +
-    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:18px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a></div>' +
+    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:18px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a>' +
+    '</div>' +
     '<div style="max-width:680px;margin:0 auto;padding:24px">' +
-    '<div id="cust-active" style="margin-bottom:20px"></div>' +
-    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px">Service History<span style="flex:1;height:1px;background:var(--border)"></span></div>' +
-    '<div id="cust-history"></div>' +
-    '<div id="cust-empty" style="display:none;text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">No service history yet</div>' +
-    '<div style="margin-top:28px;padding:18px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;text-align:center">' +
+    '<div id="customer-active-job" style="margin-bottom:20px"></div>' +
+    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Service History</div>' +
+    '<div id="customer-job-list"></div>' +
+    '<div id="customer-no-jobs" style="display:none;text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">No service history yet</div>' +
+    '<div style="margin-top:28px;padding:18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">' +
     '<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Need to schedule service or have questions?</div>' +
     '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
-    '<a href="tel:6025550100" class="btn btn-primary" style="font-size:12px;padding:8px 18px;text-decoration:none">📞 Call Us</a>' +
-    '<a href="mailto:info@bigcityfp.com" class="btn btn-ghost" style="font-size:12px;padding:8px 18px;text-decoration:none">✉ Email Us</a>' +
-    '</div></div></div></div>';
+    '<a href="tel:6025550100" class="btn btn-primary" style="font-size:12px;padding:8px 16px;text-decoration:none">Call Us</a>' +
+    '<a href="mailto:info@bigcityfp.com" class="btn btn-ghost" style="font-size:12px;padding:8px 16px;text-decoration:none">Email Us</a>' +
+    '</div></div>' +
+    '</div></div>';
 
   loadCustomerJobs(customerName);
 }
 
 function loadCustomerJobs(customerName) {
-  var activeDiv=document.getElementById('cust-active');
-  var listDiv=document.getElementById('cust-history');
-  var emptyDiv=document.getElementById('cust-empty');
-  if(!activeDiv||!listDiv) return;
-  var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(customerName.toLowerCase().split(' ')[0])>=0;});
-  if(!myJobs.length&&JOBS.length) myJobs=[JOBS[0]];
-  if(!myJobs.length){if(emptyDiv)emptyDiv.style.display='block';return;}
-  var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='dispatched'||j.status==='onsite';});
-  if(activeJob&&activeDiv){
-    activeDiv.innerHTML='<div style="background:rgba(249,115,22,0.08);border:2px solid rgba(249,115,22,0.35);border-radius:10px;padding:20px">' +
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
-      '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red)">Active Service Call</div></div>' +
-      '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">'+activeJob.type+'</div>' +
-      '<div style="font-size:12px;color:var(--text3);margin-bottom:16px">'+activeJob.address+' · '+activeJob.time+'</div>' +
-      (activeJob.eta?'<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:14px 18px">' +
-        '<div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Technician</div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text)">'+(activeJob.tech||'En Route')+'</div></div>' +
-        '<div style="text-align:right"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">ETA</div>' +
-        '<div style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--red);line-height:1">'+activeJob.eta+' <span style="font-size:16px">min</span></div></div></div>':'') +
-      '</div>';
+  var activeDiv = document.getElementById('customer-active-job');
+  var listDiv = document.getElementById('customer-job-list');
+  var noJobsDiv = document.getElementById('customer-no-jobs');
+  if (!activeDiv || !listDiv) return;
+
+  var myJobs = typeof JOBS !== 'undefined' ? JOBS.filter(function(j) {
+    return j.customer && j.customer.toLowerCase().indexOf(customerName.toLowerCase().split(' ')[0]) >= 0;
+  }) : [];
+
+  if (!myJobs.length && typeof JOBS !== 'undefined' && JOBS.length) myJobs = [JOBS[0]];
+
+  if (!myJobs.length) {
+    if (noJobsDiv) noJobsDiv.style.display = 'block';
+    return;
   }
-  var historyJobs=myJobs.filter(function(j){return j!==activeJob;});
-  if(!historyJobs.length){listDiv.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">No previous jobs on record</div>';return;}
-  listDiv.innerHTML=historyJobs.map(function(j){
-    var sc=j.status==='complete'?'var(--green)':j.status==='pending'?'var(--amber)':'var(--text3)';
-    var sl=j.status==='complete'?'✓ Complete':j.status==='pending'?'Scheduled':j.status||'Unknown';
-    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px">' +
+
+  var activeJob = myJobs.find(function(j) { return j.status === 'enroute' || j.status === 'dispatched' || j.status === 'onsite'; });
+
+  if (activeJob) {
+    activeDiv.innerHTML = '<div style="background:rgba(224,32,32,0.08);border:2px solid rgba(224,32,32,0.35);border-radius:10px;padding:20px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
+      '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red)">Active Service Call</div>' +
+      '</div>' +
+      '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">' + activeJob.type + '</div>' +
+      '<div style="font-size:12px;color:var(--text3);margin-bottom:16px">' + activeJob.address + ' · ' + activeJob.time + '</div>' +
+      (activeJob.eta ? '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:14px 18px">' +
+        '<div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Technician</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text)">' + (activeJob.tech || 'En Route') + '</div></div>' +
+        '<div style="text-align:right"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">ETA</div>' +
+        '<div style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--red);line-height:1">' + activeJob.eta + ' <span style="font-size:16px">min</span></div></div>' +
+        '</div>' : '') + '</div>';
+  }
+
+  var historyJobs = myJobs.filter(function(j) { return j !== activeJob; });
+  if (!historyJobs.length) {
+    listDiv.innerHTML = '<div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">No previous jobs on record</div>';
+    return;
+  }
+  listDiv.innerHTML = historyJobs.map(function(j) {
+    var sc = j.status === 'complete' ? 'var(--green)' : j.status === 'pending' ? 'var(--amber)' : 'var(--text3)';
+    var sl = j.status === 'complete' ? '✓ Complete' : j.status === 'pending' ? 'Scheduled' : j.status || 'Unknown';
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:8px">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
-      '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">'+j.id+'</div>' +
-      '<div style="font-size:11px;font-weight:700;color:'+sc+';font-family:var(--font-display);letter-spacing:0.06em">'+sl+'</div></div>' +
-      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">'+j.type+'</div>' +
-      '<div style="font-size:11px;color:var(--text3)">'+j.address+' · '+j.time+'</div>' +
-      (j.notes?'<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">'+j.notes+'</div>':'') +
-      (j.recs?'<div style="font-size:11px;color:var(--amber);margin-top:6px">⚠ '+j.recs+'</div>':'') +
+      '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:' + sc + ';font-family:var(--font-display);letter-spacing:0.06em">' + sl + '</div>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">' + j.type + '</div>' +
+      '<div style="font-size:11px;color:var(--text3)">' + j.address + ' · ' + j.time + '</div>' +
+      (j.notes ? '<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">' + j.notes + '</div>' : '') +
+      (j.recs ? '<div style="font-size:11px;color:var(--amber);margin-top:6px">⚠ ' + j.recs + '</div>' : '') +
       '</div>';
   }).join('');
 }
 
-// ── PREVIEW AS ROLE ───────────────────────────────────────────
-var _originalRole = null;
-var _originalProfile = null;
-
-function previewAsRole(role) {
-  if(!_originalRole) {
-    try {
-      _originalProfile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
-      _originalRole = _originalProfile.role || 'admin';
-    } catch(e) { _originalRole = 'admin'; }
-  }
-  var roleNames = ROLE_LABELS;
-  if(role === 'admin') { exitPreview(); return; }
-  try {
-    var profile = JSON.parse(localStorage.getItem('fd_profile') || '{}');
-    profile.role = role;
-    localStorage.setItem('fd_profile', JSON.stringify(profile));
-  } catch(e) {}
-  showToast('Switching to ' + (roleNames[role]||role) + ' view...');
-  setTimeout(function() {
-    closeAdminPanel();
-    currentRole = role;
-    applyRolePermissions(role);
-  }, 300);
-}
-
-function exitPreview() {
-  if(_originalProfile) { localStorage.setItem('fd_profile', JSON.stringify(_originalProfile)); }
-  _originalRole = null; _originalProfile = null;
-  showToast('Returning to Admin view...');
-  setTimeout(function() { location.reload(); }, 400);
-}
-
-// ── ADMIN PANEL USER MANAGEMENT ───────────────────────────────
-async function loadAdminUsers() {
-  var list = document.getElementById('admin-users-list');
-  if(list) list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Loading users...</div>';
-  var roleColors = ROLE_CLASSES;
-  var roleLabel = ROLE_LABELS;
-  var profile = {}, user = {};
-  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
-  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
-  adminUsers = [];
-  try {
-    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=*&order=created_at.asc', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY), 'Content-Type': 'application/json' }
-    });
-    if(res.ok) { var data = await res.json(); if(data && data.length) adminUsers = data; }
-  } catch(e) { console.warn('Could not load users:', e); }
-  if(!adminUsers.length) {
-    adminUsers = [{ id: user.id||'current', full_name: profile.full_name||'You', email: user.email||'', role: profile.role||'dispatcher', suspended: false, created_at: new Date().toISOString() }];
-  }
-  var st = document.getElementById('stat-total'), sa = document.getElementById('stat-active'), ss = document.getElementById('stat-suspended');
-  if(st) st.textContent = adminUsers.length;
-  if(sa) sa.textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
-  if(ss) ss.textContent = adminUsers.filter(function(u){return u.suspended;}).length;
-  renderAdminUsersList(adminUsers);
-}
-
-function renderAdminUsersList(users) {
-  var list = document.getElementById('admin-users-list');
-  if(!list) return;
-  var roleColors = { admin:'rgba(168,85,247,0.15)', manager:'rgba(14,165,233,0.15)', dispatcher:'rgba(249,115,22,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
-  var roleText = { admin:'#C084FC', manager:'#38BDF8', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
-  if(!users||!users.length) { list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>'; return; }
-  list.innerHTML = '';
-  var myEmail = '';
-  try { myEmail = JSON.parse(localStorage.getItem('fd_user')||'{}').email||''; } catch(e) {}
-  users.forEach(function(u) {
-    var initials=(u.full_name||u.email||'?').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
-    var isSelf = u.email===myEmail;
-    var row=document.createElement('div'); row.className='user-row'; row.id='urow-'+u.id;
-    var av=document.createElement('div'); av.className='user-av';
-    av.style.cssText='background:'+(roleColors[u.role]||roleColors.dispatcher)+';color:'+(roleText[u.role]||roleText.dispatcher);
-    av.textContent=initials;
-    var info=document.createElement('div'); info.className='user-info';
-    info.innerHTML='<div class="user-name-disp">'+(u.full_name||'Unknown')+
-      (u.suspended?'<span class="suspended-badge" style="margin-left:8px">Suspended</span>':'')+
-      (isSelf?'<span style="font-size:9px;color:var(--text3);margin-left:6px">(you)</span>':'')+
-      '</div><div class="user-email-disp">'+(u.email||'')+' · '+new Date(u.created_at).toLocaleDateString()+'</div>';
-    var actions=document.createElement('div'); actions.className='user-actions';
-    var sel=document.createElement('select'); sel.className='form-select';
-    sel.style.cssText='width:130px;font-size:11px;padding:4px 22px 4px 8px';
-    ['admin','manager','dispatcher','tech','customer'].forEach(function(r) {
-      var opt=document.createElement('option'); opt.value=r; opt.textContent=ROLE_LABELS[r]||r;
-      if(u.role===r) opt.selected=true; sel.appendChild(opt);
-    });
-    sel.onchange=(function(uid){return function(){changeRole(uid,this.value);};})(u.id);
-    var resetBtn=document.createElement('button'); resetBtn.className='btn btn-ghost btn-sm'; resetBtn.textContent='Reset PW';
-    resetBtn.onclick=(function(uid,uname){return function(){openResetPass(uid,uname);};})(u.id,u.full_name||'User');
-    var suspBtn=document.createElement('button'); suspBtn.className='btn btn-ghost btn-sm';
-    suspBtn.textContent=u.suspended?'Unsuspend':'Suspend';
-    suspBtn.style.cssText='color:'+(u.suspended?'var(--green)':'#FF6B6B')+';border-color:'+(u.suspended?'rgba(34,197,94,0.3)':'rgba(249,115,22,0.3)');
-    suspBtn.onclick=(function(uid,susp){return function(){toggleSuspend(uid,susp);};})(u.id,!u.suspended);
-    actions.appendChild(sel); actions.appendChild(resetBtn); actions.appendChild(suspBtn);
-    if(!isSelf) {
-      var delBtn=document.createElement('button'); delBtn.className='btn btn-ghost btn-sm';
-      delBtn.textContent='✕'; delBtn.title='Delete user';
-      delBtn.style.cssText='color:#FF6B6B;border-color:rgba(249,115,22,0.3);padding:4px 8px';
-      delBtn.onclick=(function(uid,uname){return function(){deleteUser(uid,uname);};})(u.id,u.full_name||'User');
-      actions.appendChild(delBtn);
-    }
-    row.appendChild(av); row.appendChild(info); row.appendChild(actions); list.appendChild(row);
-  });
-}
-
-async function changeRole(userId, newRole) {
-  try {
-    var u=JSON.parse(localStorage.getItem('fd_user')||'{}'), p=JSON.parse(localStorage.getItem('fd_profile')||'{}');
-    if(u.id===userId){ p.role=newRole; localStorage.setItem('fd_profile',JSON.stringify(p)); }
-  } catch(e) {}
-  try {
-    var res=await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+(localStorage.getItem('fd_token')||'')},body:JSON.stringify({action:'update_role',user_id:userId,role:newRole})});
-    var d=await res.json(); showToast(d.success?'✓ Role saved — '+newRole:'Error: '+(d.error||'Failed'));
-  } catch(e){ showToast('Saved locally'); } loadAdminUsers();
-}
-
-async function toggleSuspend(userId, suspend) {
-  try {
-    var res=await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+(localStorage.getItem('fd_token')||'')},body:JSON.stringify({action:'suspend',user_id:userId,suspend:suspend})});
-    var d=await res.json(); showToast(d.success?(suspend?'✓ User suspended':'✓ User unsuspended'):'Error: '+(d.error||'Failed'));
-  } catch(e){ showToast('Error: '+e.message); } loadAdminUsers();
-}
 
 async function deleteUser(userId, name) {
-  if(!confirm('Delete '+name+'? This cannot be undone.')) return;
+  if (!confirm('Delete ' + name + '? This cannot be undone.')) return;
   try {
-    var res=await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+(localStorage.getItem('fd_token')||'')},body:JSON.stringify({action:'delete',user_id:userId})});
-    var d=await res.json(); if(d.success){showToast('✓ '+name+' deleted');loadAdminUsers();}else showToast('Error: '+(d.error||'Failed'));
-  } catch(e){ showToast('Error: '+e.message); }
-}
-
-// showSuccessCard and showFallbackSQL for invite
-function showSuccessCard(name, email, role, pass, emailSent) {
-  var inv=document.getElementById('admin-invite'); if(!inv) return;
-  inv.querySelectorAll('.invite-result').forEach(function(el){el.remove();});
-  var box=document.createElement('div'); box.className='admin-card invite-result';
-  box.style.cssText='max-width:520px;border-color:rgba(34,197,94,0.4);margin-top:12px;background:rgba(34,197,94,0.05)';
-  var emailStatus=emailSent?
-    '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--green)">✉ Invite email sent to <strong style="margin-left:4px">'+email+'</strong></div>':
-    '<div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--amber)">⚠ No email sent — temp password: <strong style="margin-left:4px">'+pass+'</strong></div>';
-  box.innerHTML='<div class="admin-card-title" style="color:var(--green)">✓ '+name+' Created</div>'+emailStatus+
-    '<div style="font-size:11px;color:var(--text3)">Login: <span style="color:#2DD4BF">dispatch.bigcityfp.com</span> · Role: <strong>'+ROLE_LABELS[role]+'</strong></div>';
-  inv.appendChild(box);
-}
-
-function showFallbackSQL(name, email, role, pass, userId) {
-  var inv=document.getElementById('admin-invite'); if(!inv) return;
-  inv.querySelectorAll('.invite-result').forEach(function(el){el.remove();});
-  var box=document.createElement('div'); box.className='admin-card invite-result';
-  box.style.cssText='max-width:520px;border-color:rgba(245,158,11,0.3);margin-top:12px';
-  var sql=userId?('insert into profiles (id,full_name,role) values ('+JSON.stringify(userId)+','+JSON.stringify(name)+','+JSON.stringify(role)+');'):('insert into profiles (id,full_name,role) select id,'+JSON.stringify(name)+','+JSON.stringify(role)+' from auth.users where email='+JSON.stringify(email)+';');
-  box.innerHTML='<div class="admin-card-title" style="color:var(--amber)">⚠ Run this SQL in Supabase</div>'+
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">1. Supabase > Auth > Users > Add user · Email: '+email+' · Password: '+pass+' · ✅ Auto confirm<br>2. Then run:</div>'+
-    '<pre style="background:var(--bg4);padding:10px;font-size:10px;color:#2DD4BF;border-radius:6px;overflow-x:auto;white-space:pre-wrap">'+sql+'</pre>'+
-    '<button onclick="navigator.clipboard.writeText('+JSON.stringify(sql)+')" style="margin-top:8px;background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer">Copy SQL</button>';
-  inv.appendChild(box);
-}
-
-// ── MOBILE NAV ────────────────────────────────────────────────
-function gotoMob(page, btn) {
-  showPage(page, document.querySelector('.nav-btn[onclick*="'+page+'"]'));
-  document.querySelectorAll('.mob-btn').forEach(function(b){b.classList.remove('active');});
-  if(btn) btn.classList.add('active');
-}
-
-// ── PWA SERVICE WORKER ────────────────────────────────────────
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(function(){});
-}
-
-// ── CSS for role manager ──────────────────────────────────────
-(function() {
-  var style = document.createElement('style');
-  style.textContent = '.role-manager{background:rgba(14,165,233,0.15);color:#38BDF8;border:1px solid rgba(14,165,233,0.3);}';
-  document.head.appendChild(style);
-})();
-
-
-function bootAsRole(role, info) {
-  currentRole = role;
-  updateRoleBadge(role, info);
-  applyRolePermissions(role);
-  // Initialize app
-  renderDashboard();
-  renderJobsPage();
-  renderCustomers();
-  renderTechs();
-  updateBadges();
-  if (role === 'tech') showTechView();
-  if (role === 'customer') showCustomerView();
-  maybeShowTTBar();
-  initOffline();
+    const res = await fetch('https://xunjfqdppaoewppuuvph.supabase.co/functions/v1/create-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (localStorage.getItem('fd_token')||'') },
+      body: JSON.stringify({ action: 'delete', user_id: userId })
+    });
+    const data = await res.json();
+    if (data.success) { showToast('✓ ' + name + ' deleted'); loadAdminUsers(); }
+    else showToast('Error: ' + (data.error || 'Failed'));
+  } catch(e) { showToast('Error: ' + e.message); }
 }
 
 
-async function initAuth() {
-  // Auth handled by localStorage token
-  const { data: { session } } = await _sb.auth.getSession();
-  if (session) {
-    await loadProfile(session.user);
-  } else {
-    showAuthScreen();
-  }
-  _sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-      await loadProfile(session.user);
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null; currentRole = null; currentProfile = null;
-      showAuthScreen();
-    }
+// ============================================================
+// ROLE PORTAL VIEWS
+// ============================================================
+
+function buildPortalHeader(roleName, roleClass, name) {
+  return '<div class="portal-header">' +
+    '<div class="portal-logo">BCFP<span>Connect</span></div>' +
+    '<div style="display:flex;align-items:center;gap:12px">' +
+    '<span class="portal-role-pill ' + roleClass + '">' + roleName + '</span>' +
+    '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
+    '<button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>' +
+    '</div></div>';
+}
+
+// ── DISPATCHER PORTAL ────────────────────────────────────────
+function buildDispatcherPortal() {
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  var name = profile.full_name || 'Dispatcher';
+
+  // Count job stats
+  var total = typeof JOBS !== 'undefined' ? JOBS.length : 0;
+  var emergency = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.priority==='emergency';}).length : 0;
+  var pending = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='pending';}).length : 0;
+  var complete = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='complete';}).length : 0;
+  var enroute = typeof JOBS !== 'undefined' ? JOBS.filter(function(j){return j.status==='enroute';}).length : 0;
+  var techs = typeof TECHS !== 'undefined' ? TECHS.length : 0;
+
+  main.innerHTML = '<div class="portal-wrap">' +
+    buildPortalHeader('Dispatcher', 'role-dispatcher', name) +
+    (window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" width=\"13\" height=\"13\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>PREVIEW MODE — Changes will not save</div><button onclick=\"exitPreview()\" style=\"background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em\">↩ Return to Admin</button></div>' : '') +
+
+    // Emergency bar
+    '<div style="background:rgba(224,32,32,0.08);border-bottom:1px solid rgba(224,32,32,0.15);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+    '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--red)">⚡ DISPATCH CENTER — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
+    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:16px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a>' +
+    '</div>' +
+
+    '<div class="portal-body">' +
+
+    // Stats
+    '<div class="dispatch-stat-grid">' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--red)">' + emergency + '</div><div class="portal-stat-lbl">Emergency</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--amber)">' + pending + '</div><div class="portal-stat-lbl">Pending</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--blue)">' + enroute + '</div><div class="portal-stat-lbl">En Route</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--green)">' + complete + '</div><div class="portal-stat-lbl">Complete</div></div>' +
+    '</div>' +
+
+    // Quick actions
+    '<div class="dispatch-bar">' +
+    '<button class="btn btn-primary" onclick="openNewJobModal()">+ New Job</button>' +
+    '<button class="btn btn-ghost" id="dp-jobs-btn">All Jobs</button>' +
+    '<button class="btn btn-ghost" id="dp-cal-btn">Calendar</button>' +
+    '<button class="btn btn-ghost" id="dp-techs-btn">Techs</button>' +
+    '<button class="btn btn-ghost" id="dp-cust-btn">Customers</button>' +
+    '<button class="btn btn-ghost" id="dp-quotes-btn">Quotes</button>' +
+    '</div>' +
+
+    // Active jobs queue
+    '<div class="portal-section-title">Active Queue</div>' +
+    '<div class="dispatch-queue" id="dispatch-queue-list"></div>' +
+
+    // Techs on duty
+    '<div class="portal-section-title" style="margin-top:20px">Techs On Duty</div>' +
+    '<div id="dispatch-tech-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div>' +
+
+    '</div></div>';
+
+  // Populate queue
+  renderDispatchQueue();
+  renderDispatchTechs();
+  // Wire dispatch job clicks
+  var dq = document.getElementById('dispatch-queue-list');
+  if (dq) dq.addEventListener('click', function(e) {
+    var row = e.target.closest('[data-jobid]');
+    if (row) openJobModal(row.getAttribute('data-jobid'));
+  });
+
+  // Wire nav buttons
+  var pages = {
+    'dp-jobs-btn': 'jobs', 'dp-cal-btn': 'calendar',
+    'dp-techs-btn': 'technicians', 'dp-cust-btn': 'customers', 'dp-quotes-btn': 'quotes'
+  };
+  Object.keys(pages).forEach(function(id) {
+    var btn = document.getElementById(id);
+    if (btn) btn.onclick = (function(page) { return function() { showPage(page); }; })(pages[id]);
   });
 }
 
-function showAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'flex';
-}
-function hideAuthScreen() {
-  document.getElementById('auth-screen').style.display = 'none';
-}
-function hideSplash() {
-  document.getElementById('auth-screen').style.display = 'none';
-}
-
-
-let TT = JSON.parse(localStorage.getItem('fd_tt') || 'null') || {
-  state:'out', dayStart:null, driveStart:null, onsiteStart:null,
-  driveTotal:0, onsiteTotal:0, entries:[]
-};
-let ttInterval = null;
-function ttSave(){localStorage.setItem('fd_tt',JSON.stringify(TT));}
-function fmtSec(s){
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
-  if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
-  return m+':'+String(sec).padStart(2,'0');
-}
-function fmtSecShort(s){
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
-  if(h>0)return h+'h '+m+'m'; return m+'m';
-}
-function ttShowBar(){
-  const bar=document.getElementById('tt-bar');
-  if(bar)bar.style.display='flex';
-  ttUpdateUI();
-  if(ttInterval)clearInterval(ttInterval);
-  ttInterval=setInterval(ttTick,1000);
-}
-function ttClockIn(){
-  const now=new Date();
-  TT.state='driving';TT.dayStart=now.toISOString();TT.driveStart=now.toISOString();
-  TT.driveTotal=0;TT.onsiteTotal=0;TT.onsiteStart=null;
-  ttSave();ttUpdateUI();showToast('✓ Clocked in — drive timer started');
-}
-function ttClockDrive(){
-  const now=new Date();
-  if(TT.state==='onsite'&&TT.onsiteStart){TT.onsiteTotal+=Math.floor((now-new Date(TT.onsiteStart))/1000);TT.onsiteStart=null;}
-  TT.state='driving';TT.driveStart=now.toISOString();
-  ttSave();ttUpdateUI();showToast('✓ Drive timer started');
-}
-function ttClockOnsite(){
-  const now=new Date();
-  if(TT.driveStart){TT.driveTotal+=Math.floor((now-new Date(TT.driveStart))/1000);TT.driveStart=null;}
-  TT.state='onsite';TT.onsiteStart=now.toISOString();
-  ttSave();ttUpdateUI();showToast('✓ Arrived on-site — on-site timer started');
-}
-function ttClockOut(){
-  const now=new Date();
-  if(TT.state==='driving'&&TT.driveStart)TT.driveTotal+=Math.floor((now-new Date(TT.driveStart))/1000);
-  if(TT.state==='onsite'&&TT.onsiteStart)TT.onsiteTotal+=Math.floor((now-new Date(TT.onsiteStart))/1000);
-  const entry={
-    id:'TE-'+Date.now(), tech:currentProfile?.full_name||'Unknown',
-    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-    dateISO:new Date().toISOString().split('T')[0],
-    startTime:TT.dayStart?new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—',
-    endTime:now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}),
-    driveSeconds:TT.driveTotal, onsiteSeconds:TT.onsiteTotal,
-    totalSeconds:TT.driveTotal+TT.onsiteTotal
-  };
-  TT.entries.unshift(entry);
-  TT.state='out';TT.dayStart=null;TT.driveStart=null;TT.onsiteStart=null;TT.driveTotal=0;TT.onsiteTotal=0;
-  ttSave();ttUpdateUI();
-  showToast('✓ Day ended — '+fmtSec(entry.totalSeconds)+' total logged');
-}
-function ttTick(){
-  const now=new Date();
-  const driveR=TT.state==='driving'&&TT.driveStart?Math.floor((now-new Date(TT.driveStart))/1000):0;
-  const onsiteR=TT.state==='onsite'&&TT.onsiteStart?Math.floor((now-new Date(TT.onsiteStart))/1000):0;
-  const totalDrive=TT.driveTotal+driveR, totalOnsite=TT.onsiteTotal+onsiteR;
-  const current=TT.state==='driving'?driveR:onsiteR;
-  const timerEl=document.getElementById('tt-timer');
-  const driveEl=document.getElementById('tt-drive-total');
-  const onsiteEl=document.getElementById('tt-onsite-total');
-  if(timerEl){timerEl.textContent=fmtSec(current);timerEl.className='tt-timer '+(TT.state==='driving'?'drive':TT.state==='onsite'?'onsite':'');}
-  if(driveEl)driveEl.textContent=fmtSec(totalDrive);
-  if(onsiteEl)onsiteEl.textContent=fmtSec(totalOnsite);
-}
-function ttUpdateUI(){
-  const dot=document.getElementById('tt-dot');
-  const label=document.getElementById('tt-state-label');
-  const startEl=document.getElementById('tt-start-time');
-  const cinBtn=document.getElementById('tt-clockin-btn');
-  const driveBtn=document.getElementById('tt-drive-btn');
-  const onsiteBtn=document.getElementById('tt-onsite-btn');
-  const endBtn=document.getElementById('tt-end-btn');
-  if(!dot)return;
-  const stateMap={out:{dot:'',label:'Not clocked in',color:'var(--text3)'},driving:{dot:'drive',label:'Driving',color:'var(--blue)'},onsite:{dot:'onsite',label:'On Site',color:'var(--green)'}};
-  const s=stateMap[TT.state]||stateMap.out;
-  dot.className='tt-dot '+s.dot;label.textContent=s.label;label.style.color=s.color;
-  if(startEl&&TT.dayStart)startEl.textContent=new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  if(cinBtn)cinBtn.style.display=TT.state==='out'?'inline-flex':'none';
-  if(driveBtn)driveBtn.style.display=TT.state==='onsite'?'inline-flex':'none';
-  if(onsiteBtn)onsiteBtn.style.display=TT.state==='driving'?'inline-flex':'none';
-  if(endBtn)endBtn.style.display=TT.state!=='out'?'inline-flex':'none';
-  ttTick();
-}
-function maybeShowTTBar(){
-  if(currentRole==='tech'||currentRole==='dispatcher'||currentRole==='admin')ttShowBar();
-}
-function renderTimelog(){
-  let entries=[...TT.entries];
-  const filterTech=document.getElementById('tl-filter-tech')?.value;
-  const filterDate=document.getElementById('tl-filter-date')?.value;
-  if(filterTech)entries=entries.filter(e=>e.tech===filterTech);
-  if(filterDate)entries=entries.filter(e=>e.dateISO===filterDate);
-  const todayISO=new Date().toISOString().split('T')[0];
-  const todayE=TT.entries.filter(e=>e.dateISO===todayISO);
-  const dTS=todayE.reduce((s,e)=>s+e.driveSeconds,0);
-  const oTS=todayE.reduce((s,e)=>s+e.onsiteSeconds,0);
-  const tTS=dTS+oTS;
-  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
-  const wTS=TT.entries.filter(e=>new Date(e.dateISO)>=weekAgo).reduce((s,e)=>s+e.totalSeconds,0);
-  const d=document.getElementById('tl-drive-today');
-  const o=document.getElementById('tl-onsite-today');
-  const t=document.getElementById('tl-total-today');
-  const w=document.getElementById('tl-week-total');
-  if(d)d.textContent=fmtSecShort(dTS);
-  if(o)o.textContent=fmtSecShort(oTS);
-  if(t)t.textContent=fmtSecShort(tTS);
-  if(w)w.textContent=fmtSecShort(wTS);
-  const container=document.getElementById('timelog-entries');
-  if(!container)return;
-  const liveRow=TT.state!=='out'?[{id:'live',tech:currentProfile?.full_name||'You',date:'Today (active)',dateISO:todayISO,startTime:TT.dayStart?new Date(TT.dayStart).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—',endTime:'—',driveSeconds:TT.driveTotal,onsiteSeconds:TT.onsiteTotal,totalSeconds:TT.driveTotal+TT.onsiteTotal,live:true}]:[];
-  const all=[...liveRow,...entries];
-  if(!all.length){container.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3);font-size:12px">No time entries yet — clock in to start tracking</div>';return;}
-  const byDate={};
-  all.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
-  container.innerHTML=Object.entries(byDate).map(([date,rows])=>{
-    const dd=rows.reduce((s,r)=>s+r.driveSeconds,0);
-    const od=rows.reduce((s,r)=>s+r.onsiteSeconds,0);
-    const td=dd+od;
-    return '<div class="timelog-card"><div class="timelog-hd"><div class="timelog-date">'+date+'</div><div style="display:flex;gap:12px;font-size:11px"><span style="color:var(--blue)">Drive: <strong>'+fmtSecShort(dd)+'</strong></span><span style="color:var(--green)">On-Site: <strong>'+fmtSecShort(od)+'</strong></span></div><div class="timelog-total">'+fmtSecShort(td)+' total</div></div><div class="timelog-body"><div style="display:flex;padding:6px 16px;background:var(--bg3);border-bottom:1px solid var(--border)"><span class="timelog-label" style="width:110px">Tech</span><span class="timelog-label" style="width:70px">In</span><span class="timelog-label" style="width:70px">Out</span><span class="timelog-label" style="width:60px">Drive</span><span class="timelog-label" style="width:60px">On-Site</span><span class="timelog-label" style="margin-left:auto">Total</span></div>'+
-    rows.map(r=>'<div class="timelog-row"><div class="timelog-tech">'+r.tech+(r.live?'<span style="font-size:9px;color:var(--green);margin-left:5px;font-family:var(--font-display);font-weight:700">● LIVE</span>':'')+'</div><div class="timelog-in">'+r.startTime+'</div><div class="timelog-out">'+r.endTime+'</div><div class="timelog-drive">'+fmtSecShort(r.driveSeconds)+'</div><div class="timelog-onsite">'+fmtSecShort(r.onsiteSeconds)+'</div><div class="timelog-total-cell">'+fmtSecShort(r.totalSeconds)+'</div></div>').join('')+
-    '</div></div>';
+function renderDispatchQueue() {
+  var el = document.getElementById('dispatch-queue-list');
+  if (!el || typeof JOBS === 'undefined') return;
+  var active = JOBS.filter(function(j){ return j.status !== 'complete'; }).slice(0,8);
+  if (!active.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No active jobs</div>'; return; }
+  el.innerHTML = active.map(function(j) {
+    var isEmergency = j.priority === 'emergency';
+    var statusColors = { pending:'var(--amber)', dispatched:'var(--blue)', enroute:'var(--blue)', onsite:'var(--green)', complete:'var(--green)' };
+    var sc = statusColors[j.status] || 'var(--text3)';
+    return '<div class="dispatch-job-row' + (isEmergency?' emergency':'') + '" data-jobid="' + j.id + '">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+      (isEmergency?'<span style="color:var(--red);font-size:10px">🚨</span>':'') +
+      '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</span>' +
+      '<span class="status-tag" style="background:rgba(0,0,0,0.3);color:' + sc + '">' + (j.status||'pending') + '</span>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">' + j.type + '</div>' +
+      '<div style="font-size:11px;color:var(--text3)">' + j.address + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0">' +
+      '<div style="font-size:12px;color:var(--text2)">' + (j.tech||'Unassigned') + '</div>' +
+      (j.eta?'<div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') +
+      '</div>' +
+      '</div>';
   }).join('');
 }
-function exportTimelog(){
-  const rows=['Tech,Date,Clock In,Clock Out,Drive Time,On-Site Time,Total'];
-  TT.entries.forEach(e=>{rows.push([e.tech,e.date,e.startTime,e.endTime,fmtSecShort(e.driveSeconds),fmtSecShort(e.onsiteSeconds),fmtSecShort(e.totalSeconds)].join(','));});
-  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='timelog-'+new Date().toLocaleDateString().replace(/\//g,'-')+'.csv';a.click();
-  showToast('✓ Time log exported as CSV');
+
+function renderDispatchTechs() {
+  var el = document.getElementById('dispatch-tech-list');
+  if (!el || typeof TECHS === 'undefined') return;
+  el.innerHTML = TECHS.slice(0,6).map(function(t) {
+    var statusColor = t.status === 'available' ? 'var(--green)' : t.status === 'onsite' ? 'var(--amber)' : 'var(--text3)';
+    return '<div class="portal-card" style="padding:12px;display:flex;align-items:center;gap:10px">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--text2);flex-shrink:0">' + (t.name||'?').split(' ').map(function(w){return w[0];}).slice(0,2).join('') + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (t.name||'Tech') + '</div>' +
+      '<div style="display:flex;align-items:center;gap:5px;margin-top:2px"><div style="width:6px;height:6px;border-radius:50%;background:' + statusColor + '"></div>' +
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">' + (t.status||'off duty') + '</div></div>' +
+      '</div></div>';
+  }).join('');
 }
 
-function initOffline(){
-  updateOnlineStatus();
-  window.addEventListener('online',()=>{isOnline=true;updateOnlineStatus();processSyncQueue();});
-  window.addEventListener('offline',()=>{isOnline=false;updateOnlineStatus();});
-}
-function updateOnlineStatus(){
-  const banner=document.getElementById('offline-banner');
-  if(!banner)return;
-  if(!isOnline){banner.classList.add('show');const sc=document.getElementById('sync-count');if(sc&&offlineQueue.length>0){sc.style.display='inline-flex';sc.textContent=offlineQueue.length+' pending';}}
-  else banner.classList.remove('show');
-}
-async function processSyncQueue(){
-  if(!isOnline||!offlineQueue.length)return;
-  showToast('Syncing '+offlineQueue.length+' offline changes…');
-  offlineQueue=[];localStorage.setItem('fd_offline_queue','[]');
-  showToast('✓ All changes synced');updateOnlineStatus();
-}
-function manualSync(){if(!isOnline){showToast('Still offline');return;}processSyncQueue();}
+// ── TECH PORTAL ──────────────────────────────────────────────
+function buildTechPortal() {
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  var name = profile.full_name || 'Technician';
+  var firstName = name.split(' ')[0];
 
-function loadActivityLog() {
-  const activities = [
-    { type:'login', color:'var(--green)', text:'Owen Norris logged in as Admin', time:'Just now' },
-    { type:'job', color:'var(--amber)', text:'Job FD-0089 dispatched — Ray K. assigned', time:'10:14 AM' },
-    { type:'login', color:'var(--green)', text:'Ray Kim logged in as Technician', time:'9:58 AM' },
-    { type:'job', color:'var(--blue)', text:'Job FD-0091 status → En Route', time:'9:45 AM' },
-    { type:'login', color:'var(--green)', text:'Diane Lopez logged in as Technician', time:'9:30 AM' },
-    { type:'user', color:'#C084FC', text:'New user Sara Park created (Technician)', time:'Yesterday' },
-    { type:'job', color:'var(--green)', text:'Job FD-0086 marked Complete — Marcus J.', time:'Yesterday' },
-    { type:'login', color:'var(--red)', text:'Failed login attempt — unknown@test.com', time:'Yesterday' },
-  ];
-  const el = document.getElementById('admin-activity-list');
-  if(!el) return;
-  el.innerHTML = activities.map(a =>
-    '<div class="activity-row"><div class="activity-dot" style="background:'+a.color+'"></div>' +
-    '<div style="font-size:12px;color:var(--text2)">'+a.text+'</div>' +
-    '<div class="activity-time">'+a.time+'</div></div>'
-  ).join('');
+  // Filter jobs assigned to this tech
+  var myJobs = typeof JOBS !== 'undefined' ? JOBS.filter(function(j) {
+    return j.tech && j.tech.toLowerCase().indexOf(firstName.toLowerCase()) >= 0;
+  }) : [];
+  if (!myJobs.length && typeof JOBS !== 'undefined') myJobs = JOBS.slice(0,3);
+
+  var todayJobs = myJobs.filter(function(j){ return j.status !== 'complete'; });
+  var doneJobs = myJobs.filter(function(j){ return j.status === 'complete'; });
+
+  main.innerHTML = '<div class="portal-wrap">' +
+    buildPortalHeader('Technician', 'role-tech', name) +
+    (window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" width=\"13\" height=\"13\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>PREVIEW MODE — Actions &amp; clock in will not save</div><button onclick=\"exitPreview()\" style=\"background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em\">↩ Return to Admin</button></div>' : '') +
+
+    // TT Bar embed
+    '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
+    '<div style="display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2)">' +
+    '<div class="tt-dot" id="tt-dot2"></div><span id="tt-state-label2">Not clocked in</span>' +
+    '</div>' +
+    '<div class="tt-timer" id="tt-timer2" style="color:var(--text3)">0:00</div>' +
+    '<div style="margin-left:auto;display:flex;gap:6px">' +
+    '<button class="clock-pill drive" id="tt-drive-btn2" onclick="ttClockDrive()" style="display:none">🚗 Driving</button>' +
+    '<button class="clock-pill onsite" id="tt-onsite-btn2" onclick="ttClockOnsite()" style="display:none">📍 On Site</button>' +
+    '<button class="clock-pill emergency" id="tt-end-btn2" onclick="ttClockOut()" style="display:none">End Day</button>' +
+    '<button class="clock-pill" id="tt-clockin-btn2" onclick="ttClockIn()" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)">⏱ Clock In</button>' +
+    '</div></div>' +
+
+    '<div class="portal-body">' +
+
+    // Stats
+    '<div class="portal-stat-row">' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--amber)">' + todayJobs.length + '</div><div class="portal-stat-lbl">Today</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--green)">' + doneJobs.length + '</div><div class="portal-stat-lbl">Complete</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--blue)" id="tt-drive-today2">0m</div><div class="portal-stat-lbl">Drive Time</div></div>' +
+    '<div class="portal-stat"><div class="portal-stat-val" style="color:var(--teal)" id="tt-onsite-today2">0m</div><div class="portal-stat-lbl">On Site</div></div>' +
+    '</div>' +
+
+    // Today's jobs
+    '<div class="portal-section-title">My Jobs Today</div>' +
+    (todayJobs.length ? todayJobs.map(function(j) {
+      var isEmergency = j.priority === 'emergency';
+      return '<div class="tech-job' + (isEmergency?' active':'') + '">' +
+        '<div class="tech-job-header">' +
+        '<div>' +
+        '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em;margin-bottom:3px">' + j.id + (isEmergency?' 🚨 EMERGENCY':'') + '</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:2px">' + j.address + (j.unit?' · '+j.unit:'') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+        '<div style="font-size:11px;color:var(--text3)">' + j.time + '</div>' +
+        (j.eta?'<div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--red)">' + j.eta + 'm</div>':'') +
+        '</div></div>' +
+        '<div class="tech-job-body">' +
+        // Site info
+        (j.lockbox?'<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--text2)">🔐 Lockbox: <strong style="color:var(--text)">' + j.lockbox + '</strong></div>':'') +
+        (j.notes?'<div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6">' + j.notes + '</div>':'') +
+        // Action buttons
+        '<div class="tech-clock-row">' +
+        '<button class="clock-pill drive" data-drive="' + j.id + '">🚗 En Route</button>' +
+        '<button class="clock-pill onsite" data-onsite="' + j.id + '">📍 On Site</button>' +
+        '<button class="clock-pill complete" data-complete="' + j.id + '">✓ Complete</button>' +
+        '</div>' +
+        // Photo upload hint
+        '<div style="margin-top:10px;padding:10px;background:var(--bg3);border-radius:var(--radius-sm);text-align:center;cursor:pointer;border:1px dashed var(--border)" data-photos="' + j.id + '">' +
+        '<span style="font-size:12px;color:var(--text3)">📷 Tap to upload photos / log fail devices</span>' +
+        '</div>' +
+        '</div></div>';
+    }).join('') : '<div style="text-align:center;padding:30px;color:var(--text3);font-size:13px">No jobs assigned for today</div>') +
+
+    // Completed today
+    (doneJobs.length ? '<div class="portal-section-title" style="margin-top:20px">Completed</div>' +
+    doneJobs.map(function(j) {
+      return '<div class="portal-card" style="display:flex;align-items:center;gap:12px;opacity:0.7">' +
+        '<div style="width:32px;height:32px;border-radius:50%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:14px;flex-shrink:0">✓</div>' +
+        '<div><div style="font-size:13px;font-weight:600;color:var(--text)">' + j.type + '</div>' +
+        '<div style="font-size:11px;color:var(--text3)">' + j.address + ' · ' + j.time + '</div></div>' +
+        '<div style="margin-left:auto;font-family:var(--font-display);font-size:11px;color:var(--green);font-weight:700">DONE</div>' +
+        '</div>';
+    }).join('') : '') +
+
+    '</div></div>';
+
+  // Wire up button events via delegation
+  var techMain = main.querySelector('.portal-body');
+  if (techMain) {
+    techMain.addEventListener('click', function(e) {
+      var drive = e.target.closest('[data-drive]');
+      var onsite = e.target.closest('[data-onsite]');
+      var complete = e.target.closest('[data-complete]');
+      var photos = e.target.closest('[data-photos]');
+      if (drive) { ttClockDrive(); showToast('Driving to ' + drive.getAttribute('data-drive')); }
+      if (onsite) { ttClockOnsite(); showToast('Arrived at ' + onsite.getAttribute('data-onsite')); }
+      if (complete) { showToast('✓ ' + complete.getAttribute('data-complete') + ' marked complete'); }
+      if (photos) { openJobModal(photos.getAttribute('data-photos')); }
+    });
+  }
+
+  // Wire up the TT buttons to sync with the main TT system
+  ttUpdateUI2();
+  if (typeof ttInterval !== 'undefined') clearInterval(ttInterval);
+  ttInterval = setInterval(ttTick2, 1000);
 }
 
-function exportAllData() {
-  const data = { jobs: JOBS, customers: CUSTOMERS, exported: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'bcfp-export-' + new Date().toLocaleDateString().replace(/\//g,'-') + '.json';
-  a.click();
-  showToast('✓ Data exported');
+function ttTick2() {
+  var now = new Date();
+  var driveR = typeof TT !== 'undefined' && TT.state==='driving' && TT.driveStart ? Math.floor((now-new Date(TT.driveStart))/1000) : 0;
+  var onsiteR = typeof TT !== 'undefined' && TT.state==='onsite' && TT.onsiteStart ? Math.floor((now-new Date(TT.onsiteStart))/1000) : 0;
+  var current = TT.state==='driving' ? driveR : onsiteR;
+  var el = document.getElementById('tt-timer2');
+  if (el) el.textContent = typeof fmtSec === 'function' ? fmtSec(current) : current + 's';
+  var d = document.getElementById('tt-drive-today2');
+  var o = document.getElementById('tt-onsite-today2');
+  if (d && typeof fmtSecShort === 'function') d.textContent = fmtSecShort(TT.driveTotal + driveR);
+  if (o && typeof fmtSecShort === 'function') o.textContent = fmtSecShort(TT.onsiteTotal + onsiteR);
+}
+
+function ttUpdateUI2() {
+  if (typeof TT === 'undefined') return;
+  var dot = document.getElementById('tt-dot2');
+  var label = document.getElementById('tt-state-label2');
+  var cinBtn = document.getElementById('tt-clockin-btn2');
+  var driveBtn = document.getElementById('tt-drive-btn2');
+  var onsiteBtn = document.getElementById('tt-onsite-btn2');
+  var endBtn = document.getElementById('tt-end-btn2');
+  if (!dot) return;
+  var stateMap = { out:{dot:'',label:'Not clocked in',color:'var(--text3)'}, driving:{dot:'drive',label:'Driving',color:'var(--blue)'}, onsite:{dot:'onsite',label:'On Site',color:'var(--green)'} };
+  var s = stateMap[TT.state] || stateMap.out;
+  dot.className = 'tt-dot ' + s.dot;
+  if (label) { label.textContent = s.label; label.style.color = s.color; }
+  if (cinBtn) cinBtn.style.display = TT.state==='out' ? 'inline-flex' : 'none';
+  if (driveBtn) driveBtn.style.display = TT.state==='onsite' ? 'inline-flex' : 'none';
+  if (onsiteBtn) onsiteBtn.style.display = TT.state==='driving' ? 'inline-flex' : 'none';
+  if (endBtn) endBtn.style.display = TT.state!=='out' ? 'inline-flex' : 'none';
+}
+
+// ── MANAGER VIEW ─────────────────────────────────────────────
+function buildManagerView() {
+  // Manager gets full app but no admin panel button
+  // Just show the normal nav without admin button
+  return; // already handled in applyRolePermissions
 }
 
 </script>
