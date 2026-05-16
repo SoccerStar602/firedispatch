@@ -1772,7 +1772,7 @@ BCFP Connect"></textarea>
       <div class="form-grid">
         <div class="form-group full">
           <label class="form-label">Customer / Site</label>
-          <select class="form-select" id="nj-customer">
+          <select class="form-select" id="nj-customer" onchange="autoFillCustomerEmail(this)">
             <option value="">Select customer…</option>
             <option>Westfield Mall Corp</option>
             <option>Harbor Logistics</option>
@@ -2248,8 +2248,8 @@ BCFP Connect"></textarea>
 <script>
 // ---- DATA ----
 const JOBS = [
-  { id:'FD-0089', customer:'Westfield Mall Corp', address:'4800 N Central Ave', unit:'Unit 4B', type:'Emergency Response', priority:'emergency', tech:'Ray K.', techColor:'amber', status:'onsite', time:'09:14 AM', notes:'Smoke detector triggered Zone 3' },
-  { id:'FD-0091', customer:'Harbor Logistics', address:'7200 W McDowell Rd', unit:'Warehouse A', type:'Alarm Fault', priority:'emergency', tech:'Diane L.', techColor:'blue', status:'enroute', time:'10:32 AM', notes:'Annual inspection overdue' },
+  { id:'FD-0089', customer_email:'customer@bigcityfp.com', customer:'Westfield Mall Corp', address:'4800 N Central Ave', unit:'Unit 4B', type:'Emergency Response', priority:'emergency', tech:'Ray K.', techColor:'amber', status:'onsite', time:'09:14 AM', notes:'Smoke detector triggered Zone 3' },
+  { id:'FD-0091', customer_email:'customer@bigcityfp.com', customer:'Harbor Logistics', address:'7200 W McDowell Rd', unit:'Warehouse A', type:'Alarm Fault', priority:'emergency', tech:'Diane L.', techColor:'blue', status:'enroute', time:'10:32 AM', notes:'Annual inspection overdue' },
   { id:'FD-0088', customer:'Sunridge Apartments', address:'3300 E Thomas Rd', unit:'Building C', type:'Annual Inspection', priority:'high', tech:'Marcus J.', techColor:'green', status:'dispatched', time:'08:00 AM', notes:'' },
   { id:'FD-0092', customer:'Phoenix General Hospital', address:'1111 E McDowell Rd', unit:'Floor 4', type:'Test & Tag', priority:'normal', tech:'Sara P.', techColor:'green', status:'dispatched', time:'01:00 PM', notes:'' },
   { id:'FD-0090', customer:'Desert Oaks School', address:'2200 W Indian School Rd', unit:'Gym', type:'Repair', priority:'high', tech:'', techColor:'', status:'pending', time:'11:00 AM', notes:'Strobe unit malfunction' },
@@ -2421,6 +2421,7 @@ function showPage(id, btn) {
 async function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
+  const custEmail = (document.getElementById('nj-customer-email') && document.getElementById('nj-customer-email').value) || '';
   const customer = document.getElementById('nj-customer').value;
   const address = document.getElementById('nj-address').value;
   const type = document.getElementById('nj-type').value;
@@ -2430,7 +2431,7 @@ function createJob() {
   const id = 'FD-0' + (100 + JOBS.length);
   const now = new Date();
   const time = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  JOBS.unshift({ id, customer: customer||'New Customer', address, unit:'', type, priority, tech: tech.split(' — ')[0]||'', techColor:'green', status:'pending', time, notes:'' });
+  JOBS.unshift({ id, customer_email: custEmail, customer: customer||'New Customer', address, unit:'', type, priority, tech: tech.split(' — ')[0]||'', techColor:'green', status:'pending', time, notes:'' });
   renderDashboard(); renderJobsPage();
   updateBadges();
   closeModal('new-job-modal');
@@ -3956,8 +3957,20 @@ function buildCustomerPortal(){
     '<a href="tel:6025550100" class="btn btn-primary" style="font-size:12px;padding:8px 18px;text-decoration:none">📞 Call Us</a>'+
     '<a href="mailto:info@bigcityfp.com" class="btn btn-ghost" style="font-size:12px;padding:8px 18px;text-decoration:none">✉ Email Us</a>'+
     '</div></div></div></div>';
-  var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
-  if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
+  // Match by email first (most reliable), fall back to name match
+  var userEmail = (user.email || '').toLowerCase();
+  var myJobs = JOBS.filter(function(j) {
+    // Email match
+    if (j.customer_email && userEmail && j.customer_email.toLowerCase() === userEmail) return true;
+    // Name match fallback — match any part of customer name
+    if (j.customer && cname) {
+      var custLower = j.customer.toLowerCase();
+      var nameParts = cname.toLowerCase().split(' ').filter(function(p){ return p.length > 2; });
+      return nameParts.some(function(part){ return custLower.indexOf(part) >= 0; });
+    }
+    return false;
+  });
+  if (!myJobs.length && JOBS.length) myJobs = [JOBS[0]]; // demo fallback
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
   var aDiv=document.getElementById('cust-active');
   if(activeJob&&aDiv){
@@ -4965,3 +4978,26 @@ function processCustPayment(invId) {
 </div>
 </body>
 </html>
+function openJobModal(jobId) {
+  var job = JOBS.find(function(j){ return j.id === jobId; });
+  if (!job) return;
+  // Open the job detail view — navigate to jobs page and highlight
+  showPage('jobs', document.querySelector('.nav-btn[onclick*="jobs"]'));
+  setTimeout(function() {
+    var row = document.querySelector('[data-id="' + jobId + '"]');
+    if (row) { row.scrollIntoView({behavior:'smooth', block:'center'}); row.click(); }
+  }, 300);
+}
+
+// Auto-fill customer email when customer selected in new job modal
+function autoFillCustomerEmail(sel) {
+  var emailField = document.getElementById('nj-customer-email');
+  if (!emailField) return;
+  // Try to find customer email from profiles
+  var custName = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text;
+  if (FIELD_STAFF && custName) {
+    // Not ideal but works for now — in future pull from customers table
+    emailField.placeholder = 'customer@email.com';
+  }
+}
+
