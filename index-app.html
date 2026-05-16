@@ -147,7 +147,7 @@
   .tech-status-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
 
   /* PAGES */
-  .page { display: none; }
+  .page { display:none; }
   .page.active { display: block; }
 
   /* DASHBOARD */
@@ -2036,7 +2036,7 @@ BCFP Connect"></textarea>
 
 
   <!-- PAGE: AUTOMATION -->
-  <div class="page" id="page-automation" style="display:none">
+  <div class="page" id="page-automation">
     <div class="automation-page">
 
       <!-- Header -->
@@ -2406,7 +2406,11 @@ function showPage(id, btn) {
   if(id === 'quotes') renderQuotes();
   if(id === 'sales') renderSales();
   if(id === 'timelog') renderTimelog();
-  if(id === 'automation') renderAutomationPage();
+  if(id === 'automation') {
+    var ap = document.getElementById('page-automation');
+    if(ap) ap.style.display = 'block';
+    renderAutomationPage();
+  }
 }
 async function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -4025,9 +4029,9 @@ var AUTO_INSPECTIONS = [
 ];
 
 function renderAutomationPage() {
-  renderAutoQueue();
-  renderEmailLog();
-  updateAutoStats();
+  try { renderAutoQueue(); } catch(e) { console.error('renderAutoQueue:', e); }
+  try { renderEmailLog(); } catch(e) { console.error('renderEmailLog:', e); }
+  try { updateAutoStats(); } catch(e) { console.error('updateAutoStats:', e); }
 }
 
 function updateAutoStats() {
