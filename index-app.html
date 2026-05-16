@@ -2392,9 +2392,9 @@ function showPage(id, btn) {
   if(id === 'sales') renderSales();
   if(id === 'timelog') renderTimelog();
 }
-function openNewJobModal() {
+async function openNewJobModal() {
   // Populate tech dropdown with all field staff
-  loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
+  await loadFieldStaff(); document.getElementById('new-job-modal').classList.add('open'); }
 function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
@@ -4752,34 +4752,55 @@ function exportEmailLog() {
 var FIELD_STAFF = [];
 
 async function loadFieldStaff() {
-  // Try Supabase first — fetch ALL profiles then filter client-side
+  var ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Tech' };
+  var fieldRoles = ['tech','manager','admin','dispatcher'];
+  var token = localStorage.getItem('fd_token') || '';
+
+  // Always try Supabase
   try {
-    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&order=full_name.asc', {
+    var url = 'https://xunjfqdppaoewppuuvph.supabase.co/rest/v1/profiles?select=id,full_name,role&order=full_name.asc';
+    var res = await fetch(url, {
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+        'apikey': 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv',
+        'Authorization': 'Bearer ' + (token || 'sb_publishable_KVlI2NcTccmuG91XVBsoKg_5si9m5Xv'),
         'Content-Type': 'application/json'
       }
     });
     if (res.ok) {
       var data = await res.json();
-      if (data && data.length) {
-        // Filter field roles client-side
-        var fieldRoles = ['tech','manager','admin','dispatcher'];
-        FIELD_STAFF = data.filter(function(u) { return fieldRoles.indexOf(u.role) >= 0; });
-        if (FIELD_STAFF.length) {
-          populateTechDropdowns();
-          return;
-        }
+      if (Array.isArray(data) && data.length) {
+        FIELD_STAFF = data.filter(function(u) {
+          return u.full_name && fieldRoles.indexOf(u.role) >= 0;
+        });
       }
     }
-  } catch(e) { console.warn('loadFieldStaff error:', e); }
+  } catch(e) {
+    console.warn('Field staff fetch failed:', e);
+  }
 
-  // Fallback to TECHS array
-  FIELD_STAFF = TECHS.map(function(t) {
-    return { id: t.name, full_name: t.name, role: 'tech' };
+  // Always fallback to TECHS if nothing from Supabase
+  if (!FIELD_STAFF.length) {
+    FIELD_STAFF = TECHS.map(function(t) {
+      return { id: t.name, full_name: t.name, role: 'tech' };
+    });
+  }
+
+  // Populate all dropdowns
+  var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech'];
+  dropdowns.forEach(function(id) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var current = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    FIELD_STAFF.forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s.full_name;
+      opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role] || s.role) + ')' : '');
+      if (opt.value === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    console.log('Populated', id, 'with', FIELD_STAFF.length, 'staff');
   });
-  populateTechDropdowns();
 }
 
 function populateTechDropdowns() {
