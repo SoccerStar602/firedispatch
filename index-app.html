@@ -822,7 +822,7 @@
     <div class="status-pill"><div class="status-dot"></div>Online</div>
     <div id="role-badge-wrap"></div>
     <div class="time-display" id="clock">--:--</div>
-    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openModal('user-modal')" id="user-menu-btn" title="Account">
+    <button class="btn btn-ghost" style="padding:5px 10px;font-size:11px" onclick="openAccountModal()" id="user-menu-btn" title="Account">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span id="user-btn-label">Account</span>
     </button>
@@ -3027,6 +3027,45 @@ function doLogout() {
   if(typeof closeModal==='function') closeModal('user-modal');
   showToast('Signed out');
   setTimeout(function(){ window.location.href='index.html'; }, 600);
+}
+
+function openAccountModal() {
+  // Populate from localStorage immediately - no async needed
+  var profile = {};
+  var user = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
+  
+  var name = profile.full_name || user.email || 'Dispatcher';
+  var email = user.email || '';
+  var role = profile.role || 'dispatcher';
+  var initials = name.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase() || 'FD';
+  
+  var roleLabels = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  var roleClasses = { admin:'role-admin', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+  
+  var av = document.getElementById('user-avatar');
+  var nm = document.getElementById('user-name');
+  var em = document.getElementById('user-email-disp');
+  var rd = document.getElementById('user-role-disp');
+  var ms = document.getElementById('user-manage-section');
+  
+  if (av) av.textContent = initials;
+  if (nm) nm.textContent = name;
+  if (em) em.textContent = email;
+  if (rd) rd.innerHTML = '<span class="role-badge ' + (roleClasses[role]||'role-dispatcher') + '">' + (roleLabels[role]||role) + '</span>';
+  if (ms && (role === 'admin' || role === 'dispatcher')) {
+    var adminBtn = document.createElement('button');
+    adminBtn.className = 'btn btn-ghost';
+    adminBtn.style.cssText = 'width:100%;justify-content:center;margin-top:8px';
+    adminBtn.textContent = 'Admin Panel';
+    adminBtn.onclick = function() { closeModal('user-modal'); openAdminPanel(); };
+    ms.innerHTML = '';
+    ms.appendChild(adminBtn);
+  }
+  
+  // Open modal instantly
+  openModal('user-modal');
 }
 </script>
 </body>
