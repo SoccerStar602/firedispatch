@@ -3254,5 +3254,149 @@ function exitPreview() {
   setTimeout(function() { location.reload(); }, 400);
 }
 
+
+// ── ROLE PERMISSIONS ─────────────────────────────────────────
+function applyRolePermissions(role) {
+  var nav = document.querySelector('.nav');
+  var sidebar = document.querySelector('.sidebar');
+  var ticker = document.querySelector('.alert-ticker');
+  var ttBar = document.getElementById('tt-bar');
+
+  if (role === 'admin' || role === 'dispatcher') {
+    if (role === 'admin') {
+      var tr = document.querySelector('.topbar-right');
+      if (tr && !document.getElementById('admin-panel-btn')) {
+        var btn = document.createElement('button');
+        btn.id = 'admin-panel-btn';
+        btn.className = 'btn btn-ghost';
+        btn.style.cssText = 'padding:5px 10px;font-size:11px;border-color:rgba(168,85,247,0.4);color:#C084FC';
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 8v4l3 3"/></svg> Admin';
+        btn.onclick = function() { openAdminPanel(); };
+        tr.insertBefore(btn, tr.firstChild);
+      }
+    }
+    return;
+  }
+
+  if (role === 'tech') {
+    // Tech: Jobs, Calendar, Sites only
+    var TECH_PAGES = ['jobs','calendar','sites'];
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
+      var onclick = btn.getAttribute('onclick') || '';
+      var show = TECH_PAGES.some(function(p) { return onclick.indexOf(p) >= 0; });
+      btn.style.display = show ? '' : 'none';
+    });
+    if (sidebar) sidebar.style.display = 'none';
+    // Default to jobs page
+    var firstBtn = document.querySelector('.nav-btn[onclick*="jobs"]');
+    if (firstBtn) firstBtn.click();
+    return;
+  }
+
+  if (role === 'customer') {
+    if (nav) nav.style.display = 'none';
+    if (sidebar) sidebar.style.display = 'none';
+    if (ticker) ticker.style.display = 'none';
+    if (ttBar) ttBar.style.display = 'none';
+    buildCustomerPortal();
+    return;
+  }
+}
+
+function buildCustomerPortal() {
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  var user = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
+  var customerName = profile.full_name || 'Customer';
+
+  main.innerHTML = '<div style="min-height:100vh;background:var(--bg)">' +
+    '<div style="background:var(--bg2);border-bottom:1px solid var(--border-red);padding:16px 24px;display:flex;align-items:center;justify-content:space-between">' +
+    '<div style="display:flex;align-items:center;gap:10px">' +
+    '<div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
+    '<div style="font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase">BCFP Connect — Client Portal</div>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:12px">' +
+    '<div style="font-size:12px;color:var(--text3)">Welcome, <strong style="color:var(--text)">' + customerName + '</strong></div>' +
+    '<button class="btn btn-ghost" style="font-size:11px;padding:5px 10px;border-color:rgba(224,32,32,0.3);color:var(--red)" onclick="doLogout()">Sign Out</button>' +
+    '</div></div>' +
+    '<div style="background:rgba(224,32,32,0.08);border-bottom:1px solid rgba(224,32,32,0.2);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+    '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--red)">⚠ 24/7 Emergency Line</div>' +
+    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:18px;font-weight:800;color:white;text-decoration:none">(602) 555-0100</a>' +
+    '</div>' +
+    '<div style="max-width:680px;margin:0 auto;padding:24px">' +
+    '<div id="customer-active-job" style="margin-bottom:20px"></div>' +
+    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:12px">Service History</div>' +
+    '<div id="customer-job-list"></div>' +
+    '<div id="customer-no-jobs" style="display:none;text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">No service history yet</div>' +
+    '<div style="margin-top:28px;padding:18px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;text-align:center">' +
+    '<div style="font-size:13px;color:var(--text2);margin-bottom:10px">Need to schedule service or have questions?</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+    '<a href="tel:6025550100" class="btn btn-primary" style="font-size:12px;padding:8px 16px;text-decoration:none">Call Us</a>' +
+    '<a href="mailto:info@bigcityfp.com" class="btn btn-ghost" style="font-size:12px;padding:8px 16px;text-decoration:none">Email Us</a>' +
+    '</div></div>' +
+    '</div></div>';
+
+  loadCustomerJobs(customerName);
+}
+
+function loadCustomerJobs(customerName) {
+  var activeDiv = document.getElementById('customer-active-job');
+  var listDiv = document.getElementById('customer-job-list');
+  var noJobsDiv = document.getElementById('customer-no-jobs');
+  if (!activeDiv || !listDiv) return;
+
+  var myJobs = typeof JOBS !== 'undefined' ? JOBS.filter(function(j) {
+    return j.customer && j.customer.toLowerCase().indexOf(customerName.toLowerCase().split(' ')[0]) >= 0;
+  }) : [];
+
+  if (!myJobs.length && typeof JOBS !== 'undefined' && JOBS.length) myJobs = [JOBS[0]];
+
+  if (!myJobs.length) {
+    if (noJobsDiv) noJobsDiv.style.display = 'block';
+    return;
+  }
+
+  var activeJob = myJobs.find(function(j) { return j.status === 'enroute' || j.status === 'dispatched' || j.status === 'onsite'; });
+
+  if (activeJob) {
+    activeDiv.innerHTML = '<div style="background:rgba(224,32,32,0.08);border:2px solid rgba(224,32,32,0.35);border-radius:10px;padding:20px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+      '<div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
+      '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red)">Active Service Call</div>' +
+      '</div>' +
+      '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">' + activeJob.type + '</div>' +
+      '<div style="font-size:12px;color:var(--text3);margin-bottom:16px">' + activeJob.address + ' · ' + activeJob.time + '</div>' +
+      (activeJob.eta ? '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:14px 18px">' +
+        '<div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Technician</div>' +
+        '<div style="font-size:14px;font-weight:600;color:var(--text)">' + (activeJob.tech || 'En Route') + '</div></div>' +
+        '<div style="text-align:right"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">ETA</div>' +
+        '<div style="font-family:var(--font-display);font-size:36px;font-weight:800;color:var(--red);line-height:1">' + activeJob.eta + ' <span style="font-size:16px">min</span></div></div>' +
+        '</div>' : '') + '</div>';
+  }
+
+  var historyJobs = myJobs.filter(function(j) { return j !== activeJob; });
+  if (!historyJobs.length) {
+    listDiv.innerHTML = '<div style="font-size:13px;color:var(--text3);text-align:center;padding:20px">No previous jobs on record</div>';
+    return;
+  }
+  listDiv.innerHTML = historyJobs.map(function(j) {
+    var sc = j.status === 'complete' ? 'var(--green)' : j.status === 'pending' ? 'var(--amber)' : 'var(--text3)';
+    var sl = j.status === 'complete' ? '✓ Complete' : j.status === 'pending' ? 'Scheduled' : j.status || 'Unknown';
+    return '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+      '<div style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:' + sc + ';font-family:var(--font-display);letter-spacing:0.06em">' + sl + '</div>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">' + j.type + '</div>' +
+      '<div style="font-size:11px;color:var(--text3)">' + j.address + ' · ' + j.time + '</div>' +
+      (j.notes ? '<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">' + j.notes + '</div>' : '') +
+      (j.recs ? '<div style="font-size:11px;color:var(--amber);margin-top:6px">⚠ ' + j.recs + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+
 </script>
 </body>
