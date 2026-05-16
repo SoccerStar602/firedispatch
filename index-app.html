@@ -2906,75 +2906,149 @@ function populateCustomerDropdown() {
 
 async function loadAdminUsers() {
   const list = document.getElementById('admin-users-list');
+  if (list) list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">Loading users...</div>';
+
   const roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
   const roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
   const roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
 
-  // Start with current user from localStorage
+  // Always show current user
   var profile = {};
   var user = {};
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
   try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
-  
-  adminUsers = [{ 
-    id: user.id || 'current', 
-    full_name: profile.full_name || 'Owen Norris', 
-    email: user.email || '', 
-    role: profile.role || 'dispatcher', 
-    suspended: false, 
-    created_at: new Date().toISOString() 
-  }];
 
-  document.getElementById('stat-total').textContent = adminUsers.length;
-  document.getElementById('stat-active').textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
-  document.getElementById('stat-suspended').textContent = adminUsers.filter(function(u){return u.suspended;}).length;
-  renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
+  adminUsers = [];
 
-  // Try to load from Supabase in background
-  if (_sb && SUPA_CONFIGURED) {
-    _sb.from('profiles').select('*').then(function(result) {
-      if (!result.error && result.data && result.data.length > 0) {
-        adminUsers = result.data;
-        document.getElementById('stat-total').textContent = adminUsers.length;
-        document.getElementById('stat-active').textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
-        document.getElementById('stat-suspended').textContent = adminUsers.filter(function(u){return u.suspended;}).length;
-        renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
+  // Fetch ALL users from Supabase profiles table
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=*&order=created_at.asc', {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY),
+        'Content-Type': 'application/json'
       }
-    }).catch(function(e){ console.warn('Supabase users load failed:', e); });
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.length > 0) {
+        adminUsers = data;
+      }
+    }
+  } catch(e) {
+    console.warn('Could not load users:', e);
   }
+
+  // Fallback to just current user if nothing loaded
+  if (!adminUsers.length) {
+    adminUsers = [{
+      id: user.id || 'current',
+      full_name: profile.full_name || 'You',
+      email: user.email || '',
+      role: profile.role || 'dispatcher',
+      suspended: false,
+      created_at: new Date().toISOString()
+    }];
+  }
+
+  const statTotal = document.getElementById('stat-total');
+  const statActive = document.getElementById('stat-active');
+  const statSuspended = document.getElementById('stat-suspended');
+  if (statTotal) statTotal.textContent = adminUsers.length;
+  if (statActive) statActive.textContent = adminUsers.filter(function(u){return !u.suspended;}).length;
+  if (statSuspended) statSuspended.textContent = adminUsers.filter(function(u){return u.suspended;}).length;
+
+  renderAdminUsersList(adminUsers, roleColors, roleText, roleLabel);
 }
 
 function renderAdminUsersList(users, roleColors, roleText, roleLabel) {
   const list = document.getElementById('admin-users-list');
-  if(!roleColors) {
+  if (!list) return;
+  if (!roleColors) {
     roleColors = { admin:'rgba(168,85,247,0.15)', dispatcher:'rgba(224,32,32,0.15)', tech:'rgba(245,158,11,0.15)', customer:'rgba(59,130,246,0.15)' };
     roleText   = { admin:'#C084FC', dispatcher:'var(--red)', tech:'var(--amber)', customer:'#60A5FA' };
     roleLabel  = { admin:'Admin', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
   }
-  if (!users.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>'; return; }
-  list.innerHTML = users.map(u => {
-    const initials = (u.full_name||u.email||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    const bg = roleColors[u.role] || roleColors.dispatcher;
-    const tc = roleText[u.role] || roleText.dispatcher;
-    const rl = roleLabel[u.role] || u.role;
-    return `<div class="user-row" id="urow-${u.id}">
-      <div class="user-av" style="background:${bg};color:${tc}">${initials}</div>
-      <div class="user-info">
-        <div class="user-name-disp">${u.full_name || 'Unknown'}${u.suspended?'<span class="suspended-badge" style="margin-left:8px">Suspended</span>':''}</div>
-        <div class="user-email-disp">${u.email||''} · ${new Date(u.created_at).toLocaleDateString()}</div>
-      </div>
-      <div class="user-actions">
-        <select class="form-select" style="width:130px;font-size:11px;padding:4px 22px 4px 8px" onchange="changeRole('${u.id}',this.value)">
-          <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
-          <option value="dispatcher" ${u.role==='dispatcher'?'selected':''}>Dispatcher</option>
-          <option value="tech" ${u.role==='tech'?'selected':''}>Technician</option>
-          <option value="customer" ${u.role==='customer'?'selected':''}>Customer</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="openResetPass('${u.id}','${u.full_name||'User'}')">Reset PW</button>
-        <button class="btn btn-ghost btn-sm" style="color:${u.suspended?'var(--green)':'#FF6B6B'};border-color:${u.suspended?'rgba(34,197,94,0.3)':'rgba(224,32,32,0.3)'}" onclick="toggleSuspend('${u.id}',${!u.suspended})">${u.suspended?'Unsuspend':'Suspend'}</button>
-      </div>
-    </div>`;
-  }).join('');
+  if (!users || !users.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">No users found</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  var myEmail = '';
+  try { myEmail = JSON.parse(localStorage.getItem('fd_user')||'{}').email || ''; } catch(e) {}
+
+  users.forEach(function(u) {
+    var initials = (u.full_name||u.email||'?').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+    var bg = roleColors[u.role] || roleColors.dispatcher;
+    var tc = roleText[u.role] || roleText.dispatcher;
+    var rl = roleLabel[u.role] || u.role;
+    var isSelf = u.email === myEmail;
+
+    var row = document.createElement('div');
+    row.className = 'user-row';
+    row.id = 'urow-' + u.id;
+
+    var av = document.createElement('div');
+    av.className = 'user-av';
+    av.style.cssText = 'background:' + bg + ';color:' + tc;
+    av.textContent = initials;
+
+    var info = document.createElement('div');
+    info.className = 'user-info';
+    info.innerHTML = '<div class="user-name-disp">' + (u.full_name||'Unknown') +
+      (u.suspended ? '<span class="suspended-badge" style="margin-left:8px">Suspended</span>' : '') +
+      (isSelf ? '<span style="font-size:9px;color:var(--text3);margin-left:6px">(you)</span>' : '') +
+      '</div><div class="user-email-disp">' + (u.email||'') + ' · ' + new Date(u.created_at).toLocaleDateString() + '</div>';
+
+    var actions = document.createElement('div');
+    actions.className = 'user-actions';
+
+    // Role dropdown
+    var sel = document.createElement('select');
+    sel.className = 'form-select';
+    sel.style.cssText = 'width:130px;font-size:11px;padding:4px 22px 4px 8px';
+    ['admin','dispatcher','tech','customer'].forEach(function(r) {
+      var opt = document.createElement('option');
+      opt.value = r; opt.textContent = roleLabel[r]||r;
+      if (u.role === r) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = (function(uid) { return function() { changeRole(uid, this.value); }; })(u.id);
+
+    // Reset PW button
+    var resetBtn = document.createElement('button');
+    resetBtn.className = 'btn btn-ghost btn-sm';
+    resetBtn.textContent = 'Reset PW';
+    resetBtn.onclick = (function(uid, uname) { return function() { openResetPass(uid, uname); }; })(u.id, u.full_name||'User');
+
+    // Suspend button
+    var suspBtn = document.createElement('button');
+    suspBtn.className = 'btn btn-ghost btn-sm';
+    suspBtn.textContent = u.suspended ? 'Unsuspend' : 'Suspend';
+    suspBtn.style.cssText = 'color:' + (u.suspended ? 'var(--green)' : '#FF6B6B') + ';border-color:' + (u.suspended ? 'rgba(34,197,94,0.3)' : 'rgba(224,32,32,0.3)');
+    suspBtn.onclick = (function(uid, susp) { return function() { toggleSuspend(uid, susp); }; })(u.id, !u.suspended);
+
+    actions.appendChild(sel);
+    actions.appendChild(resetBtn);
+    actions.appendChild(suspBtn);
+
+    // Delete button (not for self)
+    if (!isSelf) {
+      var delBtn = document.createElement('button');
+      delBtn.className = 'btn btn-ghost btn-sm';
+      delBtn.textContent = '✕';
+      delBtn.title = 'Delete user';
+      delBtn.style.cssText = 'color:#FF6B6B;border-color:rgba(224,32,32,0.3);padding:4px 8px';
+      delBtn.onclick = (function(uid, uname) { return function() { deleteUser(uid, uname); }; })(u.id, u.full_name||'User');
+      actions.appendChild(delBtn);
+    }
+
+    row.appendChild(av);
+    row.appendChild(info);
+    row.appendChild(actions);
+    list.appendChild(row);
+  });
 }
 
 function filterAdminUsers(search) {
