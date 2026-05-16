@@ -2396,21 +2396,22 @@ function highlightRow(row) {
   row.style.background = 'rgba(224,32,32,0.06)';
 }
 function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(id === 'sites') renderSites();
-  if(id === 'calendar') renderCalendar();
-  if(id === 'profit') renderProfit();
-  if(id === 'quotes') renderQuotes();
-  if(id === 'sales') renderSales();
-  if(id === 'timelog') renderTimelog();
-  if(id === 'automation') {
-    var ap = document.getElementById('page-automation');
-    if(ap) ap.style.display = 'block';
-    renderAutomationPage();
-  }
+  // Hide ALL pages including clearing any inline styles
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.classList.remove('active');
+    p.style.display = '';
+  });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  var target = document.getElementById('page-'+id);
+  if (target) { target.classList.add('active'); target.style.display = 'block'; }
+  if (btn) btn.classList.add('active');
+  if (id === 'sites') renderSites();
+  if (id === 'calendar') renderCalendar();
+  if (id === 'profit') renderProfit();
+  if (id === 'quotes') renderQuotes();
+  if (id === 'sales') renderSales();
+  if (id === 'timelog') renderTimelog();
+  if (id === 'automation') renderAutomationPage();
 }
 async function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
