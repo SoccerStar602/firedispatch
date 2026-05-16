@@ -3459,10 +3459,8 @@ function buildCustomerPortal() {
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
   try { user = JSON.parse(localStorage.getItem('fd_user') || '{}'); } catch(e) {}
   var customerName = profile.full_name || 'Customer';
-  var previewBanner = window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC">👁 PREVIEW MODE — Customer view</div><button onclick="exitPreview()" style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em">↩ Return to Admin</button></div>' : '';
 
   main.innerHTML = '<div style="min-height:100vh;background:var(--bg)">' +
-    previewBanner +
     '<div style="background:var(--bg2);border-bottom:1px solid var(--border-red);padding:16px 24px;display:flex;align-items:center;justify-content:space-between">' +
     '<div style="display:flex;align-items:center;gap:10px">' +
     '<div style="width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s infinite"></div>' +
@@ -3596,7 +3594,6 @@ function buildDispatcherPortal() {
 
   main.innerHTML = '<div class="portal-wrap">' +
     buildPortalHeader('Dispatcher', 'role-dispatcher', name) +
-    (window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" width=\"13\" height=\"13\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>PREVIEW MODE — Changes will not save</div><button onclick=\"exitPreview()\" style=\"background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em\">↩ Return to Admin</button></div>' : '') +
 
     // Emergency bar
     '<div style="background:rgba(224,32,32,0.08);border-bottom:1px solid rgba(224,32,32,0.15);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
@@ -3717,7 +3714,6 @@ function buildTechPortal() {
 
   main.innerHTML = '<div class="portal-wrap">' +
     buildPortalHeader('Technician', 'role-tech', name) +
-    (window._originalRole ? '<div style="background:rgba(168,85,247,0.1);border-bottom:1px solid rgba(168,85,247,0.2);padding:8px 24px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;color:#C084FC"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" width=\"13\" height=\"13\"><path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>PREVIEW MODE — Actions &amp; clock in will not save</div><button onclick=\"exitPreview()\" style=\"background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);border-radius:20px;color:#C084FC;cursor:pointer;font-family:var(--font-display);font-size:10px;font-weight:700;padding:4px 12px;letter-spacing:0.06em\">↩ Return to Admin</button></div>' : '') +
 
     // TT Bar embed
     '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">' +
