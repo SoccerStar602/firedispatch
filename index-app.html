@@ -3565,21 +3565,26 @@ if('serviceWorker' in navigator) {
 
 
 function bootAsRole(role, info) {
-  // Load field staff for tech dropdowns
-  setTimeout(function(){ loadFieldStaff(); }, 500);
   currentRole = role;
   updateRoleBadge(role, info);
-  applyRolePermissions(role);
-  // Initialize app
+  initOffline();
+
+  // Restricted roles get their own portal — skip full app init
+  if (role === 'dispatcher' || role === 'tech' || role === 'customer') {
+    applyRolePermissions(role);
+    maybeShowTTBar();
+    return;
+  }
+
+  // Admin and manager get full app
+  setTimeout(function(){ loadFieldStaff(); }, 500);
   renderDashboard();
   renderJobsPage();
   renderCustomers();
   renderTechs();
   updateBadges();
-  if (role === 'tech' || role === 'manager' || role === 'admin' || role === 'dispatcher') { if(typeof loadFieldStaff==='function') loadFieldStaff(); }
-  if (role === 'customer') showCustomerView();
+  applyRolePermissions(role);
   maybeShowTTBar();
-  initOffline();
 }
 
 
