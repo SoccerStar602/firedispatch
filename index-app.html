@@ -920,6 +920,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Technicians</div>
     </div>
+    <div id="sidebar-tech-list"></div>
 
     <div class="tech-card">
       <div class="tech-card-header">
@@ -4004,13 +4005,13 @@ function bootAsRole(role, info) {
   initOffline();
   maybeShowTTBar();
 
-  // Restricted roles: show their portal only, skip full app
+  // Restricted roles — their portal only
   if (role === 'dispatcher' || role === 'tech' || role === 'customer') {
     applyRolePermissions(role);
     return;
   }
 
-  // Admin + Manager: full app
+  // Admin + Manager — full app
   applyRolePermissions(role);
   renderDashboard();
   renderJobsPage();
@@ -4804,5 +4805,49 @@ function doLogout() {
   window.location.href = 'index.html';
 }
 
+// ── LOAD CUSTOMERS FROM SUPABASE INTO JOB MODAL ────────────
+async function loadCustomersIntoDropdown() {
+  var sel = document.getElementById('nj-customer');
+  if (!sel) return;
+  try {
+    var token = localStorage.getItem('fd_token') || '';
+    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,email,customer_name&role=eq.customer&order=full_name.asc', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (token || SUPABASE_KEY) }
+    });
+    if (res.ok) {
+      var data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        var current = sel.value;
+        while (sel.options.length > 1) sel.remove(1);
+        data.forEach(function(p) {
+          var opt = document.createElement('option');
+          opt.value = p.full_name || p.email;
+          opt.textContent = p.full_name || p.email;
+          opt.dataset.email = p.email || '';
+          if (opt.value === current) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        // Auto-fill email when customer selected
+        sel.onchange = function() {
+          var emailField = document.getElementById('nj-customer-email');
+          var chosen = sel.options[sel.selectedIndex];
+          if (emailField && chosen && chosen.dataset.email) {
+            emailField.value = chosen.dataset.email;
+          }
+        };
+      }
+    }
+  } catch(e) { console.warn('loadCustomers:', e); }
+}
+
+function doLogout() {
+  localStorage.removeItem('fd_token');
+  localStorage.removeItem('fd_profile');
+  localStorage.removeItem('fd_user');
+  window._originalRole = null;
+  window.location.href = 'index.html';
+}
+
 </script>
 </body>
+</html>
