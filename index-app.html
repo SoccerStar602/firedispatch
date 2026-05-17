@@ -4883,6 +4883,28 @@ function processCustPayment(invId) {
     setTimeout(function(){ if(typeof buildCustomerPortal==='function') buildCustomerPortal(); }, 800);
   }, 2000);
 }
+function openJobModal(jobId) {
+  var job = JOBS.find(function(j){ return j.id === jobId; });
+  if (!job) return;
+  // Open the job detail view — navigate to jobs page and highlight
+  showPage('jobs', document.querySelector('.nav-btn[onclick*="jobs"]'));
+  setTimeout(function() {
+    var row = document.querySelector('[data-id="' + jobId + '"]');
+    if (row) { row.scrollIntoView({behavior:'smooth', block:'center'}); row.click(); }
+  }, 300);
+}
+
+// Auto-fill customer email when customer selected in new job modal
+function autoFillCustomerEmail(sel) {
+  var emailField = document.getElementById('nj-customer-email');
+  if (!emailField) return;
+  // Try to find customer email from profiles
+  var custName = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text;
+  if (FIELD_STAFF && custName) {
+    // Not ideal but works for now — in future pull from customers table
+    emailField.placeholder = 'customer@email.com';
+  }
+}
 </script>
 
 <!-- INVOICE BUILDER MODAL -->
@@ -4978,26 +5000,3 @@ function processCustPayment(invId) {
 </div>
 </body>
 </html>
-function openJobModal(jobId) {
-  var job = JOBS.find(function(j){ return j.id === jobId; });
-  if (!job) return;
-  // Open the job detail view — navigate to jobs page and highlight
-  showPage('jobs', document.querySelector('.nav-btn[onclick*="jobs"]'));
-  setTimeout(function() {
-    var row = document.querySelector('[data-id="' + jobId + '"]');
-    if (row) { row.scrollIntoView({behavior:'smooth', block:'center'}); row.click(); }
-  }, 300);
-}
-
-// Auto-fill customer email when customer selected in new job modal
-function autoFillCustomerEmail(sel) {
-  var emailField = document.getElementById('nj-customer-email');
-  if (!emailField) return;
-  // Try to find customer email from profiles
-  var custName = sel.options[sel.selectedIndex] && sel.options[sel.selectedIndex].text;
-  if (FIELD_STAFF && custName) {
-    // Not ideal but works for now — in future pull from customers table
-    emailField.placeholder = 'customer@email.com';
-  }
-}
-
