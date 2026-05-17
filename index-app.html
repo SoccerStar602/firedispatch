@@ -4796,5 +4796,13 @@ function updateSidebarTechs() {
   }).join('');
 }
 
+function doLogout() {
+  localStorage.removeItem('fd_token');
+  localStorage.removeItem('fd_profile');
+  localStorage.removeItem('fd_user');
+  window._originalRole = null;
+  window.location.href = 'index.html';
+}
+
 </script>
 </body>
