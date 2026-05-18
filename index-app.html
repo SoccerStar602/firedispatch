@@ -4067,6 +4067,7 @@ function hideSplash() {
 }
 
 function bootAsRole(role, info) {
+  console.log('[BCFP] bootAsRole called with role:', role, 'info:', info);
   currentRole = role;
 
   // Always hide auth screen first
@@ -4079,14 +4080,29 @@ function bootAsRole(role, info) {
 
   // Restricted roles — their portal only
   if (role === 'dispatcher' || role === 'tech' || role === 'customer') {
+    console.log('[BCFP] Restricted role detected, building portal for:', role);
     // Hide all pages so portal renders clean
     document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); p.style.display='none'; });
+    // Also hide nav/sidebar/topbar
+    var nav = document.querySelector('.nav');
+    var sidebar = document.querySelector('.sidebar');
+    var topbar = document.querySelector('.topbar');
+    var ticker = document.querySelector('.alert-ticker');
+    if (nav) nav.style.display = 'none';
+    if (sidebar) sidebar.style.display = 'none';
+    if (topbar) topbar.style.display = 'none';
+    if (ticker) ticker.style.display = 'none';
+    console.log('[BCFP] Calling applyRolePermissions...');
     applyRolePermissions(role);
     return;
   }
 
   // Admin + Manager — full app
+  console.log('[BCFP] Admin/Manager role, loading full app');
   applyRolePermissions(role);
+  // Show dashboard page
+  var dash = document.getElementById('page-dashboard');
+  if (dash) { dash.style.display = 'block'; dash.classList.add('active'); }
   renderDashboard();
   renderJobsPage();
   renderCustomers();
@@ -4104,6 +4120,7 @@ async function initAuth() {
       var profile = JSON.parse(profileRaw);
       var user = JSON.parse(localStorage.getItem('fd_user') || '{}');
       var role = profile.role;
+      console.log('[BCFP] initAuth: token found, profile:', profile, 'role:', role);
 
       // If role missing, try re-fetching profile from Supabase
       if (!role && user.id) {
@@ -4327,7 +4344,15 @@ function applyRolePermissions(role) {
     return;
   }
   if(role==='manager'){if(sidebar)sidebar.style.display='none';return;}
-  if(role==='dispatcher'){hideAll();setTimeout(function(){buildDispatcherPortal();},100);return;}
+  if(role==='dispatcher'){
+    console.log('[BCFP] applyRolePermissions: building dispatcher portal');
+    hideAll();
+    setTimeout(function(){
+      console.log('[BCFP] Building dispatcher portal now...');
+      buildDispatcherPortal();
+    },100);
+    return;
+  }
   if(role==='tech'){hideAll();setTimeout(function(){buildTechPortal();},100);return;}
   if(role==='customer'){hideAll();setTimeout(function(){buildCustomerPortal();},100);return;}
 }
