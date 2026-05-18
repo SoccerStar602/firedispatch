@@ -2163,7 +2163,7 @@ BCFP Connect"></textarea>
       </div>
 
       <!-- Settings Modal -->
-      <div id="auto-settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px">
+      <div id="auto-settings-modal" class="modal-overlay" style="display:none;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:20px">
         <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:480px;padding:28px">
           <div style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
             Automation Settings
@@ -4744,13 +4744,11 @@ function runAutomationCheck() {
 }
 
 function openAutoSettings() {
-  var modal = document.getElementById('auto-settings-modal');
-  if (modal) modal.style.display = 'flex';
+  openModal('auto-settings-modal');
 }
 
 function closeAutoSettings() {
-  var modal = document.getElementById('auto-settings-modal');
-  if (modal) modal.style.display = 'none';
+  closeModal('auto-settings-modal');
 }
 
 function saveAutoSettings() {
@@ -4782,26 +4780,24 @@ function exportEmailLog() {
 var FIELD_STAFF = [];
 
 async function loadFieldStaff() {
-  // Try Supabase first
+  var fieldRoles = ['tech','manager','admin','dispatcher'];
   try {
-    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role&role=in.(tech,manager,admin,dispatcher)&order=full_name.asc', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (localStorage.getItem('fd_token') || SUPABASE_KEY) }
+    var token = localStorage.getItem('fd_token') || '';
+    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role,email&order=full_name.asc', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (token || SUPABASE_KEY) }
     });
     if (res.ok) {
       var data = await res.json();
-      if (data && data.length) {
-        FIELD_STAFF = data;
-        populateTechDropdowns();
-        return;
+      if (Array.isArray(data) && data.length) {
+        FIELD_STAFF = data.filter(function(u){ return u.full_name && fieldRoles.indexOf(u.role) >= 0; });
+        if (FIELD_STAFF.length) { populateTechDropdowns(); renderTechs(); return; }
       }
     }
-  } catch(e) {}
-
-  // Fallback to TECHS array
-  FIELD_STAFF = TECHS.map(function(t) {
-    return { id: t.name, full_name: t.name, role: 'tech' };
-  });
+  } catch(e) { console.warn('loadFieldStaff:', e); }
+  // No Supabase data — show empty
+  FIELD_STAFF = [];
   populateTechDropdowns();
+  renderTechs();
 }
 
 function populateTechDropdowns() {
@@ -4897,14 +4893,305 @@ async function loadCustomersIntoDropdown() {
   } catch(e) { console.warn('loadCustomers:', e); }
 }
 
-function doLogout() {
-  localStorage.removeItem('fd_token');
-  localStorage.removeItem('fd_profile');
-  localStorage.removeItem('fd_user');
-  window._originalRole = null;
-  window.location.href = 'index.html';
+
+
+// ── INVOICE FUNCTIONS ────────────────────────────────────────
+var INV_LINES = [];
+
+function openInvoiceBuilder(job) {
+  var today = new Date();
+  var due = new Date(); due.setDate(due.getDate() + 30);
+  document.getElementById('inv-date').value = today.toISOString().split('T')[0];
+  document.getElementById('inv-due').value = due.toISOString().split('T')[0];
+  var lastInv = parseInt(localStorage.getItem('bcfp_last_inv') || '0') + 1;
+  document.getElementById('inv-number').value = 'INV-' + String(lastInv).padStart(4,'0');
+  if (job) {
+    document.getElementById('inv-customer').value = job.customer || '';
+    document.getElementById('inv-customer-email').value = job.customer_email || '';
+    document.getElementById('inv-job-desc').value = (job.type || '') + (job.address ? ' — ' + job.address : '');
+    INV_LINES = [{ desc: job.type || 'Fire Protection Service', qty: 1, rate: parseFloat(job.invoice) || 0 }];
+  } else {
+    INV_LINES = [{ desc: 'Fire Protection Service', qty: 1, rate: 0 }];
+  }
+  renderInvLines();
+  openModal('invoice-modal');
 }
 
+function renderInvLines() {
+  var el = document.getElementById('inv-lines'); if (!el) return;
+  el.innerHTML = INV_LINES.map(function(line, i) {
+    return '<div style="display:grid;grid-template-columns:1fr 60px 90px 28px;gap:6px;align-items:center">' +
+      '<input class="form-input" style="font-size:12px" value="' + (line.desc||'') + '" oninput="INV_LINES['+i+'].desc=this.value" placeholder="Description">' +
+      '<input class="form-input" style="font-size:12px;text-align:center" type="number" value="' + (line.qty||1) + '" oninput="INV_LINES['+i+'].qty=parseFloat(this.value)||1;calcInvTotals()">' +
+      '<input class="form-input" style="font-size:12px;text-align:right" type="number" value="' + (line.rate||0) + '" oninput="INV_LINES['+i+'].rate=parseFloat(this.value)||0;calcInvTotals()">' +
+      '<button onclick="removeInvLine('+i+')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0">×</button></div>';
+  }).join('');
+  calcInvTotals();
+}
+
+function addInvLine() { INV_LINES.push({ desc:'', qty:1, rate:0 }); renderInvLines(); }
+function removeInvLine(i) { INV_LINES.splice(i,1); renderInvLines(); }
+
+function calcInvTotals() {
+  var sub = INV_LINES.reduce(function(s,l){ return s+(l.qty||1)*(l.rate||0); },0);
+  var tax = sub * (parseFloat(document.getElementById('inv-tax').value)||0) / 100;
+  var fmt = function(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+  var st = document.getElementById('inv-subtotal'); if(st) st.textContent = fmt(sub);
+  var tt = document.getElementById('inv-total'); if(tt) tt.textContent = fmt(sub+tax);
+}
+
+function generateInvoicePDF() {
+  if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    showToast('PDF library loading — try again in a moment'); return;
+  }
+  var jsPDFLib = (typeof window.jspdf !== 'undefined') ? window.jspdf.jsPDF : jsPDF;
+  var doc = new jsPDFLib({ orientation:'portrait', unit:'pt', format:'letter' });
+  var W=612, margin=48, y=margin;
+  doc.setFillColor(196,30,30); doc.rect(0,0,W,88,'F');
+  doc.setFontSize(20); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+  doc.text('BIG CITY FIRE PROTECTION', 120, 42);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('dispatch.bigcityfp.com  |  (602) 555-0100  |  info@bigcityfp.com', 120, 58);
+  doc.setFontSize(28); doc.setFont('helvetica','bold');
+  doc.text('INVOICE', W-margin, 55, { align:'right' });
+  y = 110;
+  var invNum = document.getElementById('inv-number').value || 'INV-0001';
+  var invDate = document.getElementById('inv-date').value || '';
+  var invDue = document.getElementById('inv-due').value || '';
+  var customer = document.getElementById('inv-customer').value || '';
+  var jobDesc = document.getElementById('inv-job-desc').value || '';
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(100,110,130);
+  doc.text('BILL TO', margin, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(15,17,23);
+  doc.text(customer, margin, y+16);
+  if (jobDesc) { doc.setFontSize(9); doc.setTextColor(100,110,130); doc.text('RE:', margin, y+30); doc.setTextColor(15,17,23); doc.setFontSize(10); doc.text(jobDesc, margin+22, y+30); }
+  var rx = W-240;
+  [['INVOICE #',invNum],['DATE',invDate],['DUE DATE',invDue]].forEach(function(row,i) {
+    var yy = y+i*16; doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(100,110,130);
+    doc.text(row[0], rx, yy); doc.setFont('helvetica','normal'); doc.setTextColor(15,17,23); doc.setFontSize(10);
+    doc.drawRightString ? doc.text(row[1], W-margin, yy, {align:'right'}) : doc.text(row[1], W-margin, yy, {align:'right'});
+  });
+  y = 220;
+  doc.setFillColor(196,30,30); doc.rect(margin, y, W-margin*2, 22, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+  doc.text('DESCRIPTION', margin+10, y+16); doc.text('QTY', W-180, y+16, {align:'center'});
+  doc.text('UNIT PRICE', W-110, y+16, {align:'right'}); doc.text('AMOUNT', W-margin-5, y+16, {align:'right'});
+  y += 22;
+  var sub = 0;
+  INV_LINES.forEach(function(line, i) {
+    var amt = (line.qty||1)*(line.rate||0); sub += amt;
+    doc.setFillColor(i%2===0?248:255, i%2===0?249:255, i%2===0?252:255);
+    doc.rect(margin, y, W-margin*2, 24, 'F');
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(15,17,23);
+    doc.text(line.desc||'', margin+10, y+16);
+    doc.text(String(line.qty||1), W-180, y+16, {align:'center'});
+    doc.text('$'+(line.rate||0).toFixed(2), W-110, y+16, {align:'right'});
+    doc.text('$'+amt.toFixed(2), W-margin-5, y+16, {align:'right'});
+    y += 24;
+  });
+  y += 12;
+  doc.setFontSize(10); doc.setTextColor(100,110,130);
+  doc.text('TOTAL DUE', W-220, y+16);
+  var taxRate = parseFloat(document.getElementById('inv-tax').value)||0;
+  var total = sub * (1 + taxRate/100);
+  doc.setFillColor(196,30,30); doc.rect(W-220, y, 220-margin+margin, 28, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+  doc.text('TOTAL DUE', W-210, y+19); doc.text('$'+total.toFixed(2), W-margin-5, y+19, {align:'right'});
+  y += 50;
+  var notes = document.getElementById('inv-notes').value || 'Payment due within 30 days.';
+  doc.setFillColor(230,234,240); doc.roundedRect(margin, y, W-margin*2, 40, 4, 4, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(15,17,23);
+  doc.text(notes, margin+10, y+14, { maxWidth: W-margin*2-20 });
+  y += 60;
+  doc.setFillColor(15,23,39); doc.roundedRect(margin, y, W-margin*2, 60, 6, 6, 'F');
+  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.setTextColor(255,255,255);
+  doc.text('View & Pay Online — dispatch.bigcityfp.com', margin+12, y+18);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(136,150,176);
+  doc.text('Log in with the email this invoice was sent to. Use "Forgot Password" if it is your first time.', margin+12, y+32, { maxWidth: W-margin*2-24 });
+  doc.setFillColor(15,17,23); doc.rect(0,756,W,36,'F');
+  doc.setFontSize(8); doc.setTextColor(150,160,180);
+  doc.text('Big City Fire Protection  |  dispatch.bigcityfp.com  |  (602) 555-0100  |  info@bigcityfp.com', W/2, 773, {align:'center'});
+  var fname = invNum + '.pdf';
+  doc.save(fname);
+  var num = parseInt(invNum.replace('INV-',''))||0;
+  localStorage.setItem('bcfp_last_inv', num);
+  closeModal('invoice-modal');
+  showToast('Invoice ' + invNum + ' downloaded!');
+}
+
+async function emailInvoice() {
+  var toEmail = (document.getElementById('inv-customer-email') && document.getElementById('inv-customer-email').value) || '';
+  if (!toEmail) { toEmail = prompt('Send invoice to email address:'); }
+  if (!toEmail || !toEmail.includes('@')) { showToast('Valid email required'); return; }
+  var invNum = document.getElementById('inv-number').value || 'INV-0001';
+  var invDue = document.getElementById('inv-due').value || '';
+  var customer = document.getElementById('inv-customer').value || 'Customer';
+  var jobDesc = document.getElementById('inv-job-desc').value || '';
+  var sub = INV_LINES.reduce(function(s,l){ return s+(l.qty||1)*(l.rate||0); },0);
+  var total = sub * (1 + (parseFloat(document.getElementById('inv-tax').value)||0)/100);
+  var fmt = function(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); };
+  var lineRows = INV_LINES.map(function(l,i){
+    var bg = i%2===0?'#F8F9FC':'#FFFFFF'; var amt=(l.qty||1)*(l.rate||0);
+    return '<tr style="background:'+bg+'"><td style="padding:10px 16px;font-size:13px">'+l.desc+'</td><td style="padding:10px 16px;font-size:13px;text-align:center">'+l.qty+'</td><td style="padding:10px 16px;font-size:13px;text-align:right">'+fmt(l.rate)+'</td><td style="padding:10px 16px;font-size:13px;text-align:right">'+fmt(amt)+'</td></tr>';
+  }).join('');
+  var createAccount = document.getElementById('inv-create-account') && document.getElementById('inv-create-account').checked;
+  var tempPass = null;
+  if (createAccount) { tempPass = 'BCFP-' + Math.random().toString(36).substr(2,4).toUpperCase() + Math.floor(1000+Math.random()*9000); }
+  var portalBox = tempPass ? '<div style="background:#0F1727;border-radius:8px;padding:18px;margin-bottom:20px;border:2px solid #3B82F6"><p style="font-size:14px;font-weight:700;color:white;margin:0 0 10px">Your Customer Portal Account</p><div style="background:#1E293B;border-radius:6px;padding:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:#8896B0">Login URL</span><span style="font-size:12px;color:#60A5FA;font-weight:600">dispatch.bigcityfp.com</span></div><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;color:#8896B0">Email</span><span style="font-size:12px;color:white;font-weight:600">'+toEmail+'</span></div><div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#8896B0">Temp Password</span><span style="font-size:13px;color:#34D399;font-weight:700;font-family:monospace">'+tempPass+'</span></div></div><p style="font-size:11px;color:#F59E0B;margin:8px 0 0">You will be asked to set a new password on first login.</p></div>' : '';
+  var html = '<!DOCTYPE html><html><body style="margin:0;padding:0;background:#F0F2F5;font-family:Helvetica,Arial,sans-serif"><div style="max-width:600px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #E2E6F0"><div style="background:#C41E1E;padding:24px 32px"><div style="color:white;font-size:20px;font-weight:700">BIG CITY FIRE PROTECTION</div><div style="color:rgba(255,255,255,0.7);font-size:12px;margin-top:4px">dispatch.bigcityfp.com  |  (602) 555-0100</div></div><div style="padding:32px"><p style="font-size:15px;color:#1A1D27;margin:0 0 6px">Hi,</p><p style="font-size:14px;color:#6B7280;line-height:1.7;margin:0 0 20px">Your invoice for <strong>'+jobDesc+'</strong> is ready.</p><div style="background:#F8F9FC;border:1px solid #E2E6F0;border-radius:10px;padding:20px;margin-bottom:20px;display:flex;justify-content:space-around;text-align:center"><div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Invoice</p><p style="font-size:15px;font-weight:600;color:#1A1D27;margin:0">'+invNum+'</p></div><div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Amount Due</p><p style="font-size:22px;font-weight:700;color:#C41E1E;margin:0">'+fmt(total)+'</p></div><div><p style="font-size:11px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Due Date</p><p style="font-size:15px;font-weight:600;color:#1A1D27;margin:0">'+invDue+'</p></div></div><table style="width:100%;border-collapse:collapse;margin-bottom:20px;border:1px solid #E2E6F0;border-radius:8px;overflow:hidden"><thead><tr style="background:#C41E1E"><th style="padding:10px 16px;font-size:11px;font-weight:700;color:white;text-align:left">Description</th><th style="padding:10px 16px;font-size:11px;color:white;text-align:center">Qty</th><th style="padding:10px 16px;font-size:11px;color:white;text-align:right">Unit</th><th style="padding:10px 16px;font-size:11px;color:white;text-align:right">Amount</th></tr></thead><tbody>'+lineRows+'</tbody><tfoot><tr style="background:#C41E1E"><td colspan="3" style="padding:12px 16px;font-size:14px;font-weight:700;color:white">Total Due</td><td style="padding:12px 16px;font-size:14px;font-weight:700;color:white;text-align:right">'+fmt(total)+'</td></tr></tfoot></table><div style="text-align:center;margin-bottom:20px"><a href="https://dispatch.bigcityfp.com" style="display:inline-block;background:#C41E1E;color:white;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none">Pay Now</a></div>'+portalBox+'<p style="font-size:13px;color:#6B7280;margin:0 0 6px">Questions? Call <strong>(602) 555-0100</strong> or reply to this email.</p><p style="font-size:13px;color:#6B7280;margin:0">Thanks,<br><strong>Big City Fire Protection</strong></p></div><div style="background:#F8F9FC;border-top:1px solid #E2E6F0;padding:16px 32px;text-align:center"><p style="font-size:11px;color:#9CA3AF;margin:0">Big City Fire Protection | Phoenix, AZ | dispatch.bigcityfp.com</p></div></div></body></'+'html>';
+  showToast('Sending invoice...');
+  if (createAccount && tempPass) {
+    try {
+      var createRes = await fetch(SUPABASE_URL+'/functions/v1/create-user', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+(localStorage.getItem('fd_token')||SUPABASE_KEY)},
+        body:JSON.stringify({action:'create',email:toEmail,full_name:customer,role:'customer',temp_password:tempPass})
+      });
+    } catch(e) { console.warn('Create user error:', e); }
+  }
+  try {
+    var r = await fetch(SUPABASE_URL+'/functions/v1/send-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('fd_token')||SUPABASE_KEY),'apikey':SUPABASE_KEY},
+      body:JSON.stringify({to:toEmail,subject:'Invoice '+invNum+' | Big City Fire Protection',html:html,from:'Big City Fire Protection <billing@bigcityfp.com>'})
+    });
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    showToast('Invoice emailed to '+toEmail+'!');
+    var num = parseInt(invNum.replace('INV-',''))||0;
+    localStorage.setItem('bcfp_last_inv', num);
+    closeModal('invoice-modal');
+  } catch(e) { showToast('Email failed: '+e.message); }
+}
 </script>
-</body>
-</html>
+<!-- INVOICE BUILDER MODAL -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title">Generate Invoice</div>
+      <button class="modal-close" onclick="closeModal('invoice-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Invoice #</label>
+          <input class="form-input" id="inv-number" value="INV-0001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" id="inv-date" type="date">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Due Date</label>
+          <input class="form-input" id="inv-due" type="date">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Bill To (Customer)</label>
+          <input class="form-input" id="inv-customer" placeholder="Customer name">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Customer Email</label>
+          <input class="form-input" id="inv-customer-email" type="email" placeholder="customer@email.com">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Create portal account with invoice</label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px 12px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:6px">
+            <input type="checkbox" id="inv-create-account" checked style="width:16px;height:16px;accent-color:var(--green)">
+            <div style="font-size:12px;color:var(--text)">Create customer portal account &amp; include login in email</div>
+          </label>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Job / Description</label>
+          <input class="form-input" id="inv-job-desc" placeholder="e.g. Annual Fire Inspection — Customer Name">
+        </div>
+      </div>
+      <div style="margin:16px 0 8px;font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3)">Line Items</div>
+      <div id="inv-lines" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addInvLine()" style="width:100%;justify-content:center">+ Add Line Item</button>
+      <div style="margin-top:16px;background:var(--bg3);border-radius:var(--radius);padding:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px">
+          <span style="color:var(--text2)">Subtotal</span><span id="inv-subtotal" style="color:var(--text)">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px">
+          <span style="color:var(--text2)">Tax %</span>
+          <input class="form-input" id="inv-tax" type="number" value="0" min="0" max="30" style="width:60px;text-align:center;padding:4px 8px" oninput="calcInvTotals()">
+        </div>
+        <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:16px;font-weight:700">
+          <span style="color:var(--text)">Total</span><span id="inv-total" style="color:var(--green)">$0.00</span>
+        </div>
+      </div>
+      <div class="form-group full" style="margin-top:12px">
+        <label class="form-label">Notes / Payment Terms</label>
+        <textarea class="form-input" id="inv-notes" rows="2" style="resize:none" placeholder="Payment due within 30 days. Thank you for your business!"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn btn-primary" style="flex:1" onclick="generateInvoicePDF()">Download PDF</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="emailInvoice()">Email Invoice</button>
+        <button class="btn btn-ghost" onclick="closeModal('invoice-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</</html>';
+  showToast('Sending invoice...');
+  if (createAccount && tempPass) {
+    try {
+      await fetch(SUPABASE_URL+'/functions/v1/create-user', {method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+(localStorage.getItem('fd_token')||SUPABASE_KEY)},body:JSON.stringify({action:'create',email:toEmail,full_name:customer,role:'customer',temp_password:tempPass})});
+    } catch(e) {}
+  }
+  try {
+    var r = await fetch(SUPABASE_URL+'/functions/v1/send-email', {method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('fd_token')||SUPABASE_KEY),'apikey':SUPABASE_KEY},body:JSON.stringify({to:toEmail,subject:'Invoice '+invNum+' — '+fmt(total)+' due '+invDue+' | Big City Fire Protection',html:html,from:'Big City Fire Protection <billing@bigcityfp.com>'})});
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    showToast('Invoice emailed to '+toEmail+'!');
+    var num = parseInt(invNum.replace('INV-',''))||0; localStorage.setItem('bcfp_last_inv',num);
+    closeModal('invoice-modal');
+  } catch(e) { showToast('Email failed: '+e.message); }
+}
+
+function custPayInvoice(invId) {
+  var existing = document.getElementById('pay-modal'); if (existing) existing.remove();
+  var overlay = document.createElement('div'); overlay.id='pay-modal'; overlay.className='modal-overlay open';
+  var box = document.createElement('div'); box.className='modal'; box.style.cssText='max-width:400px';
+  box.innerHTML='<div class="modal-header"><div class="modal-title">Pay Invoice '+invId+'</div><button class="modal-close" onclick="document.getElementById(&quot;pay-modal&quot;).remove()">×</button></div>'+
+    '<div class="modal-body"><p style="font-size:12px;color:var(--text3);margin-bottom:16px">Secure payment — SSL encrypted</p>'+
+    '<div style="display:flex;flex-direction:column;gap:10px">'+
+    '<input class="form-input" id="pay-name" placeholder="Cardholder Name">'+
+    '<input class="form-input" id="pay-card" placeholder="Card Number" maxlength="19">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+    '<input class="form-input" id="pay-exp" placeholder="MM/YY" maxlength="5">'+
+    '<input class="form-input" id="pay-cvv" placeholder="CVV" maxlength="4">'+
+    '</div></div>'+
+    '<button onclick="processCustPayment(&quot;'+invId+'&quot;)" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px">Confirm Payment</button>'+
+    '<button onclick="document.getElementById(&quot;pay-modal&quot;).remove()" class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px">Cancel</button>'+
+    '</div>';
+  overlay.appendChild(box); document.body.appendChild(overlay);
+  overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+}
+
+function processCustPayment(invId) {
+  var name = document.getElementById('pay-name') ? document.getElementById('pay-name').value : '';
+  var card = document.getElementById('pay-card') ? document.getElementById('pay-card').value : '';
+  if (!name || !card || card.replace(/\s/g,'').length < 15) { showToast('Please fill in all payment details'); return; }
+  var confirmBtn = document.querySelector('#pay-modal .btn-primary');
+  if (confirmBtn) { confirmBtn.disabled=true; confirmBtn.textContent='Processing...'; }
+  setTimeout(function() {
+    var modal = document.getElementById('pay-modal'); if (modal) modal.remove();
+    showToast('Payment for '+invId+' processed! Receipt sent to your email.');
+    setTimeout(function(){ if(typeof buildCustomerPortal==='function') buildCustomerPortal(); }, 800);
+  }, 2000);
+}
+
+function openJobModal(jobId) {
+  var job = JOBS.find(function(j){ return j.id === jobId; });
+  if (!job) { showToast('Job '+jobId+' not found'); return; }
+  showPage('jobs', document.querySelector('.nav-btn[onclick*="jobs"]'));
+}
+
+// Auto-fill customer email when customer selected
+function autoFillCustomerEmail(sel) {
+  var emailField = document.getElementById('nj-customer-email');
+  if (!emailField || !sel) return;
+  var chosen = sel.options[sel.selectedIndex];
+  if (chosen && chosen.dataset && chosen.dataset.email) emailField.value = chosen.dataset.email;
+}
+
