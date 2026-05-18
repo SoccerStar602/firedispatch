@@ -683,6 +683,8 @@
   .auto-queue-item.soon { border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.04); }
   .automation-page { padding:24px;max-width:1000px;margin:0 auto; }
 
+.page { display:none; }
+  .page.active { display:block; }
 </style>
 </head>
 <body>
@@ -982,7 +984,7 @@
   <main class="main">
 
     <!-- DASHBOARD PAGE -->
-    <div class="page active" id="page-dashboard">
+    <div class="page" id="page-dashboard">
       <div class="page-header">
         <div class="page-title">Dispatch Dashboard</div>
         <div class="page-sub">Thursday, May 14, 2026 — Phoenix Metro Area</div>
@@ -4077,6 +4079,8 @@ function bootAsRole(role, info) {
 
   // Restricted roles — their portal only
   if (role === 'dispatcher' || role === 'tech' || role === 'customer') {
+    // Hide all pages so portal renders clean
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); p.style.display='none'; });
     applyRolePermissions(role);
     return;
   }
