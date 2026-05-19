@@ -5133,6 +5133,38 @@ async function emailInvoice() {
     closeModal('invoice-modal');
   } catch(e) { showToast('Email failed: '+e.message); }
 }
+function maybeShowTTBar() {
+  var bar = document.getElementById('tt-bar');
+  if (!bar) return;
+  var role = currentRole;
+  if (role === 'tech' || role === 'manager' || role === 'admin') {
+    bar.style.display = 'flex';
+  }
+}
+
+function initOffline() {
+  window.addEventListener('online', function() {
+    var b = document.getElementById('offline-banner');
+    if (b) b.classList.remove('show');
+  });
+  window.addEventListener('offline', function() {
+    var b = document.getElementById('offline-banner');
+    if (b) b.classList.add('show');
+  });
+}
+
+var currentRole = 'admin';
+
+function updateRoleBadge(role, info) {
+  var wrap = document.getElementById('role-badge-wrap');
+  if (!wrap) return;
+  var RLABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Technician', customer:'Customer' };
+  var RCLASSES = { admin:'role-admin', manager:'role-manager', dispatcher:'role-dispatcher', tech:'role-tech', customer:'role-customer' };
+  wrap.innerHTML = '<span class="role-badge ' + (RCLASSES[role]||'role-dispatcher') + '">' + (RLABELS[role]||role) + '</span>';
+  var label = document.getElementById('user-btn-label');
+  if (label && info && info.full_name) label.textContent = info.full_name.split(' ')[0];
+}
+
 </script>
 <!-- INVOICE BUILDER MODAL -->
 <div class="modal-overlay" id="invoice-modal">
