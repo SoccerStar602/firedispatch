@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.9</span>
+    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v4.0</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -2202,6 +2202,8 @@ BCFP Connect"></textarea>
 
 
 <script>
+const APP_VERSION = 'v4.0 · 05/19 14:32';
+
 // ---- DATA ----
 const JOBS = [];
 // Sample jobs with Phoenix coordinates for demo
@@ -3641,7 +3643,7 @@ function applyRolePermissions(role) {
 // ── SHARED PORTAL HEADER ─────────────────────────────────────
 function buildPortalHeader(roleName, roleClass, name) {
   return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.9</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.0</span></div>' +
     '<div style="display:flex;align-items:center;gap:12px">' +
     '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
     '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
@@ -3772,7 +3774,7 @@ function buildDispatcherPortal() {
       '<div style="background:#161B27;border-bottom:1px solid #1E293B;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20">' +
       '<div style="display:flex;align-items:center;gap:14px">' +
       '<div style="font-family:var(--font-display,monospace);font-size:18px;font-weight:800;text-transform:uppercase">BCFP<span style="color:#3B82F6">CONNECT</span>' +
-      '<span style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:400">v' + VERSION + '</span></div>' +
+      '<span style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:400">v4.0</span></div>' +
       '<div style="width:1px;height:22px;background:#1E293B"></div>' +
       '<div style="font-size:13px;color:#8896B0">Hey <strong style="color:#F0F4FF">'+name+'</strong></div>' +
       '<div style="background:#22C55E15;border:1px solid #22C55E30;border-radius:20px;padding:3px 10px;font-size:10px;color:#22C55E;font-weight:700">● LIVE</div>' +
@@ -3935,7 +3937,7 @@ function buildDispatcherPortal() {
       var b = document.getElementById('bcfp-version-badge');
       if (!b) { b=document.createElement('div'); b.id='bcfp-version-badge'; document.body.appendChild(b); }
       b.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-      b.textContent='v3.9 · 05/19 14:29';
+      b.textContent='v4.0 · 05/19 14:32';
     }, 150);
   }
 
@@ -4639,7 +4641,7 @@ function applyRolePermissions(role) {
 
 function buildPortalHeader(roleName,roleClass,name){
   return '<div style="background:rgba(15,17,23,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">'+
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.9</span></div>'+
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.0</span></div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<span class="role-badge '+roleClass+'">'+roleName+'</span>'+
     '<span style="font-size:12px;color:var(--text2)">'+name+'</span>'+
@@ -4702,7 +4704,7 @@ function buildTechPortal(){
   var vbadge2=document.getElementById('bcfp-version-badge');
   if(!vbadge2){vbadge2=document.createElement('div');vbadge2.id='bcfp-version-badge';document.body.appendChild(vbadge2);}
   vbadge2.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.9 · 05/19 14:29';
+  vbadge.textContent='v4.0 · 05/19 14:32';
   main.addEventListener('click',function(e){
     var d=e.target.closest('[data-drive]'),o=e.target.closest('[data-onsite]'),co=e.target.closest('[data-complete]'),ph=e.target.closest('[data-photos]');
     if(d){ttClockDrive();techUi();showToast('🚗 Driving to '+d.getAttribute('data-drive'));}
@@ -4765,7 +4767,7 @@ function buildCustomerPortal(){
   var vbadge3=document.getElementById('bcfp-version-badge');
   if(!vbadge3){vbadge3=document.createElement('div');vbadge3.id='bcfp-version-badge';document.body.appendChild(vbadge3);}
   vbadge3.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.9 · 05/19 14:29';
+  vbadge.textContent='v4.0 · 05/19 14:32';
   var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
   if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
@@ -5565,7 +5567,7 @@ function autoFillCustomerEmail(sel) {
   var badge = document.createElement('div');
   badge.id = 'bcfp-version-badge';
   badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;user-select:none';
-  badge.textContent = 'v3.9 · 05/19 14:29';
+  badge.textContent = 'v4.0 · 05/19 14:32';
   document.body.appendChild(badge);
 })();
 
