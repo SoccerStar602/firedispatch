@@ -2371,16 +2371,32 @@ function highlightRow(row) {
   row.style.background = 'rgba(224,32,32,0.06)';
 }
 function showPage(id, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(id === 'sites') renderSites();
-  if(id === 'calendar') renderCalendar();
-  if(id === 'profit') renderProfit();
-  if(id === 'quotes') renderQuotes();
-  if(id === 'sales') renderSales();
-  if(id === 'timelog') renderTimelog();
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(function(p) {
+    p.classList.remove('active');
+    p.style.display = '';
+  });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+
+  // Show target page
+  var target = document.getElementById('page-' + id);
+  if (target) { target.classList.add('active'); target.style.display = 'block'; }
+  if (btn) btn.classList.add('active');
+
+  // Render page content
+  try {
+    if (id === 'sites') renderSites();
+    else if (id === 'calendar') renderCalendar();
+    else if (id === 'profit') renderProfit();
+    else if (id === 'quotes') renderQuotes();
+    else if (id === 'sales') renderSales();
+    else if (id === 'timelog') renderTimelog();
+    else if (id === 'automation') renderAutomationPage();
+    else if (id === 'dashboard') renderDashboard();
+    else if (id === 'jobs') renderJobsPage();
+    else if (id === 'customers') renderCustomers();
+    else if (id === 'technicians') renderTechs();
+  } catch(e) { console.warn('[BCFP] showPage render error for', id, ':', e); }
 }
 function openNewJobModal() {
   // Populate tech dropdown with all field staff
@@ -2526,12 +2542,7 @@ function calNav(dir) {
 }
 
 // ---- PROFIT ----
-let EXPENSES = JSON.parse(localStorage.getItem('fd_expenses') || 'null') || [
-  {desc:'Fuel — weekly fill-up', cat:'Fuel', amt:85, date:'May 14', job:''},
-  {desc:'Vehicle insurance — May', cat:'Insurance', amt:420, date:'May 1', job:''},
-  {desc:'Fuel — field runs', cat:'Fuel', amt:62, date:'May 9', job:''},
-  {desc:'Panel tester calibration', cat:'Equipment', amt:145, date:'May 7', job:''},
-];
+let EXPENSES = JSON.parse(localStorage.getItem('fd_expenses') || '[]');
 const catColors = {
   Parts:'rgba(59,130,246,0.15)',Fuel:'rgba(245,158,11,0.15)',
   Insurance:'rgba(168,85,247,0.15)',Equipment:'rgba(20,184,166,0.15)',
@@ -2751,21 +2762,9 @@ document.querySelectorAll('.sidebar-item').forEach(el => {
 // ============================================================
 
 // ── DATA ──
-let QUOTES = JSON.parse(localStorage.getItem('fd_quotes') || 'null') || [
-  { id:'QT-0012', customer:'Phoenix General Hospital', desc:'Annual Inspection — 4 floors + panel cert', lines:[{d:'Annual Inspection x4 floors',a:1800},{d:'Panel Test & Certification',a:450},{d:'Travel & Labor (est 4hr)',a:320}], status:'sent', date:'May 10', email:'facilities@phoenixgen.com', notes:'Valid 30 days', internal:'Cost: $820. Margin: 68%' },
-  { id:'QT-0011', customer:'Hilton Scottsdale Road',   desc:'New system bid — ballroom + 3 meeting rooms',  lines:[{d:'System Design & Engineering',a:1200},{d:'Installation Labor (est 12hr)',a:1440},{d:'Parts & Materials',a:2800},{d:'Panel Programming',a:600},{d:'Final Test & Cert',a:360}], status:'draft',    date:'May 12', email:'smills@hilton.com',         notes:'Valid 30 days', internal:'Big account — do not undercut' },
-  { id:'QT-0010', customer:'Desert Oaks School',       desc:'Strobe unit replacement + annual test',        lines:[{d:'Strobe Unit Replacement x3',a:645},{d:'Annual Inspection',a:380},{d:'Certification',a:125}], status:'approved', date:'May 8',  email:'ward@desertoaks.edu',       notes:'Valid 30 days', internal:'' },
-  { id:'QT-0009', customer:'SkyTech Office Park',      desc:'Annual inspection + panel upgrade',            lines:[{d:'Annual Inspection',a:750},{d:'Panel Upgrade Parts',a:420},{d:'Labor',a:280}], status:'declined', date:'May 5',  email:'kross@skytech.com',         notes:'', internal:'' },
-];
+let QUOTES = JSON.parse(localStorage.getItem('fd_quotes') || '[]');
 
-let DEALS = JSON.parse(localStorage.getItem('fd_deals') || 'null') || [
-  { id:'D001', name:'Hilton Scottsdale Road',   contact:'Sarah Mills',   phone:'(602) 555-0801', email:'smills@hilton.com',       stage:'Quoted',    value:8400,  source:'Referral', notes:'Strong interest — follow up Mon', date:'May 12' },
-  { id:'D002', name:'Chase Bank Camelback',     contact:'Facilities Mgr',phone:'(602) 555-1900', email:'',                        stage:'Lead',      value:3200,  source:'Inbound',  notes:'Inbound call — annual inspection', date:'May 14' },
-  { id:'D003', name:'Marriott Phoenix Airport', contact:'Dave Ortiz',    phone:'(602) 555-2400', email:'d.ortiz@marriott.com',    stage:'Contacted', value:12000, source:'Trade show',notes:'Met at AZ Fire Expo. Huge property', date:'May 9' },
-  { id:'D004', name:'ASU Research Center',      contact:'Bldg Ops',      phone:'(602) 555-3300', email:'ops@asu.edu',             stage:'Won',       value:5600,  source:'Referral', notes:'Contract signed — 3yr agreement', date:'May 6' },
-  { id:'D005', name:'Old Town Scottsdale Hotel',contact:'GM Office',     phone:'(602) 555-4100', email:'',                        stage:'Lost',      value:2800,  source:'Cold call', notes:'Went with cheaper competitor', date:'May 3' },
-  { id:'D006', name:'Banner Health Glendale',   contact:'Facilities Dir',phone:'(602) 555-5500', email:'',                        stage:'Lead',      value:18000, source:'LinkedIn',  notes:'Large healthcare system', date:'May 14' },
-];
+let DEALS = JSON.parse(localStorage.getItem('fd_deals') || '[]');
 
 const STAGES = ['Lead','Contacted','Quoted','Won','Lost'];
 const STAGE_COLORS = { Lead:'var(--blue)', Contacted:'var(--purple)', Quoted:'var(--amber)', Won:'var(--green)', Lost:'var(--text3)' };
@@ -5139,7 +5138,7 @@ async function emailInvoice() {
 <div class="modal-overlay" id="invoice-modal">
   <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
     <div class="modal-header">
-      <div class="modal-title">Generate Invoicee</div>
+      <div class="modal-title">Generate Invoice</div>
       <button class="modal-close" onclick="closeModal('invoice-modal')">×</button>
     </div>
     <div class="modal-body">
