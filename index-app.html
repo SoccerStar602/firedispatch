@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.5</span>
+    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.8</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -2204,6 +2204,10 @@ BCFP Connect"></textarea>
 <script>
 // ---- DATA ----
 const JOBS = [];
+// Sample jobs with Phoenix coordinates for demo
+if (false) { // disabled - jobs come from real dispatching
+  JOBS.push({id:'FD-DEMO',customer:'Demo',address:'4800 N Central Ave, Phoenix AZ',type:'Inspection',priority:'normal',status:'pending',time:'9:00 AM',tech:'',lat:33.4972,lng:-112.0737});
+}
 
 const CUSTOMERS = [
   { name:'Big City Test Account', type:'Commercial', phone:'(602) 555-0100', address:'123 Test St, Phoenix AZ', contact:'Owen Norris', email:'customer@bigcityfp.com', jobs:0, open:0, notes:'Test customer account' }
@@ -2400,9 +2404,7 @@ function showPage(id, btn) {
     else if (id === 'technicians') renderTechs();
   } catch(e) { console.warn('[BCFP] showPage render error for', id, ':', e); }
 }
-function openNewJobModal() {
-  // Populate tech dropdown with all field staff
-  if (!FIELD_STAFF.length) { loadFieldStaff(); } else { populateTechDropdowns(); } document.getElementById('new-job-modal').classList.add('open'); }
+// openNewJobModal defined below
 function openNewCustomerModal() { document.getElementById('new-customer-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function createJob() {
@@ -2425,9 +2427,10 @@ function createJob() {
   try { updateBadges(); } catch(e) {}
   closeModal('new-job-modal');
   showToast('✓ Job ' + id + ' created!');
-  // Refresh dispatcher portal if active
-  if (currentRole === 'dispatcher' && typeof buildDispatcherPortal === 'function') {
-    setTimeout(buildDispatcherPortal, 100);
+  // Geocode the address and refresh dispatcher portal
+  if (currentRole === 'dispatcher') {
+    if (typeof window.geocodeJob === 'function') window.geocodeJob(newJob);
+    setTimeout(function(){ if(typeof window.render==='function') window.render(); }, 200);
   }
 }
 function createCustomer() {
@@ -3638,7 +3641,7 @@ function applyRolePermissions(role) {
 // ── SHARED PORTAL HEADER ─────────────────────────────────────
 function buildPortalHeader(roleName, roleClass, name) {
   return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.5</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.8</span></div>' +
     '<div style="display:flex;align-items:center;gap:12px">' +
     '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
     '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
@@ -3656,167 +3659,306 @@ function buildDispatcherPortal() {
   if (!main) return;
   var profile = {};
   try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
-  var name = profile.full_name || 'Dispatcher';
+  var name = (profile.full_name || 'Dispatcher').split(' ')[0];
+  var _filter = null;
+  var _selectedJob = null;
+  var _map = null;
+  var _markers = {};
 
-  // Inject version badge
-  setTimeout(function() {
-    var b = document.getElementById('bcfp-version-badge');
-    if (!b) { b = document.createElement('div'); b.id = 'bcfp-version-badge'; document.body.appendChild(b); }
-    b.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-    b.textContent = 'v3.5 · 05/19 04:38';
-  }, 200);
+  function badge(status) {
+    var cfg = {
+      pending:    ['#F59E0B','Pending'],
+      dispatched: ['#60A5FA','Dispatched'],
+      enroute:    ['#60A5FA','En Route'],
+      onsite:     ['#A78BFA','On Site'],
+      complete:   ['#22C55E','Complete']
+    };
+    var x = cfg[status] || ['#8896B0', status];
+    return '<span style="background:'+x[0]+'22;color:'+x[0]+';border:1px solid '+x[0]+'44;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px;letter-spacing:0.05em;text-transform:uppercase">'+x[1]+'</span>';
+  }
+  function prioBadge(p) {
+    if (p==='emergency') return '<span style="background:#EF444422;color:#EF4444;border:1px solid #EF444444;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px">🚨 Emergency</span>';
+    if (p==='high') return '<span style="background:#F59E0B22;color:#F59E0B;border:1px solid #F59E0B44;border-radius:20px;font-size:10px;font-weight:700;padding:3px 9px">▲ High</span>';
+    return '';
+  }
+  function leftColor(j) {
+    if (j.priority==='emergency') return '#EF4444';
+    if (j.status==='complete') return '#22C55E';
+    if (j.status==='enroute'||j.status==='onsite') return '#60A5FA';
+    return '#F59E0B';
+  }
 
-  function fmt() {
-    var e = JOBS.filter(function(j){return j.priority==='emergency';}).length;
-    var p = JOBS.filter(function(j){return j.status==='pending';}).length;
-    var r = JOBS.filter(function(j){return j.status==='enroute';}).length;
-    var done = JOBS.filter(function(j){return j.status==='complete';}).length;
-    return {e:e,p:p,r:r,done:done};
+  // Inject Google Maps
+  function initMap() {
+    if (typeof google === 'undefined') {
+      var s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyD-dummy&callback=__bcfpMapReady';
+      // No real key — use OpenStreetMap via Leaflet instead
+      loadLeaflet();
+      return;
+    }
+    buildMap();
+  }
+
+  function loadLeaflet() {
+    if (typeof L !== 'undefined') { buildMap(); return; }
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = buildMap;
+    document.head.appendChild(s);
+  }
+
+  function buildMap() {
+    var mapEl = document.getElementById('dp-map');
+    if (!mapEl || typeof L === 'undefined') return;
+    if (_map) { _map.remove(); _map = null; }
+    _map = L.map('dp-map', {zoomControl: true}).setView([33.4484, -112.0740], 11);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+    }).addTo(_map);
+    pinJobs();
+  }
+
+  function pinJobs() {
+    if (!_map || typeof L === 'undefined') return;
+    Object.values(_markers).forEach(function(m){ _map.removeLayer(m); });
+    _markers = {};
+    JOBS.forEach(function(j) {
+      if (!j.lat || !j.lng) return;
+      var color = leftColor(j);
+      var icon = L.divIcon({
+        className: '',
+        html: '<div style="background:'+color+';width:14px;height:14px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.5);cursor:pointer"></div>',
+        iconSize: [14,14], iconAnchor: [7,7]
+      });
+      var m = L.marker([j.lat, j.lng], {icon: icon}).addTo(_map);
+      m.bindPopup('<div style="font-family:sans-serif;font-size:12px;color:#0F1117;min-width:140px"><strong>'+j.id+'</strong><br>'+j.type+'<br><span style="color:#666">'+j.address+'</span><br><span style="color:#888">'+j.customer+'</span></div>');
+      m.on('click', function() { selectJob(j.id); });
+      _markers[j.id] = m;
+    });
+  }
+
+  function selectJob(jobId) {
+    _selectedJob = jobId;
+    render();
+    // Pan map to job
+    var job = JOBS.find(function(j){return j.id===jobId;});
+    if (job && job.lat && job.lng && _map) {
+      _map.flyTo([job.lat, job.lng], 14, {duration: 1});
+      if (_markers[jobId]) _markers[jobId].openPopup();
+    }
+    setTimeout(function() {
+      var drawer = document.getElementById('dp-drawer');
+      if (drawer) drawer.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }, 100);
   }
 
   function render() {
-    var s = fmt();
-    var staff = (FIELD_STAFF||[]).filter(function(u){ return ['tech','manager','admin','dispatcher'].indexOf(u.role)>=0; });
-    var activeJobs = JOBS.filter(function(j){return j.status!=='complete';});
-    activeJobs.sort(function(a,b){return (a.priority==='emergency'?0:1)-(b.priority==='emergency'?0:1);});
+    var em = JOBS.filter(function(j){return j.priority==='emergency'&&j.status!=='complete';}).length;
+    var pend = JOBS.filter(function(j){return j.status==='pending';}).length;
+    var field = JOBS.filter(function(j){return j.status==='enroute'||j.status==='onsite';}).length;
+    var done = JOBS.filter(function(j){return j.status==='complete';}).length;
+    var staff = (FIELD_STAFF||[]).filter(function(u){return ['tech','manager','admin','dispatcher'].indexOf(u.role)>=0;});
+    var active = JOBS.filter(function(j){return j.status!=='complete';});
+    active.sort(function(a,b){return (a.priority==='emergency'?0:a.priority==='high'?1:2)-(b.priority==='emergency'?0:b.priority==='high'?1:2);});
+    var selJob = _selectedJob ? JOBS.find(function(j){return j.id===_selectedJob;}) : null;
 
     main.innerHTML =
-      // ── HEADER
-      '<div style="background:rgba(15,17,23,0.98);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
-      '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v' + '3.5' + '</span></div>' +
-      '<div style="font-family:var(--font-display);font-size:11px;color:var(--text3);letter-spacing:0.06em">⚡ ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
+      // TOPBAR
+      '<div style="background:#161B27;border-bottom:1px solid #1E293B;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20">' +
+      '<div style="display:flex;align-items:center;gap:14px">' +
+      '<div style="font-family:var(--font-display,monospace);font-size:18px;font-weight:800;text-transform:uppercase">BCFP<span style="color:#3B82F6">CONNECT</span>' +
+      '<span style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:400">v' + VERSION + '</span></div>' +
+      '<div style="width:1px;height:22px;background:#1E293B"></div>' +
+      '<div style="font-size:13px;color:#8896B0">Hey <strong style="color:#F0F4FF">'+name+'</strong></div>' +
+      '<div style="background:#22C55E15;border:1px solid #22C55E30;border-radius:20px;padding:3px 10px;font-size:10px;color:#22C55E;font-weight:700">● LIVE</div>' +
+      '</div>' +
       '<div style="display:flex;align-items:center;gap:10px">' +
-      '<span class="role-badge role-dispatcher">Dispatcher</span>' +
-      '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
-      '<button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:var(--text3);cursor:pointer;font-size:11px;padding:4px 12px">Sign Out</button>' +
-      '<a href="tel:6025550100" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:20px;color:white;font-family:var(--font-display);font-size:12px;font-weight:700;padding:4px 12px;text-decoration:none">(602) 555-0100</a>' +
+      '<div style="font-size:12px;color:#475569">'+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+'</div>' +
+      '<a href="tel:6025550100" style="background:#EF444415;border:1px solid #EF444430;border-radius:8px;color:white;font-size:13px;font-weight:700;padding:6px 14px;text-decoration:none">📞 (602) 555-0100</a>' +
+      '<button onclick="doLogout()" style="background:none;border:1px solid #1E293B;border-radius:8px;color:#475569;cursor:pointer;font-size:12px;padding:6px 12px">Sign Out</button>' +
       '</div></div>' +
 
-      // ── STATS
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);border-bottom:1px solid var(--border)">' +
-      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:#EF4444">' + s.e + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Emergency</div></div>' +
-      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--amber)">' + s.p + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Pending</div></div>' +
-      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--blue)">' + s.r + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">En Route</div></div>' +
-      '<div style="padding:10px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--green)">' + s.done + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Complete</div></div>' +
+      // STATS
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);background:#161B27;border-bottom:1px solid #1E293B">' +
+      '<div style="padding:14px 20px;border-right:1px solid #1E293B"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:2px">Emergency</div><div style="font-size:38px;font-weight:800;color:'+(em>0?'#EF4444':'#22C55E')+';line-height:1">'+em+'</div></div>' +
+      '<div style="padding:14px 20px;border-right:1px solid #1E293B"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:2px">Pending</div><div style="font-size:38px;font-weight:800;color:#F59E0B;line-height:1">'+pend+'</div></div>' +
+      '<div style="padding:14px 20px;border-right:1px solid #1E293B"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:2px">In Field</div><div style="font-size:38px;font-weight:800;color:#60A5FA;line-height:1">'+field+'</div></div>' +
+      '<div style="padding:14px 20px"><div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;margin-bottom:2px">Done Today</div><div style="font-size:38px;font-weight:800;color:#22C55E;line-height:1">'+done+'</div></div>' +
       '</div>' +
 
-      // ── TECH STRIP
-      '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 16px">' +
-      '<div style="font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Field Techs — click to filter</div>' +
-      '<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px">' +
+      // TECH STRIP
+      '<div style="background:#0F1117;border-bottom:1px solid #1E293B;padding:10px 20px;display:flex;align-items:center;gap:8px;overflow-x:auto;flex-shrink:0">' +
+      '<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;flex-shrink:0;margin-right:4px">Techs</span>' +
       (staff.length ? staff.map(function(s) {
-        var parts = (s.full_name||'Tech').split(' ');
-        var initials = parts.map(function(w){return w[0]||''}).slice(0,2).join('').toUpperCase();
-        var short = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-        var jobs = JOBS.filter(function(j){return j.tech && j.tech.toLowerCase().indexOf(parts[0].toLowerCase())>=0 && j.status!=='complete';}).length;
-        var color = jobs > 0 ? 'var(--amber)' : 'var(--green)';
-        var label = jobs > 0 ? jobs + ' job' + (jobs>1?'s':'') : 'Available';
-        return '<div onclick="window._dpFilter=window._dpFilter===\''+s.full_name+'\'?null:\''+s.full_name+'\';render()" style="flex-shrink:0;background:var(--bg3);border:1px solid ' + (window._dpFilter===s.full_name?'var(--red)':' var(--border)') + ';border-radius:10px;padding:8px 12px;cursor:pointer;min-width:100px;transition:all 0.15s">' +
-          '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">' +
-          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;font-weight:700">' + initials + '</div>' +
-          '<div style="font-size:12px;font-weight:600;color:var(--text)">' + short + '</div></div>' +
-          '<div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:' + color + '"></div><div style="font-size:10px;color:' + color + ';font-family:var(--font-display);font-weight:700">' + label + '</div></div>' +
-          '</div>';
-      }).join('') : '<div style="font-size:12px;color:var(--text3);padding:8px">No field staff — add in Admin Panel</div>') +
-      '</div></div>' +
-
-      // ── ACTION BAR
-      '<div style="padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap">' +
-      '<button onclick="openNewJobModal()" style="background:var(--red);border:none;border-radius:20px;color:white;cursor:pointer;font-family:var(--font-display);font-size:12px;font-weight:700;padding:7px 16px;letter-spacing:0.06em">+ NEW JOB</button>' +
-      '<button onclick="restoreFullApp(&quot;jobs&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">All Jobs</button>' +
-      '<button onclick="restoreFullApp(&quot;customers&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Customers</button>' +
-      '<button onclick="restoreFullApp(&quot;quotes&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Quotes</button>' +
-      '<button onclick="restoreFullApp(&quot;calendar&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Calendar</button>' +
-      '<div style="margin-left:auto;font-size:11px;color:var(--text3)">' + (window._dpFilter ? 'Showing: ' + window._dpFilter.split(' ')[0] + ' <button onclick="window._dpFilter=null;render()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">✕ Clear</button>' : activeJobs.length + ' active jobs') + '</div>' +
+        var p = (s.full_name||'').split(' ');
+        var initials = p.map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+        var short = p[0]+(p[1]?' '+p[1][0]+'.':'');
+        var jobs = JOBS.filter(function(j){return j.tech&&j.tech.toLowerCase().indexOf(p[0].toLowerCase())>=0&&j.status!=='complete';}).length;
+        var color = jobs>0?'#F59E0B':'#22C55E';
+        var active2 = _filter===s.full_name;
+        return '<div data-tech="'+s.full_name+'" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;background:'+(active2?'#1E3A5F':'#1E293B')+';border:1px solid '+(active2?'#3B82F6':'#243044')+';border-radius:8px;padding:6px 12px;cursor:pointer">' +
+          '<div style="width:26px;height:26px;border-radius:50%;background:#1E3A5F;color:#60A5FA;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">'+initials+'</div>' +
+          '<div><div style="font-size:13px;font-weight:600;color:#F0F4FF;white-space:nowrap">'+short+'</div>' +
+          '<div style="display:flex;align-items:center;gap:3px"><div style="width:5px;height:5px;border-radius:50%;background:'+color+'"></div><div style="font-size:10px;font-weight:700;color:'+color+'">'+(jobs>0?jobs+' job'+(jobs>1?'s':''):'Available')+'</div></div>' +
+          '</div></div>';
+      }).join('') : '<span style="font-size:12px;color:#475569">No field staff — add in Admin Panel</span>') +
+      (_filter ? '<div data-clearfilter="1" style="flex-shrink:0;display:inline-flex;align-items:center;gap:4px;background:#EF444415;border:1px solid #EF444430;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;color:#EF4444;font-weight:600">✕ Clear</div>' : '') +
       '</div>' +
 
-      // ── JOB LIST
-      '<div style="flex:1;overflow-y:auto;padding:12px 16px">' +
+      // ACTION BAR
+      '<div style="background:#0F1117;border-bottom:1px solid #1E293B;padding:10px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0">' +
+      '<button id="dp-newjob" style="background:#3B82F6;border:none;border-radius:8px;color:white;cursor:pointer;font-size:14px;font-weight:700;padding:9px 18px">+ New Job</button>' +
+      '<button data-nav="jobs" style="background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;cursor:pointer;font-size:12px;padding:8px 14px">All Jobs</button>' +
+      '<button data-nav="customers" style="background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;cursor:pointer;font-size:12px;padding:8px 14px">Customers</button>' +
+      '<button data-nav="quotes" style="background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;cursor:pointer;font-size:12px;padding:8px 14px">Quotes</button>' +
+      '<button data-nav="calendar" style="background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;cursor:pointer;font-size:12px;padding:8px 14px">Calendar</button>' +
+      '<div style="margin-left:auto;font-size:12px;color:#475569">'+(active.length)+' active job'+(active.length!==1?'s':'') + (_filter?' · '+_filter.split(' ')[0]:'')+' </div>' +
+      '</div>' +
+
+      // MAIN BODY — map left, jobs right
+      '<div style="display:grid;grid-template-columns:420px 1fr;height:calc(100vh - 220px);overflow:hidden">' +
+
+      // MAP PANEL
+      '<div style="border-right:1px solid #1E293B;display:flex;flex-direction:column">' +
+      '<div style="padding:10px 14px;border-bottom:1px solid #1E293B;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#475569;background:#0F1117">Live Map</div>' +
+      '<div id="dp-map" style="flex:1;background:#0F1117"></div>' +
+      '</div>' +
+
+      // JOB LIST + DRAWER
+      '<div style="display:flex;flex-direction:column;overflow:hidden">' +
+
+      // JOB LIST
+      '<div style="flex:1;overflow-y:auto;padding:14px 16px">' +
       (function() {
-        var jobs = activeJobs;
-        if (window._dpFilter) {
-          var f = window._dpFilter.split(' ')[0].toLowerCase();
-          jobs = jobs.filter(function(j){return j.tech && j.tech.toLowerCase().indexOf(f)>=0;});
+        var jobs = active;
+        if (_filter) {
+          var fn = _filter.split(' ')[0].toLowerCase();
+          jobs = jobs.filter(function(j){return j.tech&&j.tech.toLowerCase().indexOf(fn)>=0;});
         }
-        if (!jobs.length) return '<div style="text-align:center;padding:48px;color:var(--text3);font-size:13px">' + (window._dpFilter ? 'No jobs for ' + window._dpFilter : 'Queue is clear ✓') + '</div>';
+        if (!jobs.length) return '<div style="text-align:center;padding:60px 20px;color:#475569"><div style="font-size:40px;margin-bottom:8px">✓</div><div style="font-size:16px;font-weight:600;color:#8896B0">Queue is clear</div></div>';
         return jobs.map(function(j) {
-          var em = j.priority==='emergency';
-          var sc = {pending:'var(--amber)',dispatched:'var(--blue)',enroute:'var(--blue)',onsite:'var(--green)',complete:'var(--green)'}[j.status]||'var(--text3)';
-          var techOpts = '<option value="">' + (j.tech||'Assign tech...') + '</option>' +
-            staff.map(function(s){
-              var p=s.full_name.split(' ');
-              var sn=p[0]+(p[1]?' '+p[1][0]+'.':''  );
-              return '<option value="'+sn+'"'+(j.tech===sn?' selected':'')+'>'+sn+'</option>';
-            }).join('');
+          var isSelected = _selectedJob === j.id;
+          var lc = leftColor(j);
+          var staff2 = (FIELD_STAFF||[]).filter(function(u){return ['tech','manager'].indexOf(u.role)>=0;});
+          var techOpts = '<option value="">'+(j.tech||'Assign Tech')+'</option>'+
+            staff2.map(function(s){var p=s.full_name.split(' ');var sn=p[0]+(p[1]?' '+p[1][0]+'.':'');return '<option value="'+sn+'"'+(j.tech===sn?' selected':'')+'>'+sn+'</option>';}).join('');
           var statusOpts = ['pending','dispatched','enroute','onsite','complete'].map(function(st){
-            return '<option value="'+st+'"'+(j.status===st?' selected':'')+'>'+st.charAt(0).toUpperCase()+st.slice(1)+'</option>';
+            var labels={pending:'Pending',dispatched:'Dispatched',enroute:'En Route',onsite:'On Site',complete:'Complete'};
+            return '<option value="'+st+'"'+(j.status===st?' selected':'')+'>'+labels[st]+'</option>';
           }).join('');
-          return '<div style="background:var(--bg2);border:1px solid '+( em?'rgba(239,68,68,0.4)':' var(--border)')+';border-radius:10px;padding:12px 16px;margin-bottom:8px' + (em?';' + 'box-shadow:0 0 20px rgba(239,68,68,0.08)':'')+'">' +
-            '<div style="display:flex;align-items:flex-start;gap:12px">' +
-            '<div style="flex:1;min-width:0">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">' +
-            (em?'<span style="font-size:12px">🚨</span>':'')+
-            '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">'+j.id+'</span>' +
-            '<span style="padding:2px 8px;border-radius:20px;background:rgba(0,0,0,0.3);font-family:var(--font-display);font-size:10px;font-weight:700;color:'+sc+'">'+( j.status||'pending')+'</span>' +
+          return '<div data-jid="'+j.id+'" style="background:'+(isSelected?'#1E3A5F':'#161B27')+';border:1px solid '+(isSelected?'#3B82F6':'#1E293B')+';border-left:4px solid '+lc+';border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all 0.15s">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" data-select="'+j.id+'">' +
+            '<div style="font-size:12px;font-weight:800;color:#60A5FA;letter-spacing:0.06em;font-family:monospace">'+j.id+'</div>' +
+            prioBadge(j.priority)+badge(j.status) +
+            '<div style="margin-left:auto;font-size:11px;color:#475569">'+j.time+'</div>' +
             '</div>' +
-            '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">'+j.type+'</div>' +
-            '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+j.address+(j.customer?' · '+j.customer:'')+'</div>' +
-            '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-            '<select data-role="tech-assign" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;outline:none">'+techOpts+'</select>' +
-            '<select data-role="status-update" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;outline:none">'+statusOpts+'</select>' +
-            (j.customer_email?'<a href="mailto:'+j.customer_email+'" style="padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;text-decoration:none">✉</a>':'')+
-            '</div></div>' +
-            '<div style="text-align:right;flex-shrink:0">' +
-            '<div style="font-size:10px;color:var(--text3)">'+j.time+'</div>' +
-            (j.eta?'<div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--red);line-height:1">'+j.eta+'<span style="font-size:11px">m</span></div>':'')+
-            '</div></div></div>';
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px" data-select="'+j.id+'">' +
+            '<div><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Job</div><div style="font-size:14px;font-weight:700;color:#F0F4FF">'+j.type+'</div></div>' +
+            '<div><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px">Location</div><div style="font-size:13px;font-weight:600;color:#F0F4FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+j.address+'</div>'+(j.customer?'<div style="font-size:11px;color:#8896B0">'+j.customer+'</div>':'')+' </div>' +
+            '</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+            '<div><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Tech</div><select data-role="tech-assign" style="width:100%;background:#0F1117;border:1px solid #243044;border-radius:8px;color:#F0F4FF;font-size:13px;font-weight:600;padding:8px 10px;cursor:pointer;outline:none">'+techOpts+'</select></div>' +
+            '<div><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Status</div><select data-role="status-update" style="width:100%;background:#0F1117;border:1px solid #243044;border-radius:8px;color:#F0F4FF;font-size:13px;font-weight:600;padding:8px 10px;cursor:pointer;outline:none">'+statusOpts+'</select></div>' +
+            '</div></div>';
         }).join('');
       })() +
-      '</div>';
-  }
+      '</div>' +
 
-  window._dpFilter = null;
-  window.render = render;
-  window.assignJob = function(tech, jobId) {
-    var job = JOBS.find(function(j){return j.id===jobId;});
-    if (job) { job.tech = tech; job.status = tech ? 'dispatched' : 'pending'; }
-    render();
-    if (tech) showToast('\u2713 ' + jobId + ' assigned to ' + tech);
-  };
-  window.updateJob = function(status, jobId) {
-    var job = JOBS.find(function(j){return j.id===jobId;});
-    if (job) job.status = status;
-    render();
-    showToast('\u2713 ' + jobId + ' \u2192 ' + status);
-  };
+      // JOB DETAIL DRAWER
+      (selJob ? '<div id="dp-drawer" style="border-top:2px solid #3B82F6;background:#0F1117;padding:16px;flex-shrink:0;max-height:280px;overflow-y:auto">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+      '<div style="font-size:14px;font-weight:800;color:#60A5FA;font-family:monospace">'+selJob.id+' — '+selJob.type+'</div>' +
+      '<button data-closedrawer="1" style="background:none;border:none;color:#475569;cursor:pointer;font-size:18px;padding:0">×</button>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">' +
+      '<div style="background:#161B27;border-radius:8px;padding:10px"><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Customer</div><div style="font-size:13px;font-weight:600;color:#F0F4FF">'+selJob.customer+'</div></div>' +
+      '<div style="background:#161B27;border-radius:8px;padding:10px"><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Technician</div><div style="font-size:13px;font-weight:600;color:#F0F4FF">'+(selJob.tech||'Unassigned')+'</div></div>' +
+      '<div style="background:#161B27;border-radius:8px;padding:10px"><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px">Priority</div><div style="font-size:13px;font-weight:600;color:#F0F4FF">'+selJob.priority+'</div></div>' +
+      '</div>' +
+      '<div style="background:#161B27;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Address</div><div style="font-size:13px;color:#F0F4FF">'+selJob.address+(selJob.unit?' · '+selJob.unit:'')+'</div></div>' +
+      (selJob.notes?'<div style="background:#161B27;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Notes</div><div style="font-size:13px;color:#8896B0;line-height:1.6">'+selJob.notes+'</div></div>':'') +
+      '<div style="display:flex;gap:8px">' +
+      (selJob.customer_email?'<a href="mailto:'+selJob.customer_email+'" style="flex:1;background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;font-size:12px;font-weight:600;padding:8px 12px;text-decoration:none;text-align:center">✉ Email Customer</a>':'') +
+      '<a href="https://www.google.com/maps/search/'+encodeURIComponent(selJob.address)+'" target="_blank" style="flex:1;background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;font-size:12px;font-weight:600;padding:8px 12px;text-decoration:none;text-align:center">🗺 Open in Maps</a>' +
+      '<button onclick="window.openInvoiceBuilder&&openInvoiceBuilder(JOBS.find(function(j){return j.id===\''+selJob.id+'\';}))" style="flex:1;background:#1E293B;border:1px solid #243044;border-radius:8px;color:#8896B0;font-size:12px;font-weight:600;padding:8px 12px;cursor:pointer">$ Invoice</button>' +
+      '</div></div>' : '') +
 
-  function doRender() {
-    render();
-    // Add event delegation for dropdowns
+      '</div></div>';
+
+    // Event delegation
     main.addEventListener('change', function(e) {
       var card = e.target.closest('[data-jid]');
       if (!card) return;
       var jobId = card.dataset.jid;
       var job = JOBS.find(function(j){return j.id===jobId;});
       if (!job) return;
-      if (e.target.dataset.role === 'tech-assign') {
-        job.tech = e.target.value;
-        job.status = e.target.value ? 'dispatched' : 'pending';
-        if (e.target.value) showToast('\u2713 ' + jobId + ' assigned to ' + e.target.value);
-        render();
+      if (e.target.dataset.role==='tech-assign') {
+        job.tech = e.target.value; job.status = e.target.value?'dispatched':'pending';
+        if (e.target.value) showToast('✓ '+jobId+' → '+e.target.value);
+        pinJobs(); render();
       }
-      if (e.target.dataset.role === 'status-update') {
+      if (e.target.dataset.role==='status-update') {
         job.status = e.target.value;
-        showToast('\u2713 ' + jobId + ' \u2192 ' + e.target.value);
-        render();
+        showToast('✓ '+jobId+' → '+e.target.value);
+        pinJobs(); render();
       }
-    }, {once: false});
+    });
+
+    main.addEventListener('click', function(e) {
+      // Select job
+      var sel = e.target.closest('[data-select]');
+      if (sel) { selectJob(sel.dataset.select); return; }
+      // Close drawer
+      if (e.target.closest('[data-closedrawer]')) { _selectedJob=null; render(); return; }
+      // Tech filter
+      var chip = e.target.closest('[data-tech]');
+      if (chip) { _filter = _filter===chip.dataset.tech?null:chip.dataset.tech; render(); return; }
+      // Clear filter
+      if (e.target.closest('[data-clearfilter]')) { _filter=null; render(); return; }
+      // Nav buttons
+      var nav = e.target.closest('[data-nav]');
+      if (nav) { restoreFullApp(nav.dataset.nav); return; }
+      // New job
+      if (e.target.closest('#dp-newjob')) { openNewJobModal(); return; }
+    });
+
+    // Init map after render
+    setTimeout(function() { loadLeaflet(); }, 100);
+
+    // Version badge
+    setTimeout(function() {
+      var b = document.getElementById('bcfp-version-badge');
+      if (!b) { b=document.createElement('div'); b.id='bcfp-version-badge'; document.body.appendChild(b); }
+      b.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
+      b.textContent='v3.8 · 05/19 14:25';
+    }, 150);
   }
 
+  window.render = render;
+
+  // Geocode address using Nominatim when job is created
+  window.geocodeJob = function(job) {
+    if (!job.address) return;
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(job.address+', Phoenix AZ')+'&limit=1')
+      .then(function(r){return r.json();})
+      .then(function(data){
+        if (data && data[0]) {
+          job.lat = parseFloat(data[0].lat);
+          job.lng = parseFloat(data[0].lon);
+          pinJobs();
+        }
+      }).catch(function(){});
+  };
+
   if (FIELD_STAFF && FIELD_STAFF.length) {
-    doRender();
+    render();
   } else {
-    loadFieldStaff().then(function(){ doRender(); });
+    loadFieldStaff().then(function(){ render(); });
   }
 }
 
@@ -4497,7 +4639,7 @@ function applyRolePermissions(role) {
 
 function buildPortalHeader(roleName,roleClass,name){
   return '<div style="background:rgba(15,17,23,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">'+
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.5</span></div>'+
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.8</span></div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<span class="role-badge '+roleClass+'">'+roleName+'</span>'+
     '<span style="font-size:12px;color:var(--text2)">'+name+'</span>'+
@@ -4540,7 +4682,7 @@ function buildDispatcherPortal(){
   var vbadge=document.getElementById('bcfp-version-badge');
   if(!vbadge){vbadge=document.createElement('div');vbadge.id='bcfp-version-badge';document.body.appendChild(vbadge);}
   vbadge.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.5 · 05/19 04:38';
+  vbadge.textContent='v3.8 · 05/19 14:25';
   var btns={'dp-jobs':'jobs','dp-cal':'calendar','dp-techs':'technicians','dp-cust':'customers'};
   Object.keys(btns).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=(function(p){return function(){showPage(p);};})(btns[id]);});
   var qEl=document.getElementById('dp-queue');
@@ -4608,7 +4750,7 @@ function buildTechPortal(){
   var vbadge2=document.getElementById('bcfp-version-badge');
   if(!vbadge2){vbadge2=document.createElement('div');vbadge2.id='bcfp-version-badge';document.body.appendChild(vbadge2);}
   vbadge2.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.5 · 05/19 04:38';
+  vbadge.textContent='v3.8 · 05/19 14:25';
   main.addEventListener('click',function(e){
     var d=e.target.closest('[data-drive]'),o=e.target.closest('[data-onsite]'),co=e.target.closest('[data-complete]'),ph=e.target.closest('[data-photos]');
     if(d){ttClockDrive();techUi();showToast('🚗 Driving to '+d.getAttribute('data-drive'));}
@@ -4671,7 +4813,7 @@ function buildCustomerPortal(){
   var vbadge3=document.getElementById('bcfp-version-badge');
   if(!vbadge3){vbadge3=document.createElement('div');vbadge3.id='bcfp-version-badge';document.body.appendChild(vbadge3);}
   vbadge3.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.5 · 05/19 04:38';
+  vbadge.textContent='v3.8 · 05/19 14:25';
   var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
   if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
@@ -5007,7 +5149,7 @@ async function loadFieldStaff() {
   var fieldRoles = ['tech','manager','admin','dispatcher'];
   try {
     var token = localStorage.getItem('fd_token') || '';
-    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role,email&order=full_name.asc', {
+    var res = await fetch(SUPABASE_URL + '/rest/v1/profiles?select=id,full_name,role,email&order=full_name.asc&limit=100', {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + (token || SUPABASE_KEY) }
     });
     if (res.ok) {
@@ -5445,8 +5587,15 @@ function processCustPayment(invId) {
 
 function openJobModal(jobId) {
   var job = JOBS.find(function(j){ return j.id === jobId; });
-  if (!job) { showToast('Job '+jobId+' not found'); return; }
-  showPage('jobs', document.querySelector('.nav-btn[onclick*="jobs"]'));
+  if (!job) { showToast('Job ' + jobId + ' not found'); return; }
+  // If in dispatcher portal, just scroll to the job card
+  if (currentRole === 'dispatcher') {
+    var card = document.querySelector('[data-jid="' + jobId + '"]');
+    if (card) { card.scrollIntoView({behavior:'smooth',block:'center'}); card.style.boxShadow='0 0 0 2px var(--red)'; setTimeout(function(){card.style.boxShadow='';},2000); }
+    return;
+  }
+  // Otherwise navigate to jobs page
+  restoreFullApp('jobs');
 }
 
 // Auto-fill customer email when customer selected
@@ -5464,7 +5613,7 @@ function autoFillCustomerEmail(sel) {
   var badge = document.createElement('div');
   badge.id = 'bcfp-version-badge';
   badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;user-select:none';
-  badge.textContent = 'v3.5 · 05/19 04:38';
+  badge.textContent = 'v3.8 · 05/19 14:25';
   document.body.appendChild(badge);
 })();
 
