@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:500;color:var(--text3);margin-left:6px;letter-spacing:0.04em">v2.6</span>
+    <span style="font-size:9px;font-weight:500;color:var(--text3);margin-left:6px;letter-spacing:0.04em">v2.7</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -4093,6 +4093,11 @@ function bootAsRole(role, info) {
     if (ticker) ticker.style.display = 'none';
     console.log('[BCFP] Calling applyRolePermissions...');
     applyRolePermissions(role);
+    // Re-inject version badge after portal renders
+    setTimeout(function() {
+      var b = document.getElementById('bcfp-version-badge');
+      if (b) { document.body.removeChild(b); document.body.appendChild(b); }
+    }, 300);
     return;
   }
 
@@ -5301,4 +5306,15 @@ function autoFillCustomerEmail(sel) {
   var chosen = sel.options[sel.selectedIndex];
   if (chosen && chosen.dataset && chosen.dataset.email) emailField.value = chosen.dataset.email;
 }
+
+// ── VERSION BADGE (always visible) ──────────────────────────
+(function() {
+  var existing = document.getElementById('bcfp-version-badge');
+  if (existing) existing.remove();
+  var badge = document.createElement('div');
+  badge.id = 'bcfp-version-badge';
+  badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.25);z-index:9999;pointer-events:none;user-select:none';
+  badge.textContent = 'v2.7 · 05/19 04:14';
+  document.body.appendChild(badge);
+})();
 
