@@ -3085,8 +3085,8 @@ function openQuoteFromDeal(id) {
 }
 
 // wire up new quote button on page
-document.addEventListener('DOMContentLoaded', ()=>{
-  const btn = document.querySelector('[onclick="openNewQuoteModal()"]');
+document.addEventListener('DOMContentLoaded', function() {
+  initAuth();
 });
 
 
@@ -4872,7 +4872,7 @@ async function loadFieldStaff() {
 
 function populateTechDropdowns() {
   var ROLE_LABELS = { admin:'Admin', manager:'Manager', dispatcher:'Dispatcher', tech:'Tech' };
-  var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech'];
+  var dropdowns = ['nj-tech', 'job-tech-select', 'clock-in-tech', 'tl-filter-tech'];
   dropdowns.forEach(function(id) {
     var sel = document.getElementById(id);
     if (!sel) return;
@@ -4900,7 +4900,7 @@ function populateTechDropdowns() {
 function updateSidebarTechs() {
   var sidebar = document.querySelector('.sidebar');
   if (!sidebar || !FIELD_STAFF.length) return;
-  var techList = sidebar.querySelector('.tech-list');
+  var techList = sidebar.querySelector('.tech-list') || document.getElementById('sidebar-tech-list');
   if (!techList) return;
   var ROLE_COLORS = { admin:'var(--purple)', manager:'var(--teal)', dispatcher:'var(--red)', tech:'var(--amber)' };
   techList.innerHTML = FIELD_STAFF.map(function(s) {
