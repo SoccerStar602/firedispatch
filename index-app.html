@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v4.0</span>
+    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v4.1</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -2202,10 +2202,14 @@ BCFP Connect"></textarea>
 
 
 <script>
-const APP_VERSION = 'v4.0 · 05/19 14:32';
+const APP_VERSION = 'v4.2 · 05/19 14:39';
 
 // ---- DATA ----
-const JOBS = [];
+const JOBS = [
+  {id:'FD-001',customer:'Big City Test Account',customer_email:'customer@bigcityfp.com',address:'4800 N Central Ave, Phoenix AZ',unit:'Suite 200',type:'Annual Inspection',priority:'normal',status:'pending',time:'8:00 AM',tech:'',notes:'Access code: 4821',lat:33.4972,lng:-112.0737},
+  {id:'FD-002',customer:'Hilton Scottsdale Road',customer_email:'',address:'7353 E Indian School Rd, Scottsdale AZ',unit:'',type:'Emergency Response',priority:'emergency',status:'dispatched',time:'8:45 AM',tech:'',notes:'Alarm panel Zone 3 triggered',lat:33.4942,lng:-111.9261},
+  {id:'FD-003',customer:'ASU Research Center',customer_email:'',address:'1151 S Forest Ave, Tempe AZ',unit:'Building C',type:'Panel Repair',priority:'high',status:'enroute',time:'9:15 AM',tech:'',notes:'',lat:33.4242,lng:-111.9281},
+];
 // Sample jobs with Phoenix coordinates for demo
 if (false) { // disabled - jobs come from real dispatching
   JOBS.push({id:'FD-DEMO',customer:'Demo',address:'4800 N Central Ave, Phoenix AZ',type:'Inspection',priority:'normal',status:'pending',time:'9:00 AM',tech:'',lat:33.4972,lng:-112.0737});
@@ -2429,10 +2433,17 @@ function createJob() {
   try { updateBadges(); } catch(e) {}
   closeModal('new-job-modal');
   showToast('✓ Job ' + id + ' created!');
-  // Geocode the address and refresh dispatcher portal
+  // Geocode address and refresh portal
   if (currentRole === 'dispatcher') {
-    if (typeof window.geocodeJob === 'function') window.geocodeJob(newJob);
-    setTimeout(function(){ if(typeof window.render==='function') window.render(); }, 200);
+    if (j.address) {
+      fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(newJob.address+', Phoenix AZ')+'&limit=1')
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d&&d[0]){newJob.lat=parseFloat(d[0].lat);newJob.lng=parseFloat(d[0].lon);}
+          if(typeof window.render==='function') window.render();
+        }).catch(function(){});
+    }
+    setTimeout(function(){ if(typeof window.render==='function') window.render(); }, 100);
   }
 }
 function createCustomer() {
@@ -3643,7 +3654,7 @@ function applyRolePermissions(role) {
 // ── SHARED PORTAL HEADER ─────────────────────────────────────
 function buildPortalHeader(roleName, roleClass, name) {
   return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.0</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.1</span></div>' +
     '<div style="display:flex;align-items:center;gap:12px">' +
     '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
     '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
@@ -3722,13 +3733,29 @@ function buildDispatcherPortal() {
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
     }).addTo(_map);
+    // Pin jobs immediately and again after tiles load
     pinJobs();
+    setTimeout(pinJobs, 800);
+    _map.on('load', pinJobs);
   }
 
   function pinJobs() {
     if (!_map || typeof L === 'undefined') return;
     Object.values(_markers).forEach(function(m){ _map.removeLayer(m); });
     _markers = {};
+    // Geocode any jobs missing coordinates
+    JOBS.forEach(function(j) {
+      if (!j.lat && !j.lng && j.address && !j._geocoding) {
+        j._geocoding = true;
+        fetch('https://nominatim.openstreetmap.org/search?format=json&q='+encodeURIComponent(j.address)+'&limit=1')
+          .then(function(r){return r.json();})
+          .then(function(d){
+            if(d&&d[0]){j.lat=parseFloat(d[0].lat);j.lng=parseFloat(d[0].lon);}
+            j._geocoding=false;
+            pinJobs();
+          }).catch(function(){j._geocoding=false;});
+      }
+    });
     JOBS.forEach(function(j) {
       if (!j.lat || !j.lng) return;
       var color = leftColor(j);
@@ -3774,7 +3801,7 @@ function buildDispatcherPortal() {
       '<div style="background:#161B27;border-bottom:1px solid #1E293B;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20">' +
       '<div style="display:flex;align-items:center;gap:14px">' +
       '<div style="font-family:var(--font-display,monospace);font-size:18px;font-weight:800;text-transform:uppercase">BCFP<span style="color:#3B82F6">CONNECT</span>' +
-      '<span style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:400">v4.0</span></div>' +
+      '<span style="font-size:9px;color:rgba(255,255,255,0.3);margin-left:8px;font-weight:400">v4.1</span></div>' +
       '<div style="width:1px;height:22px;background:#1E293B"></div>' +
       '<div style="font-size:13px;color:#8896B0">Hey <strong style="color:#F0F4FF">'+name+'</strong></div>' +
       '<div style="background:#22C55E15;border:1px solid #22C55E30;border-radius:20px;padding:3px 10px;font-size:10px;color:#22C55E;font-weight:700">● LIVE</div>' +
@@ -3892,52 +3919,49 @@ function buildDispatcherPortal() {
 
       '</div></div>';
 
-    // Event delegation
-    main.addEventListener('change', function(e) {
-      var card = e.target.closest('[data-jid]');
-      if (!card) return;
-      var jobId = card.dataset.jid;
-      var job = JOBS.find(function(j){return j.id===jobId;});
-      if (!job) return;
-      if (e.target.dataset.role==='tech-assign') {
-        job.tech = e.target.value; job.status = e.target.value?'dispatched':'pending';
-        if (e.target.value) showToast('✓ '+jobId+' → '+e.target.value);
-        pinJobs(); render();
-      }
-      if (e.target.dataset.role==='status-update') {
-        job.status = e.target.value;
-        showToast('✓ '+jobId+' → '+e.target.value);
-        pinJobs(); render();
-      }
-    });
+    // Init map after first render only
+    if (!window._dpListenersAdded) {
+      window._dpListenersAdded = true;
 
-    main.addEventListener('click', function(e) {
-      // Select job
-      var sel = e.target.closest('[data-select]');
-      if (sel) { selectJob(sel.dataset.select); return; }
-      // Close drawer
-      if (e.target.closest('[data-closedrawer]')) { _selectedJob=null; render(); return; }
-      // Tech filter
-      var chip = e.target.closest('[data-tech]');
-      if (chip) { _filter = _filter===chip.dataset.tech?null:chip.dataset.tech; render(); return; }
-      // Clear filter
-      if (e.target.closest('[data-clearfilter]')) { _filter=null; render(); return; }
-      // Nav buttons
-      var nav = e.target.closest('[data-nav]');
-      if (nav) { restoreFullApp(nav.dataset.nav); return; }
-      // New job
-      if (e.target.closest('#dp-newjob')) { openNewJobModal(); return; }
-    });
+      main.addEventListener('change', function(e) {
+        var card = e.target.closest('[data-jid]');
+        if (!card) return;
+        var jobId = card.dataset.jid;
+        var job = JOBS.find(function(j){return j.id===jobId;});
+        if (!job) return;
+        if (e.target.dataset.role==='tech-assign') {
+          job.tech = e.target.value; job.status = e.target.value?'dispatched':'pending';
+          if (e.target.value) showToast('✓ '+jobId+' → '+e.target.value);
+          pinJobs(); render();
+        }
+        if (e.target.dataset.role==='status-update') {
+          job.status = e.target.value;
+          showToast('✓ '+jobId+' → '+e.target.value);
+          pinJobs(); render();
+        }
+      });
 
-    // Init map after render
-    setTimeout(function() { loadLeaflet(); }, 100);
+      main.addEventListener('click', function(e) {
+        var sel = e.target.closest('[data-select]');
+        if (sel) { selectJob(sel.dataset.select); return; }
+        if (e.target.closest('[data-closedrawer]')) { _selectedJob=null; render(); return; }
+        var chip = e.target.closest('[data-tech]');
+        if (chip) { _filter = _filter===chip.dataset.tech?null:chip.dataset.tech; render(); return; }
+        if (e.target.closest('[data-clearfilter]')) { _filter=null; render(); return; }
+        var nav = e.target.closest('[data-nav]');
+        if (nav) { restoreFullApp(nav.dataset.nav); return; }
+        if (e.target.closest('#dp-newjob')) { openNewJobModal(); return; }
+      });
+
+      setTimeout(function() { loadLeaflet(); }, 100);
+    }
 
     // Version badge
     setTimeout(function() {
       var b = document.getElementById('bcfp-version-badge');
       if (!b) { b=document.createElement('div'); b.id='bcfp-version-badge'; document.body.appendChild(b); }
       b.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-      b.textContent='v4.0 · 05/19 14:32';
+      b.textContent='v4.2 · 05/19 14:39';
     }, 150);
   }
 
@@ -4641,7 +4665,7 @@ function applyRolePermissions(role) {
 
 function buildPortalHeader(roleName,roleClass,name){
   return '<div style="background:rgba(15,17,23,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">'+
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.0</span></div>'+
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v4.1</span></div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<span class="role-badge '+roleClass+'">'+roleName+'</span>'+
     '<span style="font-size:12px;color:var(--text2)">'+name+'</span>'+
@@ -4704,7 +4728,7 @@ function buildTechPortal(){
   var vbadge2=document.getElementById('bcfp-version-badge');
   if(!vbadge2){vbadge2=document.createElement('div');vbadge2.id='bcfp-version-badge';document.body.appendChild(vbadge2);}
   vbadge2.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v4.0 · 05/19 14:32';
+  vbadge.textContent='v4.2 · 05/19 14:39';
   main.addEventListener('click',function(e){
     var d=e.target.closest('[data-drive]'),o=e.target.closest('[data-onsite]'),co=e.target.closest('[data-complete]'),ph=e.target.closest('[data-photos]');
     if(d){ttClockDrive();techUi();showToast('🚗 Driving to '+d.getAttribute('data-drive'));}
@@ -4767,7 +4791,7 @@ function buildCustomerPortal(){
   var vbadge3=document.getElementById('bcfp-version-badge');
   if(!vbadge3){vbadge3=document.createElement('div');vbadge3.id='bcfp-version-badge';document.body.appendChild(vbadge3);}
   vbadge3.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v4.0 · 05/19 14:32';
+  vbadge.textContent='v4.2 · 05/19 14:39';
   var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
   if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
@@ -5422,6 +5446,7 @@ function updateRoleBadge(role, info) {
 }
 
 </script>
+
 <!-- INVOICE BUILDER MODAL -->
 <div class="modal-overlay" id="invoice-modal">
   <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
@@ -5561,13 +5586,14 @@ function autoFillCustomerEmail(sel) {
 }
 
 // ── VERSION BADGE (always visible) ──────────────────────────
+<script>
 (function() {
   var existing = document.getElementById('bcfp-version-badge');
   if (existing) existing.remove();
   var badge = document.createElement('div');
   badge.id = 'bcfp-version-badge';
   badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;user-select:none';
-  badge.textContent = 'v4.0 · 05/19 14:32';
+  badge.textContent = 'v4.2 · 05/19 14:39';
   document.body.appendChild(badge);
 })();
 
@@ -5575,4 +5601,6 @@ function restoreFullApp(page) {
   sessionStorage.setItem('bcfp_goto', page || 'dashboard');
   location.reload();
 }
-
+</script>
+</body>
+</html>
