@@ -829,8 +829,8 @@
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="logo">
-    
     BCFP<span>Connect</span>
+    <span style="font-size:9px;font-weight:500;color:var(--text3);margin-left:6px;letter-spacing:0.04em">v2.6</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -2252,7 +2252,7 @@ function renderDashboard(filter='all') {
   if (filter === 'emergency') jobs = JOBS.filter(j => j.priority === 'emergency');
   if (filter === 'pending') jobs = JOBS.filter(j => j.status === 'pending');
   if (filter === 'complete') jobs = JOBS.filter(j => j.status === 'complete');
-  document.getElementById('dashboard-jobs-body').innerHTML = jobs.map(j => jobRow(j)).join('');
+  var djb = document.getElementById('dashboard-jobs-body'); if(djb) djb.innerHTML = jobs.map(j => jobRow(j)).join('');
 }
 function renderJobsPage(filter='all', search='') {
   let jobs = [...JOBS];
@@ -2260,7 +2260,7 @@ function renderJobsPage(filter='all', search='') {
   if (filter === 'dispatched') jobs = jobs.filter(j => ['dispatched','enroute','onsite'].includes(j.status));
   if (filter === 'complete') jobs = jobs.filter(j => j.status === 'complete');
   if (search) jobs = jobs.filter(j => [j.id,j.customer,j.address,j.type].join(' ').toLowerCase().includes(search.toLowerCase()));
-  document.getElementById('jobs-page-body').innerHTML = jobs.map(j => jobRow(j, true)).join('');
+  var jpb = document.getElementById('jobs-page-body'); if(jpb) jpb.innerHTML = jobs.map(j => jobRow(j, true)).join('');
 }
 function renderCustomers() {
   const colors = ['red','blue','amber','green','purple','teal'];
@@ -2272,7 +2272,7 @@ function renderCustomers() {
     purple:'background:rgba(168,85,247,0.15);border-color:rgba(168,85,247,0.3);color:#C084FC',
     teal:'background:rgba(20,184,166,0.15);border-color:rgba(20,184,166,0.3);color:#2DD4BF',
   };
-  document.getElementById('customer-grid').innerHTML = CUSTOMERS.map((c,i) => {
+  var cgrid = document.getElementById('customer-grid'); if(!cgrid) return; cgrid.innerHTML = CUSTOMERS.map((c,i) => {
     const col = colorStyles[colors[i % colors.length]];
     const init = c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     return `<div class="customer-card">
@@ -2532,7 +2532,7 @@ function renderCalendar() {
   for (let d = 1; d <= totalCells - firstDay - daysInMonth; d++) {
     html += `<div class="cal-day other-month"><div class="cal-day-num">${d}</div></div>`;
   }
-  document.getElementById('cal-grid').innerHTML = html;
+  var cg = document.getElementById('cal-grid'); if(cg) cg.innerHTML = html;
 }
 function calNav(dir) {
   calMonth += dir;
@@ -4860,7 +4860,11 @@ async function loadFieldStaff() {
       var data = await res.json();
       if (Array.isArray(data) && data.length) {
         FIELD_STAFF = data.filter(function(u){ return u.full_name && fieldRoles.indexOf(u.role) >= 0; });
-        if (FIELD_STAFF.length) { populateTechDropdowns(); renderTechs(); return; }
+        if (FIELD_STAFF.length) {
+          try { populateTechDropdowns(); } catch(e) {}
+          try { renderTechs(); } catch(e) {}
+          return;
+        }
       }
     }
   } catch(e) { console.warn('loadFieldStaff:', e); }
@@ -4882,14 +4886,15 @@ function populateTechDropdowns() {
     sel.innerHTML = '';
     sel.appendChild(first);
     FIELD_STAFF.forEach(function(s) {
-      var opt = document.createElement('option');
-      // Store short name for display
-      var parts = (s.full_name || '').split(' ');
-      var shortName = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
-      opt.value = shortName;
-      opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role]||s.role) + ')' : '');
-      if (opt.value === current) opt.selected = true;
-      sel.appendChild(opt);
+      try {
+        var opt = document.createElement('option');
+        var parts = (s.full_name || '').split(' ');
+        var shortName = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
+        opt.value = shortName;
+        opt.textContent = s.full_name + (s.role !== 'tech' ? ' (' + (ROLE_LABELS[s.role]||s.role) + ')' : '');
+        if (opt.value === current) opt.selected = true;
+        if (sel && sel.appendChild) sel.appendChild(opt);
+      } catch(e) {}
     });
   });
 
