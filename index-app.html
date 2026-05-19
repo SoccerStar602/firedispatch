@@ -705,7 +705,7 @@
       <input class="auth-input" type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="auth-btn" id="auth-btn" type="button" onclick="doLogin(); return false;">Sign In</button>
       <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px" id="auth-status">Ready</div>
-      <div class="auth-sub">BCFP Connect · Phoenix Metro Area · BCFP Connect v2.1</div>
+      <div class="auth-sub">BCFP Connect · Phoenix Metro Area · BCFP Connect v3.1</div>
     </div>
   </div>
 </div>
@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.0</span>
+    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.1</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -987,7 +987,7 @@
     <div class="page" id="page-dashboard">
       <div class="page-header">
         <div class="page-title">Dispatch Dashboard</div>
-        <div class="page-sub">Thursday, May 14, 2026 — Phoenix Metro Area · BCFP Connect v2.1</div>
+        <div class="page-sub">Thursday, May 14, 2026 — Phoenix Metro Area · BCFP Connect v3.1</div>
       </div>
       <div class="metrics-grid">
         <div class="metric-card">
@@ -2205,7 +2205,9 @@ BCFP Connect"></textarea>
 // ---- DATA ----
 const JOBS = [];
 
-const CUSTOMERS = [];
+const CUSTOMERS = [
+  { name:'Big City Test Account', type:'Commercial', phone:'(602) 555-0100', address:'123 Test St, Phoenix AZ', contact:'Owen Norris', email:'customer@bigcityfp.com', jobs:0, open:0, notes:'Test customer account' }
+];
 
 const TECHS = [];
 
@@ -3587,7 +3589,7 @@ function applyRolePermissions(role) {
 // ── SHARED PORTAL HEADER ─────────────────────────────────────
 function buildPortalHeader(roleName, roleClass, name) {
   return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.0</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.1</span></div>' +
     '<div style="display:flex;align-items:center;gap:12px">' +
     '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
     '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
@@ -3612,7 +3614,7 @@ function buildDispatcherPortal() {
   main.innerHTML = '<div style="min-height:100vh;background:var(--bg);display:flex;flex-direction:column">' +
     // Header
     '<div style="background:rgba(15,17,23,0.98);border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.0</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.1</span></div>' +
     '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--text3)">⚡ DISPATCH — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
     '<div style="display:flex;align-items:center;gap:10px">' +
     '<span class="role-badge role-dispatcher">Dispatcher</span>' +
@@ -3639,9 +3641,11 @@ function buildDispatcherPortal() {
     '<div style="flex:1;overflow-y:auto;padding:16px 20px">' +
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
     '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">Active Jobs</div>' +
-    '<div style="display:flex;gap:8px">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
     '<button class="btn btn-primary" onclick="openNewJobModal()" style="font-size:11px;padding:6px 14px">+ New Job</button>' +
     '<button class="btn btn-ghost" id="dp-all" style="font-size:11px;padding:6px 12px">All Jobs</button>' +
+    '<button class="btn btn-ghost" id="dp-cal" style="font-size:11px;padding:6px 12px">Calendar</button>' +
+    '<button class="btn btn-ghost" id="dp-techs" style="font-size:11px;padding:6px 12px">Techs</button>' +
     '<button class="btn btn-ghost" id="dp-quotes" style="font-size:11px;padding:6px 12px">Quotes</button>' +
     '<button class="btn btn-ghost" id="dp-customers" style="font-size:11px;padding:6px 12px">Customers</button>' +
     '</div></div>' +
@@ -3767,7 +3771,7 @@ function buildDispatcherPortal() {
   var vbadge=document.getElementById('bcfp-version-badge');
   if(!vbadge){vbadge=document.createElement('div');vbadge.id='bcfp-version-badge';document.body.appendChild(vbadge);}
   vbadge.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.0 · 05/19 04:22';
+  vbadge.textContent='v3.1 · 05/19 04:26';
 }
 
 function buildTechPortal() {
@@ -4447,7 +4451,7 @@ function applyRolePermissions(role) {
 
 function buildPortalHeader(roleName,roleClass,name){
   return '<div style="background:rgba(15,17,23,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">'+
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.0</span></div>'+
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.1</span></div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<span class="role-badge '+roleClass+'">'+roleName+'</span>'+
     '<span style="font-size:12px;color:var(--text2)">'+name+'</span>'+
@@ -4490,7 +4494,7 @@ function buildDispatcherPortal(){
   var vbadge=document.getElementById('bcfp-version-badge');
   if(!vbadge){vbadge=document.createElement('div');vbadge.id='bcfp-version-badge';document.body.appendChild(vbadge);}
   vbadge.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.0 · 05/19 04:22';
+  vbadge.textContent='v3.1 · 05/19 04:26';
   var btns={'dp-jobs':'jobs','dp-cal':'calendar','dp-techs':'technicians','dp-cust':'customers'};
   Object.keys(btns).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=(function(p){return function(){showPage(p);};})(btns[id]);});
   var qEl=document.getElementById('dp-queue');
@@ -4558,7 +4562,7 @@ function buildTechPortal(){
   var vbadge2=document.getElementById('bcfp-version-badge');
   if(!vbadge2){vbadge2=document.createElement('div');vbadge2.id='bcfp-version-badge';document.body.appendChild(vbadge2);}
   vbadge2.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.0 · 05/19 04:22';
+  vbadge.textContent='v3.1 · 05/19 04:26';
   main.addEventListener('click',function(e){
     var d=e.target.closest('[data-drive]'),o=e.target.closest('[data-onsite]'),co=e.target.closest('[data-complete]'),ph=e.target.closest('[data-photos]');
     if(d){ttClockDrive();techUi();showToast('🚗 Driving to '+d.getAttribute('data-drive'));}
@@ -4621,7 +4625,7 @@ function buildCustomerPortal(){
   var vbadge3=document.getElementById('bcfp-version-badge');
   if(!vbadge3){vbadge3=document.createElement('div');vbadge3.id='bcfp-version-badge';document.body.appendChild(vbadge3);}
   vbadge3.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.0 · 05/19 04:22';
+  vbadge.textContent='v3.1 · 05/19 04:26';
   var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
   if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
@@ -5413,7 +5417,7 @@ function autoFillCustomerEmail(sel) {
   var badge = document.createElement('div');
   badge.id = 'bcfp-version-badge';
   badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;user-select:none';
-  badge.textContent = 'v3.0 · 05/19 04:22';
+  badge.textContent = 'v3.1 · 05/19 04:26';
   document.body.appendChild(badge);
 })();
 
