@@ -830,7 +830,7 @@
 <div class="topbar">
   <div class="logo">
     BCFP<span>Connect</span>
-    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.4</span>
+    <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.5);margin-left:6px;letter-spacing:0.04em;font-family:monospace">v3.5</span>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showPage('dashboard', this)">
@@ -3638,7 +3638,7 @@ function applyRolePermissions(role) {
 // ── SHARED PORTAL HEADER ─────────────────────────────────────
 function buildPortalHeader(roleName, roleClass, name) {
   return '<div class="portal-header" style="background:rgba(17,17,19,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.4</span></div>' +
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.5</span></div>' +
     '<div style="display:flex;align-items:center;gap:12px">' +
     '<span class="role-badge ' + roleClass + '">' + roleName + '</span>' +
     '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
@@ -3652,175 +3652,172 @@ function buildPortalHeader(roleName, roleClass, name) {
 
 // ── DISPATCHER PORTAL ─────────────────────────────────────────
 function buildDispatcherPortal() {
-  var main = document.querySelector('.main'); if(!main) return;
-  var profile = {}; try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
+  var main = document.querySelector('.main');
+  if (!main) return;
+  var profile = {};
+  try { profile = JSON.parse(localStorage.getItem('fd_profile') || '{}'); } catch(e) {}
   var name = profile.full_name || 'Dispatcher';
-  var emergency = JOBS.filter(function(j){return j.priority==='emergency';}).length;
-  var pending = JOBS.filter(function(j){return j.status==='pending';}).length;
-  var enroute = JOBS.filter(function(j){return j.status==='enroute';}).length;
-  var complete = JOBS.filter(function(j){return j.status==='complete';}).length;
-
-  main.innerHTML = '<div style="min-height:100vh;background:var(--bg);display:flex;flex-direction:column">' +
-    // Header
-    '<div style="background:rgba(15,17,23,0.98);border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">' +
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.4</span></div>' +
-    '<div style="font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.06em;color:var(--text3)">⚡ DISPATCH — ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
-    '<div style="display:flex;align-items:center;gap:10px">' +
-    '<span class="role-badge role-dispatcher">Dispatcher</span>' +
-    '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
-    '<button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>' +
-    '<a href="tel:6025550100" style="font-family:var(--font-display);font-size:13px;font-weight:800;color:white;text-decoration:none;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:4px 12px">(602) 555-0100</a>' +
-    '</div></div>' +
-
-    // Stats bar
-    '<div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0">' +
-    '<div style="padding:10px 16px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--emergency)">' + emergency + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Emergency</div></div>' +
-    '<div style="padding:10px 16px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--amber)">' + pending + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Pending</div></div>' +
-    '<div style="padding:10px 16px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--blue)">' + enroute + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">En Route</div></div>' +
-    '<div style="padding:10px 16px;text-align:center"><div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--green)">' + complete + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Complete</div></div>' +
-    '</div>' +
-
-    // TECH STRIP — horizontal scrolling cards across top
-    '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0">' +
-    '<div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Field Techs</div>' +
-    '<div id="dp-tech-strip" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>' +
-    '</div>' +
-
-    // MAIN AREA — job list
-    '<div style="flex:1;overflow-y:auto;padding:16px 20px">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
-    '<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)">Active Jobs</div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-    '<button class="btn btn-primary" onclick="openNewJobModal()" style="font-size:11px;padding:6px 14px">+ New Job</button>' +
-    '<button class="btn btn-ghost" id="dp-all" style="font-size:11px;padding:6px 12px">All Jobs</button>' +
-    '<button class="btn btn-ghost" id="dp-cal" style="font-size:11px;padding:6px 12px">Calendar</button>' +
-    '<button class="btn btn-ghost" id="dp-techs" style="font-size:11px;padding:6px 12px">Techs</button>' +
-    '<button class="btn btn-ghost" id="dp-quotes" style="font-size:11px;padding:6px 12px">Quotes</button>' +
-    '<button class="btn btn-ghost" id="dp-customers" style="font-size:11px;padding:6px 12px">Customers</button>' +
-    '</div></div>' +
-    '<div id="dp-job-list"></div>' +
-    '</div>' +
-    '</div>';
-
-  // Wire nav buttons
-  var navBtns = {'dp-all':'jobs','dp-quotes':'quotes','dp-customers':'customers'};
-  Object.keys(navBtns).forEach(function(id) {
-    var el = document.getElementById(id);
-    if(el) el.onclick = (function(p){return function(){showPage(p);};})(navBtns[id]);
-  });
-
-  // Render tech strip from FIELD_STAFF
-  function renderTechStrip() {
-    var strip = document.getElementById('dp-tech-strip');
-    if(!strip) return;
-    var staff = (FIELD_STAFF || []).filter(function(s){ return ['tech','manager','admin','dispatcher'].indexOf(s.role) >= 0; });
-    if (!staff.length) {
-      strip.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:10px">No field staff loaded — add techs in Admin Panel</div>';
-      return;
-    }
-    var statusColors = { available:'var(--green)', busy:'var(--amber)', enroute:'var(--blue)', off:'var(--text3)' };
-    strip.innerHTML = staff.map(function(s) {
-      var parts = (s.full_name||'').split(' ');
-      var initials = parts.map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
-      var jobCount = JOBS.filter(function(j){ return j.tech && j.tech.toLowerCase().indexOf((parts[0]||'').toLowerCase()) >= 0 && j.status !== 'complete'; }).length;
-      var statusColor = jobCount > 0 ? 'var(--amber)' : 'var(--green)';
-      var statusLabel = jobCount > 0 ? jobCount + ' job' + (jobCount>1?'s':'') : 'Available';
-      return '<div style="flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-width:120px;cursor:pointer;transition:all 0.15s" onclick="filterByTech(&quot;' + (s.full_name||'').replace(/"/g,'') + '&quot;)">' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
-        '<div style="width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;font-weight:700;flex-shrink:0">' + initials + '</div>' +
-        '<div><div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap">' + (parts[0]||'') + (parts[1]?' '+parts[1][0]+'.':'') + '</div>' +
-        '<div style="font-size:10px;color:var(--text3)">' + (s.role||'tech') + '</div></div></div>' +
-        '<div style="display:flex;align-items:center;gap:5px">' +
-        '<div style="width:6px;height:6px;border-radius:50%;background:' + statusColor + ';flex-shrink:0"></div>' +
-        '<div style="font-size:10px;color:' + statusColor + ';font-family:var(--font-display);font-weight:700">' + statusLabel + '</div>' +
-        '</div></div>';
-    }).join('');
-  }
-
-  // Render job list
-  window._dpTechFilter = null;
-  function renderJobList() {
-    var el = document.getElementById('dp-job-list');
-    if(!el) return;
-    var jobs = JOBS.filter(function(j){ return j.status !== 'complete'; });
-    if(window._dpTechFilter) jobs = jobs.filter(function(j){ return j.tech && j.tech.toLowerCase().indexOf(window._dpTechFilter.split(' ')[0].toLowerCase()) >= 0; });
-    // Sort: emergency first
-    jobs.sort(function(a,b){ return (a.priority==='emergency'?0:1)-(b.priority==='emergency'?0:1); });
-    if(!jobs.length) {
-      el.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">' + (window._dpTechFilter ? 'No active jobs for ' + window._dpTechFilter : 'No active jobs — queue is clear ✓') + '</div>';
-      return;
-    }
-    el.innerHTML = jobs.map(function(j) {
-      var em = j.priority === 'emergency';
-      var statusColors = {pending:'var(--amber)',dispatched:'var(--blue)',enroute:'var(--blue)',onsite:'var(--green)',complete:'var(--green)'};
-      var sc = statusColors[j.status] || 'var(--text3)';
-      return '<div style="background:var(--bg2);border:1px solid ' + (em?'rgba(239,68,68,0.4)':'var(--border)') + ';border-radius:10px;padding:14px 16px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center' + (em?';box-shadow:0 0 20px rgba(239,68,68,0.08)':'') + '">' +
-        '<div>' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">' +
-        (em?'<span style="font-size:11px">🚨</span>':'') +
-        '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">' + j.id + '</span>' +
-        '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:rgba(0,0,0,0.3);font-family:var(--font-display);font-size:10px;font-weight:700;color:' + sc + '">' + (j.status||'pending') + '</span>' +
-        (j.priority==='emergency'?'<span style="padding:2px 8px;border-radius:20px;background:rgba(239,68,68,0.15);color:#FF6B6B;font-family:var(--font-display);font-size:10px;font-weight:700">EMERGENCY</span>':'') +
-        '</div>' +
-        '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">' + j.type + '</div>' +
-        '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">' + j.address + (j.customer?' · '+j.customer:'') + '</div>' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-        '<select onchange="assignTech(&quot;' + j.id + '&quot;,this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:4px 10px;cursor:pointer;outline:none">' +
-        '<option value="">' + (j.tech ? '👤 ' + j.tech : 'Assign Tech') + '</option>' +
-        (FIELD_STAFF||[]).filter(function(s){return ['tech','manager'].indexOf(s.role)>=0;}).map(function(s){
-          var parts=(s.full_name||'').split(' ');
-          var sn=parts[0]+(parts[1]?' '+parts[1][0]+'.':'');
-          return '<option value="'+sn+'"'+(j.tech===sn?' selected':'')+'>'+sn+'</option>';
-        }).join('') +
-        '</select>' +
-        '<select onchange="updateJobStatus(&quot;' + j.id + '&quot;,this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:4px 10px;cursor:pointer;outline:none">' +
-        ['pending','dispatched','enroute','onsite','complete'].map(function(s){return '<option value="'+s+'"'+(j.status===s?' selected':'')+'>'+s.charAt(0).toUpperCase()+s.slice(1)+'</option>';}).join('') +
-        '</select>' +
-        (j.customer_email ? '<a href="mailto:'+j.customer_email+'" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;text-decoration:none">✉ Email</a>' : '') +
-        '</div></div>' +
-        '<div style="text-align:right;flex-shrink:0">' +
-        '<div style="font-size:11px;color:var(--text3)">' + j.time + '</div>' +
-        (j.eta?'<div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--red);line-height:1">'+j.eta+'<span style="font-size:12px">m</span></div>':'') +
-        '</div></div>';
-    }).join('');
-  }
-
-  window.filterByTech = function(name) {
-    window._dpTechFilter = window._dpTechFilter === name ? null : name;
-    renderJobList();
-    // Highlight active tech card
-    var strip = document.getElementById('dp-tech-strip');
-    if(strip) strip.querySelectorAll('div[onclick]').forEach(function(el){
-      el.style.borderColor = (window._dpTechFilter && el.getAttribute('onclick').indexOf(name) >= 0) ? 'var(--red)' : 'var(--border)';
-    });
-  };
-
-  window.assignTech = function(jobId, techName) {
-    var job = JOBS.find(function(j){return j.id===jobId;});
-    if(job) { job.tech = techName; job.status = techName ? 'dispatched' : 'pending'; }
-    renderJobList(); renderTechStrip();
-    if(techName) showToast('✓ ' + jobId + ' assigned to ' + techName);
-  };
-
-  window.updateJobStatus = function(jobId, status) {
-    var job = JOBS.find(function(j){return j.id===jobId;});
-    if(job) job.status = status;
-    renderJobList(); renderTechStrip();
-    showToast('✓ ' + jobId + ' → ' + status);
-  };
-
-  // Initial render
-  if(FIELD_STAFF && FIELD_STAFF.length) {
-    renderTechStrip(); renderJobList();
-  } else {
-    loadFieldStaff().then(function() { renderTechStrip(); renderJobList(); });
-  }
 
   // Inject version badge
-  var vbadge=document.getElementById('bcfp-version-badge');
-  if(!vbadge){vbadge=document.createElement('div');vbadge.id='bcfp-version-badge';document.body.appendChild(vbadge);}
-  vbadge.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.4 · 05/19 04:32';
+  setTimeout(function() {
+    var b = document.getElementById('bcfp-version-badge');
+    if (!b) { b = document.createElement('div'); b.id = 'bcfp-version-badge'; document.body.appendChild(b); }
+    b.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
+    b.textContent = 'v3.5 · 05/19 04:38';
+  }, 200);
+
+  function fmt() {
+    var e = JOBS.filter(function(j){return j.priority==='emergency';}).length;
+    var p = JOBS.filter(function(j){return j.status==='pending';}).length;
+    var r = JOBS.filter(function(j){return j.status==='enroute';}).length;
+    var done = JOBS.filter(function(j){return j.status==='complete';}).length;
+    return {e:e,p:p,r:r,done:done};
+  }
+
+  function render() {
+    var s = fmt();
+    var staff = (FIELD_STAFF||[]).filter(function(u){ return ['tech','manager','admin','dispatcher'].indexOf(u.role)>=0; });
+    var activeJobs = JOBS.filter(function(j){return j.status!=='complete';});
+    activeJobs.sort(function(a,b){return (a.priority==='emergency'?0:1)-(b.priority==='emergency'?0:1);});
+
+    main.innerHTML =
+      // ── HEADER
+      '<div style="background:rgba(15,17,23,0.98);border-bottom:1px solid rgba(255,255,255,0.06);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+      '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v' + '3.5' + '</span></div>' +
+      '<div style="font-family:var(--font-display);font-size:11px;color:var(--text3);letter-spacing:0.06em">⚡ ' + new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}) + '</div>' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<span class="role-badge role-dispatcher">Dispatcher</span>' +
+      '<span style="font-size:12px;color:var(--text2)">' + name + '</span>' +
+      '<button onclick="doLogout()" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:var(--text3);cursor:pointer;font-size:11px;padding:4px 12px">Sign Out</button>' +
+      '<a href="tel:6025550100" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:20px;color:white;font-family:var(--font-display);font-size:12px;font-weight:700;padding:4px 12px;text-decoration:none">(602) 555-0100</a>' +
+      '</div></div>' +
+
+      // ── STATS
+      '<div style="display:grid;grid-template-columns:repeat(4,1fr);background:var(--bg2);border-bottom:1px solid var(--border)">' +
+      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:#EF4444">' + s.e + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Emergency</div></div>' +
+      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--amber)">' + s.p + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Pending</div></div>' +
+      '<div style="padding:10px;text-align:center;border-right:1px solid var(--border)"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--blue)">' + s.r + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">En Route</div></div>' +
+      '<div style="padding:10px;text-align:center"><div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--green)">' + s.done + '</div><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Complete</div></div>' +
+      '</div>' +
+
+      // ── TECH STRIP
+      '<div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 16px">' +
+      '<div style="font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Field Techs — click to filter</div>' +
+      '<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:2px">' +
+      (staff.length ? staff.map(function(s) {
+        var parts = (s.full_name||'Tech').split(' ');
+        var initials = parts.map(function(w){return w[0]||''}).slice(0,2).join('').toUpperCase();
+        var short = parts[0] + (parts[1] ? ' ' + parts[1][0] + '.' : '');
+        var jobs = JOBS.filter(function(j){return j.tech && j.tech.toLowerCase().indexOf(parts[0].toLowerCase())>=0 && j.status!=='complete';}).length;
+        var color = jobs > 0 ? 'var(--amber)' : 'var(--green)';
+        var label = jobs > 0 ? jobs + ' job' + (jobs>1?'s':'') : 'Available';
+        return '<div onclick="window._dpFilter=window._dpFilter===\''+s.full_name+'\'?null:\''+s.full_name+'\';render()" style="flex-shrink:0;background:var(--bg3);border:1px solid ' + (window._dpFilter===s.full_name?'var(--red)':' var(--border)') + ';border-radius:10px;padding:8px 12px;cursor:pointer;min-width:100px;transition:all 0.15s">' +
+          '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">' +
+          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,0.15);color:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;font-weight:700">' + initials + '</div>' +
+          '<div style="font-size:12px;font-weight:600;color:var(--text)">' + short + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:4px"><div style="width:6px;height:6px;border-radius:50%;background:' + color + '"></div><div style="font-size:10px;color:' + color + ';font-family:var(--font-display);font-weight:700">' + label + '</div></div>' +
+          '</div>';
+      }).join('') : '<div style="font-size:12px;color:var(--text3);padding:8px">No field staff — add in Admin Panel</div>') +
+      '</div></div>' +
+
+      // ── ACTION BAR
+      '<div style="padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap">' +
+      '<button onclick="openNewJobModal()" style="background:var(--red);border:none;border-radius:20px;color:white;cursor:pointer;font-family:var(--font-display);font-size:12px;font-weight:700;padding:7px 16px;letter-spacing:0.06em">+ NEW JOB</button>' +
+      '<button onclick="restoreFullApp(&quot;jobs&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">All Jobs</button>' +
+      '<button onclick="restoreFullApp(&quot;customers&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Customers</button>' +
+      '<button onclick="restoreFullApp(&quot;quotes&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Quotes</button>' +
+      '<button onclick="restoreFullApp(&quot;calendar&quot;)" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;font-size:11px;padding:6px 12px">Calendar</button>' +
+      '<div style="margin-left:auto;font-size:11px;color:var(--text3)">' + (window._dpFilter ? 'Showing: ' + window._dpFilter.split(' ')[0] + ' <button onclick="window._dpFilter=null;render()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">✕ Clear</button>' : activeJobs.length + ' active jobs') + '</div>' +
+      '</div>' +
+
+      // ── JOB LIST
+      '<div style="flex:1;overflow-y:auto;padding:12px 16px">' +
+      (function() {
+        var jobs = activeJobs;
+        if (window._dpFilter) {
+          var f = window._dpFilter.split(' ')[0].toLowerCase();
+          jobs = jobs.filter(function(j){return j.tech && j.tech.toLowerCase().indexOf(f)>=0;});
+        }
+        if (!jobs.length) return '<div style="text-align:center;padding:48px;color:var(--text3);font-size:13px">' + (window._dpFilter ? 'No jobs for ' + window._dpFilter : 'Queue is clear ✓') + '</div>';
+        return jobs.map(function(j) {
+          var em = j.priority==='emergency';
+          var sc = {pending:'var(--amber)',dispatched:'var(--blue)',enroute:'var(--blue)',onsite:'var(--green)',complete:'var(--green)'}[j.status]||'var(--text3)';
+          var techOpts = '<option value="">' + (j.tech||'Assign tech...') + '</option>' +
+            staff.map(function(s){
+              var p=s.full_name.split(' ');
+              var sn=p[0]+(p[1]?' '+p[1][0]+'.':''  );
+              return '<option value="'+sn+'"'+(j.tech===sn?' selected':'')+'>'+sn+'</option>';
+            }).join('');
+          var statusOpts = ['pending','dispatched','enroute','onsite','complete'].map(function(st){
+            return '<option value="'+st+'"'+(j.status===st?' selected':'')+'>'+st.charAt(0).toUpperCase()+st.slice(1)+'</option>';
+          }).join('');
+          return '<div style="background:var(--bg2);border:1px solid '+( em?'rgba(239,68,68,0.4)':' var(--border)')+';border-radius:10px;padding:12px 16px;margin-bottom:8px' + (em?';' + 'box-shadow:0 0 20px rgba(239,68,68,0.08)':'')+'">' +
+            '<div style="display:flex;align-items:flex-start;gap:12px">' +
+            '<div style="flex:1;min-width:0">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">' +
+            (em?'<span style="font-size:12px">🚨</span>':'')+
+            '<span style="font-family:var(--font-display);font-size:11px;color:var(--red);letter-spacing:0.06em">'+j.id+'</span>' +
+            '<span style="padding:2px 8px;border-radius:20px;background:rgba(0,0,0,0.3);font-family:var(--font-display);font-size:10px;font-weight:700;color:'+sc+'">'+( j.status||'pending')+'</span>' +
+            '</div>' +
+            '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">'+j.type+'</div>' +
+            '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+j.address+(j.customer?' · '+j.customer:'')+'</div>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+            '<select data-role="tech-assign" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;outline:none">'+techOpts+'</select>' +
+            '<select data-role="status-update" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;outline:none">'+statusOpts+'</select>' +
+            (j.customer_email?'<a href="mailto:'+j.customer_email+'" style="padding:5px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:11px;text-decoration:none">✉</a>':'')+
+            '</div></div>' +
+            '<div style="text-align:right;flex-shrink:0">' +
+            '<div style="font-size:10px;color:var(--text3)">'+j.time+'</div>' +
+            (j.eta?'<div style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--red);line-height:1">'+j.eta+'<span style="font-size:11px">m</span></div>':'')+
+            '</div></div></div>';
+        }).join('');
+      })() +
+      '</div>';
+  }
+
+  window._dpFilter = null;
+  window.render = render;
+  window.assignJob = function(tech, jobId) {
+    var job = JOBS.find(function(j){return j.id===jobId;});
+    if (job) { job.tech = tech; job.status = tech ? 'dispatched' : 'pending'; }
+    render();
+    if (tech) showToast('\u2713 ' + jobId + ' assigned to ' + tech);
+  };
+  window.updateJob = function(status, jobId) {
+    var job = JOBS.find(function(j){return j.id===jobId;});
+    if (job) job.status = status;
+    render();
+    showToast('\u2713 ' + jobId + ' \u2192 ' + status);
+  };
+
+  function doRender() {
+    render();
+    // Add event delegation for dropdowns
+    main.addEventListener('change', function(e) {
+      var card = e.target.closest('[data-jid]');
+      if (!card) return;
+      var jobId = card.dataset.jid;
+      var job = JOBS.find(function(j){return j.id===jobId;});
+      if (!job) return;
+      if (e.target.dataset.role === 'tech-assign') {
+        job.tech = e.target.value;
+        job.status = e.target.value ? 'dispatched' : 'pending';
+        if (e.target.value) showToast('\u2713 ' + jobId + ' assigned to ' + e.target.value);
+        render();
+      }
+      if (e.target.dataset.role === 'status-update') {
+        job.status = e.target.value;
+        showToast('\u2713 ' + jobId + ' \u2192 ' + e.target.value);
+        render();
+      }
+    }, {once: false});
+  }
+
+  if (FIELD_STAFF && FIELD_STAFF.length) {
+    doRender();
+  } else {
+    loadFieldStaff().then(function(){ doRender(); });
+  }
 }
 
 function buildTechPortal() {
@@ -4500,7 +4497,7 @@ function applyRolePermissions(role) {
 
 function buildPortalHeader(roleName,roleClass,name){
   return '<div style="background:rgba(15,17,23,0.98);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50">'+
-    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.4</span></div>'+
+    '<div style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase">BCFP<span style="color:var(--red)">Connect</span><span style="font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);margin-left:8px;font-family:monospace">v3.5</span></div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<span class="role-badge '+roleClass+'">'+roleName+'</span>'+
     '<span style="font-size:12px;color:var(--text2)">'+name+'</span>'+
@@ -4543,7 +4540,7 @@ function buildDispatcherPortal(){
   var vbadge=document.getElementById('bcfp-version-badge');
   if(!vbadge){vbadge=document.createElement('div');vbadge.id='bcfp-version-badge';document.body.appendChild(vbadge);}
   vbadge.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.4 · 05/19 04:32';
+  vbadge.textContent='v3.5 · 05/19 04:38';
   var btns={'dp-jobs':'jobs','dp-cal':'calendar','dp-techs':'technicians','dp-cust':'customers'};
   Object.keys(btns).forEach(function(id){var el=document.getElementById(id);if(el)el.onclick=(function(p){return function(){showPage(p);};})(btns[id]);});
   var qEl=document.getElementById('dp-queue');
@@ -4611,7 +4608,7 @@ function buildTechPortal(){
   var vbadge2=document.getElementById('bcfp-version-badge');
   if(!vbadge2){vbadge2=document.createElement('div');vbadge2.id='bcfp-version-badge';document.body.appendChild(vbadge2);}
   vbadge2.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.4 · 05/19 04:32';
+  vbadge.textContent='v3.5 · 05/19 04:38';
   main.addEventListener('click',function(e){
     var d=e.target.closest('[data-drive]'),o=e.target.closest('[data-onsite]'),co=e.target.closest('[data-complete]'),ph=e.target.closest('[data-photos]');
     if(d){ttClockDrive();techUi();showToast('🚗 Driving to '+d.getAttribute('data-drive'));}
@@ -4674,7 +4671,7 @@ function buildCustomerPortal(){
   var vbadge3=document.getElementById('bcfp-version-badge');
   if(!vbadge3){vbadge3=document.createElement('div');vbadge3.id='bcfp-version-badge';document.body.appendChild(vbadge3);}
   vbadge3.style.cssText='position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;font-family:monospace';
-  vbadge.textContent='v3.4 · 05/19 04:32';
+  vbadge.textContent='v3.5 · 05/19 04:38';
   var myJobs=JOBS.filter(function(j){return j.customer&&j.customer.toLowerCase().indexOf(cname.split(' ')[0].toLowerCase())>=0;});
   if(!myJobs.length&&JOBS.length)myJobs=[JOBS[0]];
   var activeJob=myJobs.find(function(j){return j.status==='enroute'||j.status==='onsite';});
@@ -5467,33 +5464,12 @@ function autoFillCustomerEmail(sel) {
   var badge = document.createElement('div');
   badge.id = 'bcfp-version-badge';
   badge.style.cssText = 'position:fixed;bottom:8px;right:10px;background:rgba(15,17,23,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:3px 10px;font-family:Barlow Condensed,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.7);z-index:9999;pointer-events:none;user-select:none';
-  badge.textContent = 'v3.4 · 05/19 04:32';
+  badge.textContent = 'v3.5 · 05/19 04:38';
   document.body.appendChild(badge);
 })();
 
-// Restore full app from portal view and navigate to a page
 function restoreFullApp(page) {
-  // Show nav/sidebar/topbar
-  var nav = document.querySelector('.nav');
-  var sidebar = document.querySelector('.sidebar');
-  var topbar = document.querySelector('.topbar');
-  var ticker = document.querySelector('.alert-ticker');
-  if (nav) nav.style.display = '';
-  if (sidebar) sidebar.style.display = '';
-  if (topbar) topbar.style.display = '';
-  if (ticker) ticker.style.display = '';
-
-  // Restore .main with all original pages
-  var main = document.querySelector('.main');
-  if (main && !document.getElementById('page-dashboard')) {
-    // Pages were replaced — need to reload
-    // Store destination and reload
-    sessionStorage.setItem('bcfp_goto', page);
-    location.reload();
-    return;
-  }
-
-  // Pages still exist — just show the right one
-  if (page) showPage(page, document.querySelector('.nav-btn[onclick*="' + page + '"]'));
+  sessionStorage.setItem('bcfp_goto', page || 'dashboard');
+  location.reload();
 }
 
